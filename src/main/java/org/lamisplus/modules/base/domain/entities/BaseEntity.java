@@ -29,13 +29,6 @@ import java.io.Serializable;
 })
 public class BaseEntity implements Serializable, Persistable<Long> {
     @Id
-   /*
-   @GeneratedValue(generator = "UUID")
-    @GenericGenerator(
-            name = "UUID",
-            strategy = "org.hibernate.id.UUIDGenerator"
-    )
-    */
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
 

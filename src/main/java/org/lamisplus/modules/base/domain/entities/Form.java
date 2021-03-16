@@ -32,9 +32,9 @@ public class Form implements Serializable, Persistable<String> {
 
     @Type(type = "jsonb-node")
     @Column(columnDefinition = "jsonb")
-    private JsonNode form;
+    private JsonNode formData;
 
-    private String path;
+    private String componentId;
 
     @JsonIgnore
     private Integer priority = 1;

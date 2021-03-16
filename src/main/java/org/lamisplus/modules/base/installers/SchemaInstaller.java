@@ -2,6 +2,7 @@ package org.lamisplus.modules.base.installers;
 
 import com.foreach.across.core.annotations.Installer;
 import com.foreach.across.core.installers.AcrossLiquibaseInstaller;
+import com.foreach.across.core.installers.InstallerRunCondition;
 import org.springframework.core.annotation.Order;
 
 @Order(1)

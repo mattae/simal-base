@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Persistable;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,6 +20,7 @@ import java.util.Set;
 @Table(name = "module")
 @EqualsAndHashCode(of = "name", callSuper = false)
 @ToString(of = {"id", "name"})
+@Slf4j
 public class Module implements Serializable, Persistable<Long> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,51 +36,50 @@ public class Module implements Serializable, Persistable<Long> {
 
     private String description;
 
-    //@Pattern(regexp = "\\d+\\..*")
     private String version;
 
-    private ZonedDateTime buildTime;
+    private Date buildTime;
 
     @NotNull
     private Boolean active = true;
 
     private String artifact;
 
-    private String umdLocation;
+    private Boolean processConfig = true;
 
-    private String moduleMap;
+    private Boolean uninstall = false;
 
-    private Boolean inError;
+    private Boolean started = false;
 
-    private Boolean installOnBoot;
-
-    private Integer priority = 100;
-
-    @OneToOne(mappedBy = "module", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @Basic(fetch = FetchType.LAZY)
     @JsonIgnore
-    private ModuleArtifact moduleArtifact;
+    private byte[] data;
 
-    @OneToMany(mappedBy = "module", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
-    private Set<WebModule> webModules = new HashSet<>();
+    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private Set<WebRemote> webRemotes = new HashSet<>();
 
-    @OneToMany(mappedBy = "module", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
     @JsonIgnore
     private Set<Menu> menus = new HashSet<>();
 
-    @OneToMany(mappedBy = "module", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
     @JsonIgnore
-    private Set<Authority> bundledAuthorities = new HashSet<>();
+    private Set<Form> forms = new HashSet<>();
 
-    @OneToMany(mappedBy = "module", cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
     @JsonIgnore
-    private Set<ModuleDependency> dependencies = new HashSet<>();
-
-    @OneToMany(mappedBy = "module", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
-    @JsonIgnore
-    private Set<Form> templates = new HashSet<>();
+    private Set<WebComponent> webComponents = new HashSet<>();
 
     @Override
     public boolean isNew() {
         return id == null;
+    }
+
+    public Module copy() {
+        Module module = new Module();
+        BeanUtils.copyProperties(this, module, "webComponents", "forms",
+            "menus", "webRemotes");
+        return module;
     }
 }

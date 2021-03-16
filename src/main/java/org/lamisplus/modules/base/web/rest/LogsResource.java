@@ -1,6 +1,5 @@
 package org.lamisplus.modules.base.web.rest;
 
-import io.micrometer.core.annotation.Timed;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -19,7 +18,6 @@ import java.util.stream.Collectors;
 public class LogsResource {
 
     @GetMapping("/logs")
-    @Timed
     public List<LoggerVM> getList() {
         LoggerContext context = (LoggerContext) LogManager.getContext(false);
         return context.getLoggers()
@@ -30,7 +28,6 @@ public class LogsResource {
 
     @PutMapping("/logs")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Timed
     public void changeLevel(@RequestBody LoggerVM jsonLogger) {
         LoggerContext context = (LoggerContext) LogManager.getContext(false);
         ;

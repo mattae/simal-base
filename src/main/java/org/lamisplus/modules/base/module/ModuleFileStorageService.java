@@ -3,7 +3,7 @@ package org.lamisplus.modules.base.module;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.lamisplus.modules.base.config.ApplicationProperties;
-import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,7 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-@Service
+@Configuration
 @Slf4j
 public class ModuleFileStorageService {
     private final Path rootLocation;

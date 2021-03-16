@@ -1,8 +1,8 @@
 package org.lamisplus.modules.base.web.errors;
 
 
+import io.github.jhipster.web.util.HeaderUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.lamisplus.modules.base.web.util.HeaderUtil;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -23,6 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
+
+import static org.lamisplus.modules.base.config.Constants.APPLICATION_NAME;
 
 /**
  * Controller advice to translate the server side exceptions to client-friendly json structures.
@@ -95,7 +97,7 @@ public class ExceptionTranslator implements ProblemHandling {
 
     @ExceptionHandler
     public ResponseEntity<Problem> handleBadRequestAlertException(BadRequestAlertException ex, NativeWebRequest request) {
-        return create(ex, request, HeaderUtil.createFailureAlert(ex.getEntityName(), ex.getErrorKey(), ex.getMessage()));
+        return create(ex, request, HeaderUtil.createFailureAlert(APPLICATION_NAME, false, ex.getEntityName(), ex.getErrorKey(), ex.getMessage()));
     }
 
     @ExceptionHandler

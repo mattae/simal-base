@@ -1,11 +1,11 @@
 package org.lamisplus.modules.base.web.rest;
 
+import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.lamisplus.modules.base.domain.entities.Form;
 import org.lamisplus.modules.base.domain.repositories.FormRepository;
 import org.lamisplus.modules.base.web.errors.BadRequestAlertException;
-import org.lamisplus.modules.base.web.util.HeaderUtil;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +16,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.lamisplus.modules.base.config.Constants.APPLICATION_NAME;
 
 @RestController
 @RequestMapping("/api")
@@ -43,9 +45,9 @@ public class FormResource {
             throw new BadRequestAlertException("A new form cannot already have an ID", ENTITY_NAME, "idexists");
         }
         Form result = formRepository.save(form);
-        return ResponseEntity.created(new URI("/api/jsonForms/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
-                .body(result);
+        return ResponseEntity.created(new URI("/api/forms/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(APPLICATION_NAME, false, ENTITY_NAME, result.getId()))
+            .body(result);
     }
 
     /**
@@ -65,7 +67,7 @@ public class FormResource {
         }
         Form result = formRepository.save(form);
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, form.getId()))
+            .headers(HeaderUtil.createEntityUpdateAlert(APPLICATION_NAME, false, ENTITY_NAME, form.getId()))
                 .body(result);
     }
 
@@ -76,11 +78,11 @@ public class FormResource {
      */
     @GetMapping("/forms")
     public List<Form> getForms() {
-        return formRepository.findByModule_ActiveTrue()
-                .stream()
-                .sorted(Comparator.comparing(Form::getName)
-                        .thenComparing(Form::getPriority).reversed())
-                .collect(Collectors.toList());
+        return formRepository.findByModule_StartedTrue()
+            .stream()
+            .sorted(Comparator.comparing(Form::getName)
+                .thenComparing(Form::getPriority).reversed())
+            .collect(Collectors.toList());
     }
 
     /**

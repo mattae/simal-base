@@ -1,0 +1,370 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "#",
+    "type": "object",
+    "title": "The Schema LAMIS Module configuration",
+    "required": [
+        "name",
+        "version",
+        "basePackage"
+    ],
+    "properties": {
+        "name": {
+            "type": "string",
+            "minLength": 4
+        },
+        "basePackage": {
+            "type": "string",
+            "minLength": 6
+        },
+        "version": {
+            "type": "string",
+            "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+        },
+        "store": {
+            "type": "boolean"
+        },
+        "menus": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "$ref": "#/definitions/menu"
+            }
+        },
+        "webRemotes": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "$ref": "#/definitions/webRemote"
+            },
+            "minItems": 1
+        },
+        "permissions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "$ref": "#/definitions/permission"
+            }
+        },
+        "roles": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "$ref": "#/definitions/role"
+            }
+        },
+        "dependencies": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "$ref": "#/definitions/dependency"
+            }
+        },
+        "formElements": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "$ref": "#/definitions/formElement"
+            }
+        },
+        "webComponents": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "$ref": "#/definitions/webComponent"
+            }
+        },
+        "summary": {
+            "type": "string"
+        }
+    },
+    "definitions": {
+        "webRemote": {
+            "required": [
+                "remoteEntry",
+                "remoteName"
+            ],
+            "properties": {
+                "remoteName": {
+                    "type": "string"
+                },
+                "remoteEntry": {
+                    "type": "string"
+                },
+                "modules": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/module"
+                    }
+                },
+                "components": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/component"
+                    }
+                }
+            }
+        },
+        "component": {
+            "required": [
+                "exposedName",
+                "routePath"
+            ],
+            "properties": {
+                "exposedName": {
+                    "type": "string"
+                },
+                "routePath": {
+                    "type": "string",
+                    "minLength": 2
+                },
+                "position": {
+                    "type": "integer"
+                },
+                "uuid": {
+                    "type": "string",
+                    "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+                },
+                "elementName": {
+                    "type": "string"
+                },
+                "componentName": {
+                    "type": "string"
+                },
+                "breadcrumb": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "title": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "authorities": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "oneOf": [
+                {
+                    "required": [
+                        "elementName"
+                    ]
+                },
+                {
+                    "required": [
+                        "componentName"
+                    ]
+                }
+            ]
+        },
+        "module": {
+            "required": [
+                "name",
+                "routePath",
+                "ngModuleName"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "routePath": {
+                    "type": "string",
+                    "minLength": 2
+                },
+                "position": {
+                    "type": "integer"
+                },
+                "ngModuleName": {
+                    "type": "string"
+                },
+                "authorities": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "breadcrumb": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "title": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
+        },
+        "menu": {
+            "required": [
+                "name",
+                "type"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "link",
+                        "dropDown",
+                        "icon",
+                        "separator",
+                        "extLink"
+                    ]
+                },
+                "position": {
+                    "type": "integer"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "tooltip": {
+                    "type": "string"
+                },
+                "authorities": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "permission": {
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 128
+                }
+            }
+        },
+        "dependency": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "minLength": 4
+                },
+                "version": {
+                    "type": "string",
+                    "minLength": 5
+                }
+            }
+        },
+        "formElement": {
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "minLength": 4
+                },
+                "location": {
+                    "type": "string",
+                    "minLength": 6
+                },
+                "priority": {
+                    "type": "integer"
+                },
+                "componentId": {
+                    "type": "string",
+                    "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+                },
+                "breadcrumb": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "title": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            },
+            "oneOf": [
+                {
+                    "required": [
+                        "location"
+                    ]
+                },
+                {
+                    "required": [
+                        "componentId"
+                    ]
+                }
+            ]
+        },
+        "webComponent": {
+            "required": [
+                "type",
+                "componentId"
+            ],
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "minLength": 4
+                },
+                "componentId": {
+                    "type": "string",
+                    "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+                },
+                "authorities": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "role": {
+            "required": [
+                "name",
+                "authority"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "minLength": 2
+                },
+                "authority": {
+                    "type": "string",
+                    "minLength": 7
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "permissions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/permission"
+                    }
+                }
+            }
+        }
+    }
+}

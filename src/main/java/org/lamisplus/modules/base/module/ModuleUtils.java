@@ -2,7 +2,7 @@ package org.lamisplus.modules.base.module;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.compress.utils.IOUtils;
 import org.lamisplus.modules.base.yml.ModuleConfig;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
@@ -20,7 +20,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -68,25 +67,22 @@ public class ModuleUtils {
         }
     }
 
-    public static void loadModuleConfig(InputStream zip, String name, List<ModuleConfig> configs) {
+    public static ModuleConfig loadModuleConfig(InputStream zip, String name) throws Exception {
         try (ZipInputStream zin = new ZipInputStream(zip)) {
             ZipEntry entry;
             while ((entry = zin.getNextEntry()) != null) {
                 if (entry.getName().endsWith(".jar")) {
-                    loadModuleConfig(zin, name, configs);
+                    return loadModuleConfig(zin, name);
                 }
                 if (entry.getName().equals(name)) {
                     BufferedReader in = new BufferedReader(
-                            new InputStreamReader(zin));
+                        new InputStreamReader(zin));
                     Yaml yaml = new Yaml(new Constructor(ModuleConfig.class));
-                    configs.add(yaml.load(in));
+                    return yaml.load(in);
                 }
-                zin.closeEntry();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            LOG.error("Could not load module.yml");
         }
+        throw new RuntimeException("No module information in uploaded file");
     }
 
     @SneakyThrows

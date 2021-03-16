@@ -21,8 +21,8 @@ import java.util.TreeSet;
 @Entity
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Table(name = "menu")
-@EqualsAndHashCode(of = {"name", "level"})
-@ToString(of = {"id", "name", "state", "type", "subs", "level", "module", "position"})
+@EqualsAndHashCode(of = {"name", "level", "state"})
+@ToString(of = {"id", "name", "state", "type", "subs", "level", "module", "position"}, callSuper = true)
 @Slf4j
 public final class Menu implements Serializable, Comparable<Menu>, Persistable<Long> {
     @Id
@@ -33,12 +33,11 @@ public final class Menu implements Serializable, Comparable<Menu>, Persistable<L
     @NotNull
     private String name;
 
-    @NotNull
     private String state;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    private MenuType type = MenuType.LINK;
+    private MenuType type = MenuType.link;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -52,14 +51,15 @@ public final class Menu implements Serializable, Comparable<Menu>, Persistable<L
 
     private String tooltip;
 
-    private String breadcrumb;
-
     private Boolean disabled = false;
+
+    @Transient
+    private Boolean ignoreParentState = false;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
-            name = "menu_authorities",
-            joinColumns = @JoinColumn(name = "menu_id"))
+        name = "menu_authorities",
+        joinColumns = @JoinColumn(name = "menu_id"))
     private Set<String> authorities = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -75,6 +75,7 @@ public final class Menu implements Serializable, Comparable<Menu>, Persistable<L
     private Set<Menu> subs = new TreeSet<>();
 
     @Override
+    @JsonIgnore
     public boolean isNew() {
         return id == null;
     }
@@ -107,7 +108,7 @@ public final class Menu implements Serializable, Comparable<Menu>, Persistable<L
         }
 
         if (!subs.isEmpty()) {
-            type = MenuType.DROP_DOWN;
+            type = MenuType.dropDown;
         }
     }
 }

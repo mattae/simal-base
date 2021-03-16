@@ -35,14 +35,12 @@ public final class State implements Serializable, Persistable<Long> {
     @Column(name = "name", nullable = false)
     private String name;
 
-    /*@NotNull
     @Column(nullable = false)
     private String code;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private Country country;
-    */
 
     @Override
     public boolean isNew() {
