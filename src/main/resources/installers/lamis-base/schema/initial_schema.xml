@@ -118,7 +118,7 @@
 
     <changeSet author="mattae" id="20210120232001-10">
         <createTable tableName="module">
-            <column name="id" type="serial" autoIncrement="${autoIncrement}">
+            <column name="id" type="varchar(36)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="varchar(64)">
@@ -172,7 +172,7 @@
             <column name="disabled" type="boolean" valueBoolean="false">
                 <constraints nullable="false"/>
             </column>
-            <column name="module_id" type="integer">
+            <column name="module_id" type="varchar(36)">
                 <constraints nullable="false"/>
             </column>
             <column name="parent_id" type="integer"/>
@@ -211,10 +211,10 @@
             <column name="remote_entry" type="varchar(512)">
                 <constraints nullable="false"/>
             </column>
-            <column name="remote_name" type="varchar(32)">
+            <column name="remote_name" type="varchar(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="module_id" type="bigint">
+            <column name="module_id" type="varchar(36)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -278,7 +278,7 @@
             <column name="component_id" type="varchar(36)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="module_id" type="bigint">
+            <column name="module_id" type="varchar(36)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -342,7 +342,7 @@
             <column name="priority" type="int" defaultValue="1">
                 <constraints nullable="false"/>
             </column>
-            <column name="module_id" type="integer">
+            <column name="module_id" type="varchar(36)">
                 <constraints nullable="false"/>
             </column>
             <column name="form_data" type="jsonb"/>

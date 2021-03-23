@@ -60,7 +60,6 @@ public class ModulesInstallationService {
                     configProcessor.deleteModule(module);
                     deleteRolesAndPermissions(module);
                     copy.setProcessConfig(false);
-                    copy.setStarted(true);
                     copy = moduleRepository.save(copy);
                     configProcessor.processConfig(config, copy);
                     configProcessor.saveJsonForm(copy, config);

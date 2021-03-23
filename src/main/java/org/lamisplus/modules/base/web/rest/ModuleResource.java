@@ -33,9 +33,9 @@ public class ModuleResource {
     private final ModuleService moduleService;
     private final MenuService menuService;
 
-    @GetMapping("/modules/{id:\\d+}")
+    @GetMapping("/modules/{id}")
     @Timed
-    public ResponseEntity<Module> getModule(@PathVariable("id") Long id) {
+    public ResponseEntity<Module> getModule(@PathVariable("id") String id) {
         LOG.debug("Getting module: {}", id);
 
         return ResponseUtil.wrapOrNotFound(moduleService.getModule(id));
@@ -61,7 +61,7 @@ public class ModuleResource {
 
     @GetMapping("/modules/{id}/uninstall")
     @CacheEvict({"modules"})
-    public void uninstallModule(@PathVariable Long id) {
+    public void uninstallModule(@PathVariable String id) {
         moduleService.uninstall(id);
     }
 
@@ -82,7 +82,7 @@ public class ModuleResource {
     }
 
     @GetMapping("/modules/{id}/dependencies")
-    public List<ModuleDependencyDTO> getDependencies(@PathVariable Long id) {
+    public List<ModuleDependencyDTO> getDependencies(@PathVariable String id) {
         return moduleService.getDependencies(id);
     }
 

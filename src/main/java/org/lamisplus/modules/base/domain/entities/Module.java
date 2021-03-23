@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Persistable;
 
@@ -21,10 +22,14 @@ import java.util.Set;
 @EqualsAndHashCode(of = "name", callSuper = false)
 @ToString(of = {"id", "name"})
 @Slf4j
-public class Module implements Serializable, Persistable<Long> {
+public class Module implements Serializable, Persistable<String> {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+        name = "UUID",
+        strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    private String id;
 
     @NotNull
     @Column(unique = true)

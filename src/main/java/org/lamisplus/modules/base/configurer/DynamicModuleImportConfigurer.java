@@ -88,7 +88,7 @@ public class DynamicModuleImportConfigurer implements AcrossContextConfigurer {
     }
 
     @SneakyThrows
-    private boolean validArtifact(Long moduleId) {
+    private boolean validArtifact(String moduleId) {
         ModuleArtifact moduleArtifact = getModuleArtifact(moduleId);
         if (moduleArtifact == null || moduleArtifact.data == null) {
             return false;
@@ -136,7 +136,7 @@ public class DynamicModuleImportConfigurer implements AcrossContextConfigurer {
         return valid;
     }
 
-    private ModuleArtifact getModuleArtifact(Long moduleId) {
+    private ModuleArtifact getModuleArtifact(String moduleId) {
         ModuleArtifact moduleArtifact = jdbcTemplate.queryForObject("" +
                 "select name, artifact, base_package, data from module m where m.id = ?",
             new BeanPropertyRowMapper<>(ModuleArtifact.class), moduleId);
@@ -195,7 +195,7 @@ public class DynamicModuleImportConfigurer implements AcrossContextConfigurer {
                             }
                         }) && dependencies.stream()
                         .allMatch(dependency -> {
-                            Long id = Long.valueOf(dependency.get("id").toString());
+                            String id = dependency.get("id").toString();
                             String name = (String) dependency.get("name");
                             Module m = new Module();
                             m.id = id;
@@ -258,7 +258,7 @@ public class DynamicModuleImportConfigurer implements AcrossContextConfigurer {
 
     @Data
     public static class Module {
-        Long id;
+        String id;
         String name;
         String artifact;
     }

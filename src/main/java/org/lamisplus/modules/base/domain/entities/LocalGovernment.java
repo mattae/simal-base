@@ -19,6 +19,7 @@ public class LocalGovernment implements Serializable, Persistable<Long> {
     @Basic(optional = false)
     @Column(name = "id")
     private Long id;
+
     @Basic
     @Column(name = "name")
     private String name;
@@ -26,11 +27,6 @@ public class LocalGovernment implements Serializable, Persistable<Long> {
     @JoinColumn(name = "state_id")
     @ManyToOne
     private State state;
-
-    /*@Basic
-    @Column(name = "archive")
-    private Boolean archive = Boolean.FALSE;
-    */
 
     @Override
     public boolean isNew() {

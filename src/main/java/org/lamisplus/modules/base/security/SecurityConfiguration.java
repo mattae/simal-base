@@ -46,8 +46,7 @@ public class SecurityConfiguration implements AcrossWebSecurityConfigurer {
             .antMatchers("/app/**/*.{js,html}")
             .antMatchers("/i18n/**")
             .antMatchers("/content/**")
-            .antMatchers("/assets/**")
-            .antMatchers("/test/**");
+            .antMatchers("/assets/**");
     }
 
     @Bean
@@ -101,8 +100,6 @@ public class SecurityConfiguration implements AcrossWebSecurityConfigurer {
         if (config.getAllowedOrigins() != null && !config.getAllowedOrigins().isEmpty()) {
             LOG.debug("Registering CORS filter");
             source.registerCorsConfiguration("/api/**", config);
-            source.registerCorsConfiguration("/management/**", config);
-            source.registerCorsConfiguration("/v2/api-docs", config);
         }
         return new CorsFilter(source);
     }

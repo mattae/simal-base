@@ -35,7 +35,7 @@ public class ModuleService {
     private final ModuleRepository moduleRepository;
     private final ModuleFileStorageService storageService;
 
-    public Optional<Module> getModule(Long id) {
+    public Optional<Module> getModule(String id) {
         return moduleRepository.findById(id);
     }
 
@@ -72,7 +72,7 @@ public class ModuleService {
         return module;
     }
 
-    public void uninstall(Long id) {
+    public void uninstall(String id) {
         moduleRepository.findById(id).ifPresent(module -> {
             module.setUninstall(true);
             moduleRepository.save(module);
@@ -90,6 +90,9 @@ public class ModuleService {
         Attributes attributes = manifest.getMainAttributes();
         module.setVersion(attributes.getValue("Implementation-Version"));
         module.setDescription(attributes.getValue("Implementation-Title"));
+        if (StringUtils.isNotBlank(config.getSummary())) {
+            module.setDescription(config.getSummary());
+        }
         try {
             Date date = DateUtils.parseDate(attributes.getValue("Build-Time"), "yyyyMMdd-HHmm",
                 "yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -104,7 +107,7 @@ public class ModuleService {
 
     @SneakyThrows
     @Transactional
-    public List<ModuleDependencyDTO> getDependencies(Long id) {
+    public List<ModuleDependencyDTO> getDependencies(String id) {
         List<ModuleDependencyDTO> dependencies = new ArrayList<>();
         moduleRepository.findById(id).ifPresent(module -> {
             try {

@@ -17,11 +17,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.lamisplus.modules.base.config.Constants;
 import org.lamisplus.modules.base.services.dto.RoleDTO;
 import org.lamisplus.modules.base.services.dto.UserDTO;
-import org.lamisplus.modules.base.services.event.UserActionEvent;
 import org.lamisplus.modules.base.web.errors.EmailAlreadyUsedException;
 import org.lamisplus.modules.base.web.errors.InvalidPasswordException;
 import org.lamisplus.modules.base.web.errors.UsernameAlreadyUsedException;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -33,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -48,7 +47,6 @@ public class UserManagementService {
     private final UserPropertiesService userPropertiesService;
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
-    private final ApplicationEventPublisher applicationEventPublisher;
     private final CurrentSecurityPrincipalProxy currentSecurityPrincipalProxy;
 
     public static Specification<User> emailMatches(String email) {
@@ -139,7 +137,6 @@ public class UserManagementService {
         userProperties.set("activationKey", RandomUtil.generateActivationKey());
         userPropertiesService.saveProperties(userProperties);
         LOG.debug("Created Information for User: {}", newUser);
-        publishUserActionEvent(newUser.getUsername(), UserActionEvent.EventType.ADD);
         return newUser;
     }
 
@@ -148,7 +145,6 @@ public class UserManagementService {
             return false;
         }
         userService.delete(existingUser.getId());
-        publishUserActionEvent(existingUser.getUsername(), UserActionEvent.EventType.DELETE);
         return true;
     }
 
@@ -170,7 +166,6 @@ public class UserManagementService {
         userProperties.set("resetKey", RandomUtil.generateActivationKey());
         userProperties.set("resetDate", Instant.now());
         userPropertiesService.saveProperties(userProperties);
-        publishUserActionEvent(user.getUsername(), UserActionEvent.EventType.ADD);
         LOG.debug("Created Information for User: {}", user);
         return user;
     }
@@ -233,7 +228,6 @@ public class UserManagementService {
     public void deleteUser(String login) {
         userRepository.findByUsername(login).ifPresent(user -> {
             userService.delete(user.getId());
-            publishUserActionEvent(user.getUsername(), UserActionEvent.EventType.DELETE);
             LOG.debug("Deleted User: {}", user);
         });
     }
@@ -293,7 +287,6 @@ public class UserManagementService {
             .forEach(user -> {
                 LOG.debug("Deleting not activated user {}", user.getUsername());
                 userService.delete(user.getId());
-                publishUserActionEvent(user.getUsername(), UserActionEvent.EventType.DELETE);
             });
     }
 
@@ -304,14 +297,5 @@ public class UserManagementService {
      */
     public Collection<Role> getAuthorities() {
         return roleService.getRoles();
-    }
-
-    private void publishUserActionEvent(String login, UserActionEvent.EventType type) {
-        new Thread(() -> {
-            UserActionEvent event = new UserActionEvent();
-            event.setLogin(login);
-            event.setType(type);
-            applicationEventPublisher.publishEvent(event);
-        }).start();
     }
 }

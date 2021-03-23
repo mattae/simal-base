@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class ModuleDependencyDTO {
-    private Long id;
+    private String id;
     private String name;
     private Boolean active;
     private String requiredVersion;
