@@ -22,7 +22,7 @@ import org.springframework.boot.autoconfigure.jooq.SpringTransactionProvider;
 })
 @Slf4j
 public class BaseModule extends AcrossModule {
-    public static final String NAME = "LAMISBaseModule";
+    public static final String NAME = "SIMALBaseModule";
 
     public BaseModule() {
         super();
@@ -41,6 +41,6 @@ public class BaseModule extends AcrossModule {
 
     @Override
     public String getDescription() {
-        return "Module containing LAMIS base entities and services";
+        return "Module containing SIMAL base entities and services";
     }
 }
