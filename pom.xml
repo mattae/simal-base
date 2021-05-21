@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.lamisplus.modules</groupId>
+    <groupId>com.mattae.lamis.modules</groupId>
     <artifactId>lamis-base</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
     <packaging>jar</packaging>
 
     <parent>
@@ -127,11 +127,6 @@
             <version>0.9.0</version>
         </dependency>
         <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>itextpdf</artifactId>
-            <version>5.5.13.2</version>
-        </dependency>
-        <dependency>
             <groupId>com.foreach.across</groupId>
             <artifactId>across-web</artifactId>
         </dependency>
@@ -160,6 +155,14 @@
             <artifactId>entity-module</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.foreach.across.modules</groupId>
+            <artifactId>file-manager-module</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.foreach.across.modules</groupId>
+            <artifactId>spring-batch-module</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-hibernate5</artifactId>
         </dependency>
@@ -179,16 +182,6 @@
             <groupId>org.beanshell</groupId>
             <artifactId>bsh</artifactId>
             <version>2.0b5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-quartz</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.zaxxer</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -292,29 +285,9 @@
             <artifactId>log4j-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>${apache.poi.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>${apache.poi.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml-schemas</artifactId>
-            <version>${apache.poi.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
             <version>1.9</version>
-        </dependency>
-        <dependency>
-            <groupId>com.princexml</groupId>
-            <artifactId>java-wrapper</artifactId>
-            <version>20180929</version>
         </dependency>
         <dependency>
             <groupId>com.github.ardenliu</groupId>
@@ -331,21 +304,6 @@
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
             <version>5.6.0</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.jasperreports</groupId>
-            <artifactId>jasperreports</artifactId>
-            <version>${jasperreports.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.jasperreports</groupId>
-            <artifactId>jasperreports-fonts</artifactId>
-            <version>${jasperreports.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.jasperreports</groupId>
-            <artifactId>jasperreports-functions</artifactId>
-            <version>${jasperreports.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
@@ -365,11 +323,6 @@
             <groupId>com.networknt</groupId>
             <artifactId>json-schema-validator</artifactId>
             <version>1.0.47</version>
-        </dependency>
-        <dependency>
-            <groupId>com.infobelt</groupId>
-            <artifactId>excellent</artifactId>
-            <version>0.0.13</version>
         </dependency>
         <dependency>
             <groupId>org.zalando</groupId>
@@ -392,6 +345,11 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>${jjwt.version}</version>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.graphql-java-kickstart</groupId>
+            <artifactId>graphql-spring-boot-starter</artifactId>
+            <version>11.0.0</version>
         </dependency>
     </dependencies>
 

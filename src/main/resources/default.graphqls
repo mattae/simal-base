@@ -1,0 +1,11 @@
+type Stub {
+    id: ID!
+}
+
+type Query {
+    getStub(id: Int!): Stub
+}
+
+type Mutation {
+    saveStub(id: Int!): Stub
+}

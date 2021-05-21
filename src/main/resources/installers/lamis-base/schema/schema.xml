@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <property name="autoIncrement" value="true"/>
+
+    <changeSet author="mattae" id="20210120232001-00">
+        <sql>
+            CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+        </sql>
+    </changeSet>
+
+    <changeSet author="mattae" id="20210120232001-01">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="country"/>
+            </not>
+        </preConditions>
+        <createTable tableName="country">
+            <column autoIncrement="true" name="id" type="serial">
+                <constraints primaryKey="true" primaryKeyName="countryPK"/>
+            </column>
+            <column name="code" type="VARCHAR(4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <loadData encoding="UTF-8"
+                  file="installers/lamis-base/countries.csv"
+                  separator=";"
+                  tableName="country"/>
+    </changeSet>
+
+    <changeSet author="mattae" id="20210120232001-02">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="administrative_division"/>
+            </not>
+        </preConditions>
+        <createTable tableName="administrative_division">
+            <column autoIncrement="true" name="id" type="serial">
+                <constraints primaryKey="true" primaryKeyName="adminDivisionPK"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(4)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="country_id" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="parent_id" type="integer">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="country_id" baseTableName="administrative_division"
+                                 constraintName="fk_administrative_division_country_id"
+                                 deferrable="false" initiallyDeferred="false" referencedColumnNames="id"
+                                 referencedTableName="country"/>
+
+        <addForeignKeyConstraint baseColumnNames="parent_id" baseTableName="administrative_division"
+                                 constraintName="fk_administrative_division_parent_id"
+                                 deferrable="false" initiallyDeferred="false" referencedColumnNames="id"
+                                 referencedTableName="administrative_division"/>
+
+        <loadData encoding="UTF-8"
+                  file="installers/lamis-base/states.csv"
+                  separator=";"
+                  tableName="administrative_division"/>
+
+        <loadData encoding="UTF-8"
+                  file="installers/lamis-base/local_governments.csv"
+                  separator=";"
+                  tableName="administrative_division"/>
+    </changeSet>
+
+    <changeSet author="mattae" id="20210120232001-10">
+        <createTable tableName="module">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(64)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_module_name"/>
+            </column>
+            <column name="file_id" type="bigint"/>
+            <column name="version" type="varchar(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="build_time" type="timestamp"/>
+            <column name="base_package" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(512)"/>
+            <column name="active" type="boolean" defaultValue="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="process_config" type="boolean" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="started" type="boolean" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="uninstall" type="boolean" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="data" type="bytea"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="mattae" id="20210120232001-11">
+        <createTable tableName="menu">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="state" type="varchar(256)"/>
+            <column name="type" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="level" type="varchar(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="position" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="icon" type="varchar(64)"/>
+            <column name="tooltip" type="varchar(256)"/>
+            <column name="modal" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="disabled" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="module_id" type="varchar(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="parent_id" type="integer"/>
+        </createTable>
+
+        <createTable tableName="menu_authorities">
+            <column name="menu_id" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="authorities" type="varchar(128)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="mattae" id="20210120232001-12">
+        <addForeignKeyConstraint baseColumnNames="module_id" baseTableName="menu" constraintName="fk_menu_module_id"
+                                 deferrable="false" initiallyDeferred="false" referencedColumnNames="id"
+                                 referencedTableName="module"/>
+
+        <addForeignKeyConstraint baseColumnNames="menu_id" baseTableName="menu_authorities"
+                                 constraintName="fk_menu_authorities_menu_id"
+                                 deferrable="false" initiallyDeferred="false" referencedColumnNames="id"
+                                 referencedTableName="menu"/>
+
+        <addForeignKeyConstraint baseColumnNames="parent_id" baseTableName="menu" constraintName="fk_menu_parent_id"
+                                 deferrable="false" initiallyDeferred="false" referencedColumnNames="id"
+                                 referencedTableName="menu"/>
+
+        <addForeignKeyConstraint baseTableName="module" baseColumnNames="file_id" constraintName="fk_module_file_id"
+                                 referencedTableName="fmm_file_reference" referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet author="mattae" id="20210120232001-13">
+        <createTable tableName="web_remote">
+            <column name="id" type="serial" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pkWebRemote" nullable="false"/>
+            </column>
+            <column name="remote_entry" type="varchar(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="remote_name" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="module_id" type="varchar(36)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="exposed_module">
+            <column name="id" type="serial" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pkExposedModule"/>
+            </column>
+            <column name="name" type="varchar(32)"/>
+            <column name="ng_module_name" type="varchar(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="route_path" type="varchar(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="position" type="int" defaultValue="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="breadcrumb" type="varchar(16)"/>
+            <column name="title" type="varchar(64)"/>
+            <column name="web_remote_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="exposed_component">
+            <column name="id" type="serial" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pkExposedComponent"/>
+            </column>
+            <column name="exposed_name" type="varchar(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="component_name" type="varchar(32)"/>
+            <column name="element_name" type="varchar(32)"/>
+            <column name="route_path" type="varchar(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="position" type="int" defaultValue="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="breadcrumb" type="varchar(16)"/>
+            <column name="title" type="varchar(64)"/>
+            <column name="web_remote_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="uuid" type="varchar(36)">
+                <constraints unique="true"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="web_component">
+            <column name="id" type="varchar(36)" defaultValueComputed="uuid_generate_v4()::text">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pkWebComponent"/>
+            </column>
+            <column name="name" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="component_id" type="varchar(36)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="module_id" type="varchar(36)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="web_module_authorities">
+            <column name="module_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="authorities" type="varchar(128)"/>
+        </createTable>
+
+        <createTable tableName="component_authorities">
+            <column name="component_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="authorities" type="varchar(128)"/>
+        </createTable>
+
+        <createTable tableName="web_component_authorities">
+            <column name="component_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="authorities" type="varchar(128)"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="web_module_authorities" baseColumnNames="module_id"
+                                 constraintName="fk_web_module_authorities_module_id"
+                                 referencedTableName="exposed_module"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="component_authorities" baseColumnNames="component_id"
+                                 constraintName="fk_component_authorities_module_id"
+                                 referencedTableName="exposed_component"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="exposed_module" baseColumnNames="web_remote_id"
+                                 constraintName="fk_exposed_module_web_remote_id" referencedTableName="web_remote"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="exposed_component" baseColumnNames="web_remote_id"
+                                 constraintName="fk_exposed_component_web_remote_id" referencedTableName="web_remote"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="web_remote" baseColumnNames="module_id"
+                                 constraintName="fk_web_remote_module_id" referencedTableName="module"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="web_component" baseColumnNames="module_id"
+                                 constraintName="fk_web_component_module_id" referencedTableName="module"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet author="mattae" id="20210120232001-18">
+        <createTable tableName="um_role_properties">
+            <column name="role_id" type="java.sql.Types.BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="property_name" type="java.sql.Types.VARCHAR(250)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="property_value" type="java.sql.Types.NVARCHAR(2000)"/>
+        </createTable>
+
+        <createTable tableName="um_permission_properties">
+            <column name="permission_id" type="java.sql.Types.BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="property_name" type="java.sql.Types.VARCHAR(250)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="property_value" type="java.sql.Types.NVARCHAR(2000)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="mattae" id="20210120232001-20">
+        <addForeignKeyConstraint baseTableName="um_role_properties"
+                                 baseColumnNames="role_id" constraintName="fk_um_rp_r" referencedTableName="um_role"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="um_permission_properties"
+                                 baseColumnNames="permission_id" constraintName="fk_um_pp_p"
+                                 referencedTableName="um_permission"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet author="mattae" id="20210120232001-21">
+        <createTable tableName="notification">
+            <column name="id" type="serial" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pkNotification"/>
+            </column>
+            <column name="message" type="varchar(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="route" type="varchar(32)"/>
+            <column name="icon" type="varchar(16)"/>
+            <column name="read" type="boolean" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="color" type="varchar(16)" defaultValue="primary">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="notification" baseColumnNames="user_id"
+                                 constraintName="fk_notification_user_id" referencedTableName="um_user"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>

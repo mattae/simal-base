@@ -12,6 +12,6 @@ Each module still maintains the definition of an Across module with added extern
 to support this dynamic ability. The module configuration is read from the database at start-up, then the module
 definition jar file is then read from a database or filesystem and then added to the application classpath and
 the ``AcrossContext``. This ability is handled by
-``org.lamisplus.modules.base.configurer.DynamicModuleImportConfigurer`` 
+``DynamicModuleImportConfigurer`` 
 
 

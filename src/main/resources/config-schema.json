@@ -234,6 +234,9 @@
                 "icon": {
                     "type": "string"
                 },
+                "modal": {
+                    "type": "boolean"
+                },
                 "tooltip": {
                     "type": "string"
                 },
