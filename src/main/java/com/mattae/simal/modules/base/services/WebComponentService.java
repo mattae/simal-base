@@ -1,26 +1,35 @@
 package com.mattae.simal.modules.base.services;
 
-import com.mattae.simal.modules.base.services.dto.ComponentDTO;
-import com.mattae.simal.modules.base.domain.repositories.ExposedComponentRepository;
-import lombok.RequiredArgsConstructor;
 import com.mattae.simal.modules.base.domain.entities.Module;
 import com.mattae.simal.modules.base.domain.entities.WebComponent;
+import com.mattae.simal.modules.base.domain.repositories.ExposedComponentRepository;
 import com.mattae.simal.modules.base.domain.repositories.WebComponentRepository;
+import com.mattae.simal.modules.base.services.dto.ComponentDTO;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.function.EntityResponse;
+import org.springframework.web.servlet.function.RouterFunction;
+import org.springframework.web.servlet.function.ServerResponse;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static org.springframework.web.servlet.function.RouterFunctions.route;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class WebComponentService {
     private final WebComponentRepository webComponentRepository;
     private final ExposedComponentRepository exposedComponentRepository;
 
     @PostAuthorize("returnObject != null && returnObject.authorities.size() > 0 ? hasAnyAuthority(returnObject.authorities) : true ")
-    public ComponentDTO getComponentById(String id) {
+    public ComponentDTO getComponentById(UUID id) {
         return webComponentRepository.findById(id).map(this::getDto).orElse(null);
     }
 
@@ -31,8 +40,8 @@ public class WebComponentService {
     }
 
     private ComponentDTO getDto(WebComponent c) {
-        String componentId = c.getComponentId();
-        return exposedComponentRepository.findByUuid(componentId).map(ec -> {
+        UUID componentId = c.getComponentId();
+        return exposedComponentRepository.findById(componentId).map(ec -> {
             Module module = c.getModule();
             if (module.getStarted()) {
                 ComponentDTO dto = new ComponentDTO();
@@ -45,5 +54,13 @@ public class WebComponentService {
             }
             return null;
         }).orElse(null);
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> droductListing() {
+        return route().GET("/products", req -> {
+            LOG.info("Route request1: {}", req);
+            return EntityResponse.fromObject("New Product").build();
+        }).build();
     }
 }

@@ -11,16 +11,17 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Data
 @Table(name = "web_remote")
 @EqualsAndHashCode(of = {"id", "remoteName"})
 @ToString(of = {"id", "remoteName", "remoteEntry"})
-public final class WebRemote implements Persistable<Long>, Serializable {
+public final class WebRemote implements Persistable<UUID>, Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
     @NotNull
     private String remoteName;

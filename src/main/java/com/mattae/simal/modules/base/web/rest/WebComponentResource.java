@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * REST controller for managing registered Angular Components.
@@ -27,7 +28,7 @@ public class WebComponentResource {
      * @return the ResponseEntity with components 200 (OK) and the web component in body
      */
     @GetMapping("/web-components/{id}")
-    public ComponentDTO getComponentById(@PathVariable String id) {
+    public ComponentDTO getComponentById(@PathVariable UUID id) {
         LOG.debug("REST request to get Web Component with id: {}", id);
         return webComponentService.getComponentById(id);
     }

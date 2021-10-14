@@ -4,6 +4,9 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Builder
@@ -11,10 +14,10 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Setter
 @Getter
-@Table(indexes = {@Index(name = "ORGANISATION_NAME_INDEX", columnList = "name", unique = false)})
+@EqualsAndHashCode(of = "id")
 public class Organisation {
     @Id
-    private Long id;
+    private UUID id;
 
     @OneToOne(fetch = FetchType.EAGER)
     private Party party;
@@ -27,22 +30,9 @@ public class Organisation {
 
     private LocalDate establishmentDate;
 
-    @Override
-    public boolean equals(Object o) {
+    @ManyToOne
+    private Organisation parent;
 
-        if (this == o)
-            return true;
-
-        if (!(o instanceof Organisation))
-            return false;
-
-        Organisation other = (Organisation) o;
-
-        return id != 0L && id.equals(other.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return 31;
-    }
+    @OneToMany(mappedBy = "parent")
+    private Set<Organisation> subOrganisations;
 }

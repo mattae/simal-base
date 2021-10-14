@@ -1,6 +1,5 @@
 package com.mattae.simal.modules.base;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.foreach.across.core.AcrossContext;
 import com.foreach.across.modules.filemanager.FileManagerModuleSettings;
 import com.foreach.across.modules.filemanager.services.FileManager;
@@ -8,7 +7,6 @@ import com.foreach.across.test.AcrossTestConfiguration;
 import com.foreach.across.test.AcrossWebAppConfiguration;
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DbUnitConfiguration;
-import graphql.kickstart.tools.SchemaParser;
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -55,14 +53,6 @@ public class BaseModuleTest {
     @Autowired
     FileManager fileManager;
 
-    public static String asJsonString(final Object obj) {
-        try {
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Test
     public void module_repository_should_exists() throws Exception {
         mockMvc.perform(get("/api/administrative-divisions/parent/9"))
@@ -76,7 +66,7 @@ public class BaseModuleTest {
         assertNotNull(context.getModule(BaseModule.NAME));
     }
 
-    @AcrossTestConfiguration(modules = BaseModule.NAME, expose = {FileManagerModuleSettings.class, SchemaParser.class})
+    @AcrossTestConfiguration(modules = BaseModule.NAME, expose = {FileManagerModuleSettings.class})
     @PropertySource("classpath:across-test.properties")
     @EnableTransactionManagement
     static class Config {

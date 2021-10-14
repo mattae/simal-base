@@ -1,23 +1,22 @@
 package com.mattae.simal.modules.base.domain.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
+@EqualsAndHashCode(of = "id")
 public class Individual {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
     @OneToOne(fetch = FetchType.EAGER)
     private Party party;
@@ -38,8 +37,6 @@ public class Individual {
 
     private String photoUrl;
 
-    private String electorate;
-
     private LocalDate dateOfBirth;
 
     private String placeOfBirth;
@@ -51,26 +48,4 @@ public class Individual {
     private String placeOfDeath;
 
     private String countryOfDeath;
-
-    private String relationshipLifecycleStatus;
-
-    @Override
-    public boolean equals(Object o) {
-
-        if (this == o)
-            return true;
-
-        if (!(o instanceof Individual))
-            return false;
-
-        Individual other = (Individual) o;
-
-        return id != 0L && id.equals(other.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return 31;
-    }
-
 }

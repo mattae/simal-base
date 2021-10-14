@@ -7,12 +7,12 @@ import com.foreach.across.modules.filemanager.business.reference.properties.File
 import com.foreach.across.modules.filemanager.business.reference.properties.FileReferencePropertiesService;
 import com.foreach.across.modules.filemanager.services.FileManager;
 import com.github.zafarkhaja.semver.Version;
+import com.mattae.simal.modules.base.config.ApplicationConfiguration;
 import com.mattae.simal.modules.base.domain.entities.Module;
 import com.mattae.simal.modules.base.domain.repositories.ModuleRepository;
 import com.mattae.simal.modules.base.module.ModuleUtils;
 import com.mattae.simal.modules.base.services.dto.ModuleDependencyDTO;
 import com.mattae.simal.modules.base.yml.ModuleConfig;
-import com.mattae.simal.modules.base.config.ApplicationConfiguration;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,7 @@ public class ModuleService {
     private final FileReferencePropertiesService fileReferencePropertiesService;
     private final FileReferenceRepository fileReferenceRepository;
 
-    public Optional<Module> getModule(String id) {
+    public Optional<Module> getModule(UUID id) {
         return moduleRepository.findById(id).stream()
             .map(Module::copy)
             .findFirst();
@@ -88,7 +88,7 @@ public class ModuleService {
         return module1;
     }
 
-    public void uninstall(String id) {
+    public void uninstall(UUID id) {
         moduleRepository.findById(id).ifPresent(module -> {
             module.setUninstall(true);
             moduleRepository.save(module);
@@ -131,7 +131,7 @@ public class ModuleService {
 
     @SneakyThrows
     @Transactional
-    public List<ModuleDependencyDTO> getDependencies(String id) {
+    public List<ModuleDependencyDTO> getDependencies(UUID id) {
         List<ModuleDependencyDTO> dependencies = new ArrayList<>();
         moduleRepository.findById(id).ifPresent(module -> {
             try {

@@ -1,0 +1,22 @@
+package com.mattae.simal.modules.base.graphql;
+
+import com.foreach.across.core.AcrossModule;
+import com.foreach.across.core.annotations.AcrossRole;
+import com.foreach.across.core.context.AcrossModuleRole;
+import com.foreach.across.core.context.bootstrap.AcrossBootstrapConfig;
+import com.foreach.across.core.context.bootstrap.ModuleBootstrapConfig;
+
+@AcrossRole(AcrossModuleRole.POSTPROCESSOR)
+public class GraphQLModule extends AcrossModule {
+    public static final String NAME = "GraphQLModule";
+
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
+    @Override
+    public void prepareForBootstrap(ModuleBootstrapConfig currentModule, AcrossBootstrapConfig contextConfig) {
+        currentModule.expose("graphQlRouterFunction");
+    }
+}

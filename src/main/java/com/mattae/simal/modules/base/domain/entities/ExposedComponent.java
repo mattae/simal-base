@@ -10,14 +10,15 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Data
 @EqualsAndHashCode(of = {"id", "exposedName", "elementName", "componentName"})
-public class ExposedComponent implements Persistable<Long>, Serializable {
+public class ExposedComponent implements Persistable<UUID>, Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
     @NotNull
     private String exposedName;
@@ -35,8 +36,6 @@ public class ExposedComponent implements Persistable<Long>, Serializable {
     private String breadcrumb;
 
     private String title;
-
-    private String uuid;
 
     @ManyToOne
     @NotNull

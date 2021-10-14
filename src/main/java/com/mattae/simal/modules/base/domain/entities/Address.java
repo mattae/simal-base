@@ -3,6 +3,7 @@ package com.mattae.simal.modules.base.domain.entities;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.UUID;
 
 @Entity
 @Builder
@@ -13,14 +14,8 @@ import javax.persistence.*;
 @EqualsAndHashCode(of = "id")
 public class Address {
     @Id
-    private Long id;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "locationId")
-    @MapsId
-    private Location location;
-
-    private String name;
+    @GeneratedValue
+    private UUID id;
 
     private String line1;
 

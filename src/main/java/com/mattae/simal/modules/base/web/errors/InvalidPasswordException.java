@@ -1,13 +1,10 @@
 package com.mattae.simal.modules.base.web.errors;
 
-import org.zalando.problem.AbstractThrowableProblem;
-import org.zalando.problem.Status;
-
-public class InvalidPasswordException extends AbstractThrowableProblem {
+public class InvalidPasswordException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
     public InvalidPasswordException() {
-        super(ErrorConstants.INVALID_PASSWORD_TYPE, "Incorrect password", Status.BAD_REQUEST);
+
     }
 }

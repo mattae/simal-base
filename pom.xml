@@ -28,8 +28,14 @@
             <url>https://repository.foreach.be/nexus/repository/public/</url>
         </repository>
         <repository>
-            <id>mvn-repo</id>
-            <url>https://gitlab.com/mattae/artifacts/raw/maven</url>
+            <id>spring-snapshot</id>
+            <name>Spring Snapshot</name>
+            <url>https://repo.spring.io/snapshot</url>
+        </repository>
+        <repository>
+            <id>spring-milestone</id>
+            <name>Spring Milestone</name>
+            <url>https://repo.spring.io/milestone</url>
         </repository>
         <repository>
             <releases>
@@ -43,10 +49,10 @@
     <properties>
         <build.revision>development</build.revision>
         <jasperreports.version>6.16.0</jasperreports.version>
-        <apache.poi.version>4.1.2</apache.poi.version>
         <testcontainers.version>1.15.1</testcontainers.version>
         <jjwt.version>0.11.2</jjwt.version>
         <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
+        <blaze-persistence.version>1.6.2</blaze-persistence.version>
     </properties>
 
     <dependencyManagement>
@@ -62,6 +68,27 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>2.5.3</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>5.3.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
+            <version>5.3.0</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>io.zonky.test</groupId>
             <artifactId>embedded-postgres</artifactId>
@@ -113,13 +140,28 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>5.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-websocket</artifactId>
+            <version>5.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>5.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>5.3.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.zafarkhaja</groupId>
@@ -325,11 +367,6 @@
             <version>1.0.47</version>
         </dependency>
         <dependency>
-            <groupId>org.zalando</groupId>
-            <artifactId>problem-spring-web</artifactId>
-            <version>0.26.2</version>
-        </dependency>
-        <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
             <version>${jjwt.version}</version>
@@ -347,9 +384,68 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>com.graphql-java-kickstart</groupId>
+            <groupId>org.springframework.experimental</groupId>
             <artifactId>graphql-spring-boot-starter</artifactId>
-            <version>11.0.0</version>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.graphql</groupId>
+            <artifactId>spring-graphql-test</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <version>3.4.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-core-api</artifactId>
+            <version>${blaze-persistence.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-core-impl</artifactId>
+            <version>${blaze-persistence.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-entity-view-impl</artifactId>
+            <version>${blaze-persistence.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-integration-hibernate-5.4</artifactId>
+            <version>${blaze-persistence.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-entity-view-api</artifactId>
+            <version>${blaze-persistence.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-integration-entity-view-spring</artifactId>
+            <version>${blaze-persistence.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-integration-spring-data-2.3</artifactId>
+            <version>${blaze-persistence.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-integration-graphql</artifactId>
+            <version>${blaze-persistence.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
@@ -375,8 +471,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>9</source>
-                    <target>9</target>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
             </plugin>
         </plugins>

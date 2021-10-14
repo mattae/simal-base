@@ -28,9 +28,9 @@ public class CountryResource {
      *
      * @return the ResponseEntity with countries 200 (OK) and the list of countries in body
      */
-    @GetMapping("/countries")
+    /*@GetMapping("/countries")
     public List<Country> getAllCountries() {
         LOG.debug("REST request to get all Countries");
         return countryRepository.findAll();
-    }
+    }*/
 }

@@ -5,7 +5,9 @@ import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Builder
@@ -13,17 +15,10 @@ import java.util.Set;
 @NoArgsConstructor
 @Setter
 @Getter
-@EntityListeners(AuditingEntityListener.class)
 public class Party {
     @Id
-    @GeneratedValue(
-        strategy = GenerationType.SEQUENCE,
-        generator = "SequenceParty")
-    @SequenceGenerator(
-        name = "SequenceParty",
-        allocationSize = 1
-    )
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
@@ -37,37 +32,13 @@ public class Party {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-        name = "PartyAddress",
-        joinColumns = @JoinColumn(name = "partyId"),
-        inverseJoinColumns = @JoinColumn(name = "locationId")
+        name = "party_address",
+        joinColumns = @JoinColumn(name = "party_id"),
+        inverseJoinColumns = @JoinColumn(name = "location_id")
     )
     private Set<Address> addresses;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "PartyRole",
-        joinColumns = @JoinColumn(name = "partyId"),
-        inverseJoinColumns = @JoinColumn(name = "roleId")
-    )
-    private Set<Role> roles;
-
-    @Override
-    public boolean equals(Object o) {
-
-        if (this == o)
-            return true;
-
-        if (!(o instanceof Party))
-            return false;
-
-        Party other = (Party) o;
-
-        return id != 0L && id.equals(other.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return 31;
-    }
-
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "party_id")
+    private Set<Identifier> identifiers;
 }

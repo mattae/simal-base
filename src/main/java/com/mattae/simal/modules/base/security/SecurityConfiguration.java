@@ -8,7 +8,6 @@ import io.github.jhipster.config.JHipsterProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -24,18 +23,15 @@ import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWrite
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 
 
 @EnableWebSecurity
-@Import(SecurityProblemSupport.class)
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Slf4j
 public class SecurityConfiguration implements AcrossWebSecurityConfigurer {
     private final TokenProvider tokenProvider;
-    private final SecurityProblemSupport problemSupport;
     private final JHipsterProperties properties;
 
     @Bean
@@ -66,8 +62,6 @@ public class SecurityConfiguration implements AcrossWebSecurityConfigurer {
             .disable()
             .addFilterBefore(corsFilter(), UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling()
-            .authenticationEntryPoint(problemSupport)
-            .accessDeniedHandler(problemSupport)
             .and()
             .headers()
             .contentSecurityPolicy("default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:")

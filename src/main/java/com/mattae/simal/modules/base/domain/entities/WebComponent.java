@@ -11,24 +11,21 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
-public class WebComponent implements Serializable, Persistable<String> {
+public class WebComponent implements Serializable, Persistable<UUID> {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(
-        name = "UUID",
-        strategy = "org.hibernate.id.UUIDGenerator"
-    )
-    private String id;
+    @GeneratedValue
+    private UUID id;
 
     @NotNull
     private String type;
 
     @NotNull
-    private String componentId;
+    private UUID componentId;
 
     @ManyToOne
     @NotNull

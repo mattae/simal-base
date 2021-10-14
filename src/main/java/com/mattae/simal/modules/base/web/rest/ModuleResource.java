@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -35,7 +36,7 @@ public class ModuleResource {
 
     @GetMapping("/modules/{id}")
     @Timed
-    public ResponseEntity<Module> getModule(@PathVariable("id") String id) {
+    public ResponseEntity<Module> getModule(@PathVariable("id") UUID id) {
         LOG.debug("Getting module: {}", id);
 
         return ResponseUtil.wrapOrNotFound(moduleService.getModule(id));
@@ -61,7 +62,7 @@ public class ModuleResource {
 
     @GetMapping("/modules/{id}/uninstall")
     @CacheEvict({"modules"})
-    public void uninstallModule(@PathVariable String id) {
+    public void uninstallModule(@PathVariable UUID id) {
         moduleService.uninstall(id);
     }
 
@@ -82,7 +83,7 @@ public class ModuleResource {
     }
 
     @GetMapping("/modules/{id}/dependencies")
-    public List<ModuleDependencyDTO> getDependencies(@PathVariable String id) {
+    public List<ModuleDependencyDTO> getDependencies(@PathVariable UUID id) {
         return moduleService.getDependencies(id);
     }
 

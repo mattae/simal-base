@@ -6,12 +6,6 @@
 
     <property name="autoIncrement" value="true"/>
 
-    <changeSet author="mattae" id="20210120232001-00">
-        <sql>
-            CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-        </sql>
-    </changeSet>
-
     <changeSet author="mattae" id="20210120232001-01">
         <preConditions onFail="MARK_RAN">
             <not>
@@ -19,7 +13,7 @@
             </not>
         </preConditions>
         <createTable tableName="country">
-            <column autoIncrement="true" name="id" type="serial">
+            <column autoIncrement="true" name="id" type="bigint">
                 <constraints primaryKey="true" primaryKeyName="countryPK"/>
             </column>
             <column name="code" type="VARCHAR(4)">
@@ -43,7 +37,7 @@
             </not>
         </preConditions>
         <createTable tableName="administrative_division">
-            <column autoIncrement="true" name="id" type="serial">
+            <column autoIncrement="true" name="id" type="bigint">
                 <constraints primaryKey="true" primaryKeyName="adminDivisionPK"/>
             </column>
             <column name="name" type="VARCHAR(255)">
@@ -52,10 +46,10 @@
             <column name="code" type="VARCHAR(4)">
                 <constraints nullable="true"/>
             </column>
-            <column name="country_id" type="integer">
+            <column name="country_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="parent_id" type="integer">
+            <column name="parent_id" type="bigint">
                 <constraints nullable="true"/>
             </column>
         </createTable>
@@ -81,9 +75,9 @@
                   tableName="administrative_division"/>
     </changeSet>
 
-    <changeSet author="mattae" id="20210120232001-10">
+    <changeSet author="mattae" id="20210120232001-03">
         <createTable tableName="module">
-            <column name="id" type="varchar(36)">
+            <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="varchar(64)">
@@ -110,11 +104,11 @@
             <column name="uninstall" type="boolean" defaultValue="false">
                 <constraints nullable="false"/>
             </column>
-            <column name="data" type="bytea"/>
+            <column name="data" type="java.sql.Types.BINARY"/>
         </createTable>
     </changeSet>
 
-    <changeSet author="mattae" id="20210120232001-11">
+    <changeSet author="mattae" id="20210120232001-04">
         <createTable tableName="menu">
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
@@ -140,14 +134,14 @@
             <column name="disabled" type="boolean" valueBoolean="false">
                 <constraints nullable="false"/>
             </column>
-            <column name="module_id" type="varchar(36)">
+            <column name="module_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
-            <column name="parent_id" type="integer"/>
+            <column name="parent_id" type="bigint"/>
         </createTable>
 
         <createTable tableName="menu_authorities">
-            <column name="menu_id" type="integer">
+            <column name="menu_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
             <column name="authorities" type="varchar(128)">
@@ -156,7 +150,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet author="mattae" id="20210120232001-12">
+    <changeSet author="mattae" id="20210120232001-05">
         <addForeignKeyConstraint baseColumnNames="module_id" baseTableName="menu" constraintName="fk_menu_module_id"
                                  deferrable="false" initiallyDeferred="false" referencedColumnNames="id"
                                  referencedTableName="module"/>
@@ -174,9 +168,9 @@
                                  referencedTableName="fmm_file_reference" referencedColumnNames="id"/>
     </changeSet>
 
-    <changeSet author="mattae" id="20210120232001-13">
+    <changeSet author="mattae" id="20210120232001-06">
         <createTable tableName="web_remote">
-            <column name="id" type="serial" autoIncrement="true">
+            <column name="id" type="UUID">
                 <constraints primaryKey="true" primaryKeyName="pkWebRemote" nullable="false"/>
             </column>
             <column name="remote_entry" type="varchar(512)">
@@ -185,13 +179,13 @@
             <column name="remote_name" type="varchar(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="module_id" type="varchar(36)">
+            <column name="module_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
         </createTable>
 
         <createTable tableName="exposed_module">
-            <column name="id" type="serial" autoIncrement="true">
+            <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pkExposedModule"/>
             </column>
             <column name="name" type="varchar(32)"/>
@@ -206,13 +200,13 @@
             </column>
             <column name="breadcrumb" type="varchar(16)"/>
             <column name="title" type="varchar(64)"/>
-            <column name="web_remote_id" type="bigint">
+            <column name="web_remote_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
         </createTable>
 
         <createTable tableName="exposed_component">
-            <column name="id" type="serial" autoIncrement="true">
+            <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pkExposedComponent"/>
             </column>
             <column name="exposed_name" type="varchar(32)">
@@ -228,16 +222,13 @@
             </column>
             <column name="breadcrumb" type="varchar(16)"/>
             <column name="title" type="varchar(64)"/>
-            <column name="web_remote_id" type="bigint">
+            <column name="web_remote_id" type="UUID">
                 <constraints nullable="false"/>
-            </column>
-            <column name="uuid" type="varchar(36)">
-                <constraints unique="true"/>
             </column>
         </createTable>
 
         <createTable tableName="web_component">
-            <column name="id" type="varchar(36)" defaultValueComputed="uuid_generate_v4()::text">
+            <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pkWebComponent"/>
             </column>
             <column name="name" type="varchar(64)">
@@ -246,30 +237,30 @@
             <column name="type" type="varchar(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="component_id" type="varchar(36)">
+            <column name="component_id" type="UUID">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="module_id" type="varchar(36)">
+            <column name="module_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
         </createTable>
 
         <createTable tableName="web_module_authorities">
-            <column name="module_id" type="bigint">
+            <column name="module_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
             <column name="authorities" type="varchar(128)"/>
         </createTable>
 
         <createTable tableName="component_authorities">
-            <column name="component_id" type="bigint">
+            <column name="component_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
             <column name="authorities" type="varchar(128)"/>
         </createTable>
 
         <createTable tableName="web_component_authorities">
-            <column name="component_id" type="bigint">
+            <column name="component_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
             <column name="authorities" type="varchar(128)"/>
@@ -302,7 +293,7 @@
                                  referencedColumnNames="id"/>
     </changeSet>
 
-    <changeSet author="mattae" id="20210120232001-18">
+    <changeSet author="mattae" id="20210120232001-07">
         <createTable tableName="um_role_properties">
             <column name="role_id" type="java.sql.Types.BIGINT">
                 <constraints nullable="false" primaryKey="true"/>
@@ -324,7 +315,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet author="mattae" id="20210120232001-20">
+    <changeSet author="mattae" id="20210120232001-08">
         <addForeignKeyConstraint baseTableName="um_role_properties"
                                  baseColumnNames="role_id" constraintName="fk_um_rp_r" referencedTableName="um_role"
                                  referencedColumnNames="id"/>
@@ -335,9 +326,9 @@
                                  referencedColumnNames="id"/>
     </changeSet>
 
-    <changeSet author="mattae" id="20210120232001-21">
+    <changeSet author="mattae" id="20210120232001-09">
         <createTable tableName="notification">
-            <column name="id" type="serial" autoIncrement="true">
+            <column name="id" type="bigint" autoIncrement="true">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pkNotification"/>
             </column>
             <column name="message" type="varchar(512)">
@@ -354,11 +345,191 @@
             <column name="color" type="varchar(16)" defaultValue="primary">
                 <constraints nullable="false"/>
             </column>
-            <column name="user_id" type="bigint"/>
+            <column name="user_id" type="java.sql.Types.BIGINT"/>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="notification" baseColumnNames="user_id"
                                  constraintName="fk_notification_user_id" referencedTableName="um_user"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet author="mattae" id="20210120232001-10">
+        <createTable tableName="address">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="address_type" type="varchar(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="line1" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="line2" type="varchar(64)"/>
+            <column name="city" type="varchar(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="state" type="varchar(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="postal_code" type="varchar(16)"/>
+            <column name="country" type="varchar(32)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="mattae" id="20210120232001-11">
+        <createTable tableName="party">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="type" type="varchar(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="legal_type" type="varchar(32)"/>
+            <column name="display_name" type="varchar(16)"/>
+        </createTable>
+
+        <createTable tableName="party_address">
+            <column name="party_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="location_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="party_address" baseColumnNames="party_id"
+                                 constraintName="fk_party_address_party_id" referencedTableName="party"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="party_address" baseColumnNames="party_id"
+                                 constraintName="fk_party_address_address_id" referencedTableName="address"
+                                 referencedColumnNames="id"/>
+        <addPrimaryKey tableName="party_address" columnNames="party_id,location_id"/>
+    </changeSet>
+
+    <changeSet author="mattae" id="20210120232001-12">
+        <createTable tableName="identifier">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="type" type="varchar(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="value" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="register" type="varchar(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lifecycle_status" type="varchar(32)"/>
+            <column name="from_date" type="timestamp"/>
+            <column name="to_date" type="timestamp"/>
+            <column name="party_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="identifier" baseColumnNames="party_id"
+                                 constraintName="fk_identifier_party_id" referencedTableName="party"
+                                 referencedColumnNames="id"/>
+
+        <addUniqueConstraint tableName="identifier" columnNames="type,value,register,party_id"
+                             constraintName="ux_identifier_party"/>
+    </changeSet>
+
+    <changeSet author="mattae" id="20210120232001-13">
+        <createTable tableName="individual">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="type" type="varchar(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="varchar(32)"/>
+            <column name="initials" type="varchar(8)"/>
+            <column name="given_name" type="varchar(64)"/>
+            <column name="preferred_given_name" type="varchar(64)"/>
+            <column name="middle_name" type="varchar(64)"/>
+            <column name="family_name" type="varchar(64)"/>
+            <column name="preferred_family_name" type="varchar(64)"/>
+            <column name="preferred_name" type="varchar(64)"/>
+            <column name="honorific" type="varchar(32)"/>
+            <column name="salutation" type="varchar(32)"/>
+            <column name="sex" type="varchar(16)"/>
+            <column name="gender" type="varchar(16)"/>
+            <column name="email" type="varchar(64)"/>
+            <column name="phone_number" type="varchar(32)"/>
+            <column name="photo_url" type="varchar(512)"/>
+            <column name="date_of_birth" type="date"/>
+            <column name="place_of_birth" type="varchar(64)"/>
+            <column name="country_of_birth" type="varchar(64)"/>
+            <column name="date_of_death" type="date"/>
+            <column name="place_of_death" type="varchar(64)"/>
+            <column name="country_of_death" type="varchar(64)"/>
+            <column name="party_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="individual" baseColumnNames="party_id"
+                                 constraintName="fk_individual_party_id" referencedTableName="party"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet author="mattae" id="20210120232001-14">
+        <createTable tableName="individual_name">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="type" type="varchar(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="varchar(32)"/>
+            <column name="initials" type="varchar(8)"/>
+            <column name="given_name" type="varchar(64)"/>
+            <column name="preferred_given_name" type="varchar(64)"/>
+            <column name="middle_name" type="varchar(64)"/>
+            <column name="family_name" type="varchar(64)"/>
+            <column name="preferred_family_name" type="varchar(64)"/>
+            <column name="preferred_name" type="varchar(64)"/>
+            <column name="honorific" type="varchar(32)"/>
+            <column name="salutation" type="varchar(32)"/>
+            <column name="from_date" type="timestamp"/>
+            <column name="to_date" type="timestamp"/>
+            <column name="individual_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="individual_name" baseColumnNames="individual_id"
+                                 constraintName="fk_individual_name_individual_id" referencedTableName="individual"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet author="mattae" id="20210120232001-15">
+        <createTable tableName="organisation">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(64)"/>
+            <column name="phone_number" type="varchar(32)"/>
+            <column name="establishment_date" type="date"/>
+            <column name="parent_id" type="UUID"/>
+            <column name="party_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="organisation" baseColumnNames="parent_id"
+                                 constraintName="fk_organisation_parent_id" referencedTableName="organisation"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="organisation" baseColumnNames="party_id"
+                                 constraintName="fk_organisation_party_id" referencedTableName="party"
                                  referencedColumnNames="id"/>
     </changeSet>
 

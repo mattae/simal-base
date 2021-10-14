@@ -10,14 +10,15 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Data
 @EqualsAndHashCode(of = {"id", "name", "ngModuleName"})
-public class ExposedModule implements Persistable<Long>, Serializable, Comparable<ExposedModule> {
+public class ExposedModule implements Persistable<UUID>, Serializable, Comparable<ExposedModule> {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
     @NotNull
     private String name;

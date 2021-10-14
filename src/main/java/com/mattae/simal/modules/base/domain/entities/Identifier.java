@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Builder
@@ -11,25 +12,22 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Setter
 @Getter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Identifier {
-
     @Id
-    @GeneratedValue(
-        strategy = GenerationType.SEQUENCE,
-        generator = "SequenceIdentifier")
-    @SequenceGenerator(
-        name = "SequenceIdentifier",
-        allocationSize = 1
-    )
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
     @Column(name = "type", nullable = false)
+    @EqualsAndHashCode.Include
     private String type;
 
     @Column(name = "value", nullable = false)
+    @EqualsAndHashCode.Include
     private String value;
 
     @Column(name = "register", nullable = false)
+    @EqualsAndHashCode.Include
     private String register;
 
     private String lifecycleStatus;
@@ -37,4 +35,7 @@ public class Identifier {
     private LocalDateTime fromDate;
 
     private LocalDateTime toDate;
+
+    @ManyToOne
+    private Party party;
 }

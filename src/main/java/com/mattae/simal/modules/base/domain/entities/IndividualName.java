@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Builder
@@ -15,16 +16,9 @@ import java.time.LocalDateTime;
 public class IndividualName {
 
     @Id
-    @GeneratedValue(
-        strategy = GenerationType.SEQUENCE,
-        generator = "SequenceIndividualName")
-    @SequenceGenerator(
-        name = "SequenceIndividualName",
-        allocationSize = 1
-    )
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private Individual individual;
 

@@ -5,8 +5,6 @@ import com.foreach.across.modules.filemanager.business.reference.FileReference;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.GenericGenerator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Persistable;
 
@@ -16,21 +14,17 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Data
 @Table(name = "module")
 @EqualsAndHashCode(of = "name", callSuper = false)
 @ToString(of = {"id", "name"})
-@Slf4j
-public class Module implements Serializable, Persistable<String> {
+public class Module implements Serializable, Persistable<UUID> {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(
-        name = "UUID",
-        strategy = "org.hibernate.id.UUIDGenerator"
-    )
-    private String id;
+    @GeneratedValue
+    private UUID id;
 
     @NotNull
     @Column(unique = true)
