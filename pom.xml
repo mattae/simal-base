@@ -52,7 +52,7 @@
         <testcontainers.version>1.15.1</testcontainers.version>
         <jjwt.version>0.11.2</jjwt.version>
         <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-        <blaze-persistence.version>1.6.2</blaze-persistence.version>
+        <blaze-persistence.version>1.6.3</blaze-persistence.version>
     </properties>
 
     <dependencyManagement>
@@ -60,7 +60,7 @@
             <dependency>
                 <groupId>io.zonky.test.postgres</groupId>
                 <artifactId>embedded-postgres-binaries-bom</artifactId>
-                <version>13.1.0-1</version>
+                <version>13.2.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -88,11 +88,26 @@
             <version>5.3.0</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.benas</groupId>
+            <artifactId>random-beans</artifactId>
+            <version>3.9.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>4.0.0</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>io.zonky.test</groupId>
             <artifactId>embedded-postgres</artifactId>
-            <version>1.2.6</version>
+            <version>1.3.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -100,12 +115,12 @@
             <artifactId>embedded-postgres-binaries-linux-amd64</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--
         <dependency>
             <groupId>io.zonky.test.postgres</groupId>
             <artifactId>embedded-postgres-binaries-darwin-amd64</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--
         <dependency>
             <groupId>io.zonky.test.postgres</groupId>
             <artifactId>embedded-postgres-binaries-windows-amd64</artifactId>
@@ -114,7 +129,7 @@
         <dependency>
             <groupId>io.zonky.test</groupId>
             <artifactId>embedded-database-spring-test</artifactId>
-            <version>1.6.2</version>
+            <version>2.1.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -126,7 +141,7 @@
         <dependency>
             <groupId>org.dbunit</groupId>
             <artifactId>dbunit</artifactId>
-            <version>2.7.0</version>
+            <version>2.7.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -287,7 +302,7 @@
         <dependency>
             <groupId>org.tukaani</groupId>
             <artifactId>xz</artifactId>
-            <version>1.8</version>
+            <version>1.9</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -306,7 +321,7 @@
         <dependency>
             <groupId>com.vladmihalcea</groupId>
             <artifactId>hibernate-types-52</artifactId>
-            <version>2.10.1</version>
+            <version>2.13.0</version>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
@@ -348,23 +363,13 @@
             <version>5.6.0</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-core</artifactId>
-            <version>1.25</version>
-        </dependency>
-        <dependency>
-            <groupId>com.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>5.3</version>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
         </dependency>
         <dependency>
             <groupId>com.networknt</groupId>
             <artifactId>json-schema-validator</artifactId>
-            <version>1.0.47</version>
+            <version>1.0.61</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
@@ -397,7 +402,7 @@
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
-            <version>3.4.0</version>
+            <version>3.4.10</version>
         </dependency>
 
         <dependency>

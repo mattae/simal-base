@@ -23,6 +23,7 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import static io.zonky.test.db.AutoConfigureEmbeddedDatabase.DatabaseProvider.ZONKY;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -31,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @AcrossWebAppConfiguration
-@AutoConfigureEmbeddedDatabase(beanName = "acrossDataSource")
+@AutoConfigureEmbeddedDatabase(beanName = "acrossDataSource", provider = ZONKY)
 @TestExecutionListeners({
     DependencyInjectionTestExecutionListener.class,
     DirtiesContextTestExecutionListener.class,
@@ -39,7 +40,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     DbUnitTestExecutionListener.class
 })
 @DbUnitConfiguration(databaseConnection = "acrossDataSource")
-@Slf4j
 public class BaseModuleTest {
     @Autowired
     AcrossContext context;
