@@ -30,6 +30,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -115,11 +116,11 @@ public class UserResource {
     public ResponseEntity<UserDTO> updateUser(@Valid @RequestBody UserDTO userDTO) {
         LOG.debug("REST request to update User : {}", userDTO);
         Optional<User> existingUser = userRepository.findOne(UserManagementService.emailMatches(userDTO.getEmail()));
-        if (existingUser.isPresent() && (!existingUser.get().getId().equals(userDTO.getId()))) {
+        if (existingUser.isPresent() && (!Objects.equals(existingUser.get().getId(), userDTO.getId()))) {
             throw new EmailAlreadyUsedException();
         }
         existingUser = userRepository.findByUsername(userDTO.getUsername().toLowerCase());
-        if (existingUser.isPresent() && (!existingUser.get().getId().equals(userDTO.getId()))) {
+        if (existingUser.isPresent() && (!Objects.equals(existingUser.get().getId(), userDTO.getId()))) {
             throw new LoginAlreadyUsedException();
         }
         Optional<UserDTO> updatedUser = userManagementService.updateUser(userDTO);

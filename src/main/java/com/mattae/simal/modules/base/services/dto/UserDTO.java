@@ -16,6 +16,7 @@ import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -48,6 +49,8 @@ public class UserDTO {
 
     private boolean activated = false;
 
+    private UUID organisationId;
+
     private String createdBy;
 
     private Date createdDate;
@@ -70,6 +73,7 @@ public class UserDTO {
         UserProperties properties = userPropertiesService.getProperties(user.getId());
         this.avatar = properties.getValue("avatar");
         activated = user.isEnabled();
+        this.organisationId = properties.getValue("organisationId");
         authorities = user.getAuthorities().stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.toSet());
