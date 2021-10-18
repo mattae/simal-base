@@ -7,19 +7,13 @@ import com.mattae.simal.modules.base.domain.repositories.WebComponentRepository;
 import com.mattae.simal.modules.base.services.dto.ComponentDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.function.EntityResponse;
-import org.springframework.web.servlet.function.RouterFunction;
-import org.springframework.web.servlet.function.ServerResponse;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static org.springframework.web.servlet.function.RouterFunctions.route;
 
 @Service
 @RequiredArgsConstructor
@@ -54,13 +48,5 @@ public class WebComponentService {
             }
             return null;
         }).orElse(null);
-    }
-
-    @Bean
-    public RouterFunction<ServerResponse> droductListing() {
-        return route().GET("/products", req -> {
-            LOG.info("Route request1: {}", req);
-            return EntityResponse.fromObject("New Product").build();
-        }).build();
     }
 }
