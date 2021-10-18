@@ -147,6 +147,7 @@ public class UserManagementService {
         return true;
     }
 
+    @Transactional
     public User createUser(UserDTO userDTO) {
         User user = new User();
         user.setRoles(userDTO.getRoles().stream()
@@ -164,20 +165,14 @@ public class UserManagementService {
         userProperties.set("avatar", userDTO.getAvatar());
         userProperties.set("resetKey", RandomUtil.generateActivationKey());
         userProperties.set("resetDate", Instant.now());
+        userProperties.set("organisationId", userDTO.getOrganisationId());
         userPropertiesService.saveProperties(userProperties);
         LOG.debug("Created Information for User: {}", user);
         return user;
     }
 
-    /**
-     * Update basic information (first name, last name, email, language) for the current user.
-     *
-     * @param firstName first name of user.
-     * @param lastName  last name of user.
-     * @param email     email id of user.
-     * @param avatar    image URL of user.
-     */
-    public void updateUser(String firstName, String lastName, String email, String avatar) {
+    @Transactional
+    public void updateUser(String firstName, String lastName, String email, String avatar, UUID organisationId) {
         Optional.of(currentSecurityPrincipalProxy.getPrincipalName())
             .flatMap(userRepository::findByUsername)
             .ifPresent(user -> {
@@ -189,17 +184,12 @@ public class UserManagementService {
                 userService.save(user);
                 UserProperties userProperties = userPropertiesService.getProperties(user.getId());
                 userProperties.set("avatar", avatar);
+                userProperties.set("organisationId", organisationId);
                 userPropertiesService.saveProperties(userProperties);
                 LOG.debug("Changed Information for User: {}", user);
             });
     }
 
-    /**
-     * Update all information for a specific user, and return the modified user.
-     *
-     * @param userDTO user to update.
-     * @return updated user.
-     */
     public Optional<UserDTO> updateUser(UserDTO userDTO) {
         return Optional.of(userRepository
             .findById(userDTO.getId()))
@@ -215,6 +205,7 @@ public class UserManagementService {
                 userService.save(user);
                 UserProperties userProperties = userPropertiesService.getProperties(user.getId());
                 userProperties.set("avatar", userDTO.getAvatar());
+                userProperties.set("organisationId", userDTO.getOrganisationId());
                 if (!userDTO.isActivated()) {
                     user.setRestrictions(Collections.singleton(UserRestriction.LOCKED));
                 }
