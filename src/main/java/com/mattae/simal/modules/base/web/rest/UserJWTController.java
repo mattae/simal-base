@@ -2,11 +2,14 @@ package com.mattae.simal.modules.base.web.rest;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.foreach.across.modules.user.repositories.UserRepository;
+import com.mattae.simal.modules.base.domain.entities.RefreshToken;
+import com.mattae.simal.modules.base.security.RefreshTokenService;
+import com.mattae.simal.modules.base.security.TokenRefreshException;
 import com.mattae.simal.modules.base.security.jwt.JWTFilter;
 import com.mattae.simal.modules.base.security.jwt.TokenProvider;
 import com.mattae.simal.modules.base.web.vm.LoginVM;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 
 /**
  * Controller to authenticate users.
@@ -27,11 +31,12 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@Slf4j
 public class UserJWTController {
 
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final RefreshTokenService refreshTokenService;
+    private final UserRepository userRepository;
 
 
     @PostMapping("/authenticate")
@@ -46,7 +51,22 @@ public class UserJWTController {
         String jwt = tokenProvider.createToken(authentication, rememberMe);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
-        return new ResponseEntity<>(new JWTToken(jwt), httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(new JWTToken(jwt, tokenProvider.createRefreshToken(loginVM.getUsername())), httpHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping("/refreshtoken")
+    public ResponseEntity<?> refresh(@Valid @RequestBody TokenRefreshRequest request) {
+        String requestRefreshToken = request.getRefreshToken();
+
+        return refreshTokenService.findByToken(requestRefreshToken)
+            .map(refreshTokenService::verifyExpiration)
+            .map(RefreshToken::getUser)
+            .map(user -> {
+                String token = tokenProvider.getTokenFromUsername(user.getUsername());
+                return ResponseEntity.ok(new JWTToken(token, tokenProvider.createRefreshToken(user.getUsername())));
+            })
+            .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
+                "Refresh token is not in database!"));
     }
 
     /**
@@ -54,19 +74,49 @@ public class UserJWTController {
      */
     static class JWTToken {
 
-        private String idToken;
+        private final static String tokenType = "Bearer";
+        private String accessToken;
+        private String refreshToken;
 
-        JWTToken(String idToken) {
-            this.idToken = idToken;
+        JWTToken(String accessToken, String refreshToken) {
+            this.accessToken = accessToken;
+            this.refreshToken = refreshToken;
         }
 
-        @JsonProperty("id_token")
-        String getIdToken() {
-            return idToken;
+        @JsonProperty("access_token")
+        String getAccessToken() {
+            return accessToken;
         }
 
-        void setIdToken(String idToken) {
-            this.idToken = idToken;
+        void setAccessToken(String accessToken) {
+            this.accessToken = accessToken;
+        }
+
+        @JsonProperty("refresh_token")
+        String getRefreshToken() {
+            return refreshToken;
+        }
+
+        public void setRefreshToken(String refreshToken) {
+            this.refreshToken = refreshToken;
+        }
+
+        @JsonProperty("token_type")
+        public String getTokenType() {
+            return tokenType;
+        }
+    }
+
+    static class TokenRefreshRequest {
+        @NotBlank
+        private String refreshToken;
+
+        public String getRefreshToken() {
+            return refreshToken;
+        }
+
+        public void setRefreshToken(String refreshToken) {
+            this.refreshToken = refreshToken;
         }
     }
 }

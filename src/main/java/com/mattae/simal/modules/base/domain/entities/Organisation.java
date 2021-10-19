@@ -17,6 +17,7 @@ import java.util.UUID;
 @EqualsAndHashCode(of = "id")
 public class Organisation {
     @Id
+    @GeneratedValue
     private UUID id;
 
     @OneToOne(fetch = FetchType.EAGER)

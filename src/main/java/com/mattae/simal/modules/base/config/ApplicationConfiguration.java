@@ -20,7 +20,6 @@ import java.time.Instant;
 
 @Configuration
 @Import({
-    JHipsterProperties.class,
     JooqAutoConfiguration.class,
     MailSenderAutoConfiguration.class
 })

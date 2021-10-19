@@ -1,6 +1,11 @@
 package com.mattae.simal.modules.base.security.jwt;
 
-import io.github.jhipster.config.JHipsterProperties;
+import com.foreach.across.modules.user.business.UserProperties;
+import com.foreach.across.modules.user.repositories.UserRepository;
+import com.foreach.across.modules.user.services.UserPropertiesService;
+import com.mattae.simal.modules.base.config.JwtProperties;
+import com.mattae.simal.modules.base.domain.entities.RefreshToken;
+import com.mattae.simal.modules.base.domain.repositories.RefreshTokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -15,14 +20,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -31,29 +36,21 @@ import java.util.stream.Collectors;
 public class TokenProvider {
 
     private static final String AUTHORITIES_KEY = "auth";
-    private final JHipsterProperties jHipsterProperties;
+    private static final String ORG_ID = "org_id";
+    private final JwtProperties jwtProperties;
     private Key key;
     private long tokenValidityInMilliseconds;
     private long tokenValidityInMillisecondsForRememberMe;
+    private final UserPropertiesService userPropertiesService;
+    private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @PostConstruct
     public void init() {
-        byte[] keyBytes;
-        String secret = jHipsterProperties.getSecurity().getAuthentication().getJwt().getSecret();
-        if (!StringUtils.isEmpty(secret)) {
-            LOG.warn("Warning: the JWT key used is not Base64-encoded. " +
-                "We recommend using the `jhipster.security.authentication.jwt.base64-secret` key for optimum security.");
-            keyBytes = secret.getBytes(StandardCharsets.UTF_8);
-        } else {
-            LOG.debug("Using a Base64-encoded JWT secret key");
-            keyBytes = Decoders.BASE64.decode(jHipsterProperties.getSecurity().getAuthentication().getJwt().getBase64Secret());
-        }
+        byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.getBase64Secret());
         this.key = Keys.hmacShaKeyFor(keyBytes);
-        this.tokenValidityInMilliseconds =
-            1000 * jHipsterProperties.getSecurity().getAuthentication().getJwt().getTokenValidityInSeconds();
-        this.tokenValidityInMillisecondsForRememberMe =
-            1000 * jHipsterProperties.getSecurity().getAuthentication().getJwt()
-                .getTokenValidityInSecondsForRememberMe();
+        this.tokenValidityInMilliseconds = 1000 * jwtProperties.getTokenValidityInSecs();
+        this.tokenValidityInMillisecondsForRememberMe = 1000 * jwtProperties.getTokenValidityInSecsForRememberMe();
     }
 
     public String createToken(Authentication authentication, boolean rememberMe) {
@@ -68,13 +65,63 @@ public class TokenProvider {
         } else {
             validity = new Date(now + this.tokenValidityInMilliseconds);
         }
+        String username = authentication.getName();
+        UUID organisationId = userRepository.findByUsername(username).map(user -> {
+            UserProperties userProperties = userPropertiesService.getProperties(user.getId());
+            return (UUID) userProperties.getValue("organisationId");
+        }).orElse(null);
 
         return Jwts.builder()
+            .setIssuedAt(new Date())
             .setSubject(authentication.getName())
             .claim(AUTHORITIES_KEY, authorities)
+            .claim(ORG_ID, organisationId)
             .signWith(key, SignatureAlgorithm.HS512)
             .setExpiration(validity)
             .compact();
+    }
+
+    public String getTokenFromUsername(String username) {
+        String authorities = userRepository.findByUsername(username).map(user -> user.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.joining(","))).orElse("");
+        UUID organisationId = userRepository.findByUsername(username).map(user -> {
+            UserProperties userProperties = userPropertiesService.getProperties(user.getId());
+            return (UUID) userProperties.getValue("organisationId");
+        }).orElse(null);
+
+        long now = (new Date()).getTime();
+        Date validity = new Date(now + this.tokenValidityInMilliseconds);
+        return Jwts.builder()
+            .setIssuedAt(new Date())
+            .setSubject(username)
+            .claim(AUTHORITIES_KEY, authorities)
+            .claim(ORG_ID, organisationId)
+            .signWith(key, SignatureAlgorithm.HS512)
+            .setExpiration(validity)
+            .compact();
+    }
+
+    public String createRefreshToken(String username) {
+        RefreshToken refreshToken = new RefreshToken();
+        com.foreach.across.modules.user.business.User user = userRepository.findByUsername(username).get();
+        refreshToken.setUser(user);
+        refreshToken.setExpiryDate(Instant.now().plusMillis(jwtProperties.getRefreshTokenDurationMillis()));
+
+        if (org.apache.commons.lang3.StringUtils.isBlank(user.getUsername())) {
+            throw new IllegalArgumentException("Cannot create JWT Token without username");
+        }
+        Claims claims = Jwts.claims().setSubject(user.getUsername());
+
+        String token = Jwts.builder()
+            .setClaims(claims)
+            .setIssuedAt(new Date())
+            .setExpiration(new Date(new Date().getTime() + jwtProperties.getRefreshTokenDurationMillis()))
+            .signWith(key, SignatureAlgorithm.HS512)
+            .compact();
+        refreshToken.setToken(token);
+        refreshTokenRepository.save(refreshToken);
+        return token;
     }
 
     public Authentication getAuthentication(String token) {
@@ -92,6 +139,15 @@ public class TokenProvider {
         User principal = new User(claims.getSubject(), "", authorities);
 
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+    }
+
+    public UUID getOrganisationId(String token) {
+        Claims claims = Jwts.parserBuilder()
+            .setSigningKey(key)
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
+        return claims.get(ORG_ID, UUID.class);
     }
 
     public boolean validateToken(String authToken) {
