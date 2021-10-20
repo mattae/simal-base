@@ -375,6 +375,8 @@
             <column name="country" type="varchar(32)">
                 <constraints nullable="false"/>
             </column>
+            <column name="archived" type="boolean" defaultValue="false"/>
+            <column name="last_modified_date" type="timestamp" defaultValueComputed="current_timestamp"/>
         </createTable>
     </changeSet>
 
@@ -388,6 +390,8 @@
             </column>
             <column name="legal_type" type="varchar(32)"/>
             <column name="display_name" type="varchar(16)"/>
+            <column name="archived" type="boolean" defaultValue="false"/>
+            <column name="last_modified_date" type="timestamp" defaultValueComputed="current_timestamp"/>
         </createTable>
 
         <createTable tableName="party_address">
@@ -428,6 +432,8 @@
             <column name="party_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
+            <column name="archived" type="boolean" defaultValue="false"/>
+            <column name="last_modified_date" type="timestamp" defaultValueComputed="current_timestamp"/>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="identifier" baseColumnNames="party_id"
@@ -442,9 +448,6 @@
         <createTable tableName="individual">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="type" type="varchar(32)">
-                <constraints nullable="false"/>
             </column>
             <column name="title" type="varchar(32)"/>
             <column name="initials" type="varchar(8)"/>
@@ -470,6 +473,8 @@
             <column name="party_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
+            <column name="archived" type="boolean" defaultValue="false"/>
+            <column name="last_modified_date" type="timestamp" defaultValueComputed="current_timestamp"/>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="individual" baseColumnNames="party_id"
@@ -500,6 +505,8 @@
             <column name="individual_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
+            <column name="archived" type="boolean" defaultValue="false"/>
+            <column name="last_modified_date" type="timestamp" defaultValueComputed="current_timestamp"/>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="individual_name" baseColumnNames="individual_id"
@@ -522,6 +529,9 @@
             <column name="party_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
+            <column name="archived" type="boolean" defaultValue="false"/>
+            <column name="active" type="boolean" defaultValue="true"/>
+            <column name="last_modified_date" type="timestamp" defaultValueComputed="current_timestamp"/>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="organisation" baseColumnNames="parent_id"

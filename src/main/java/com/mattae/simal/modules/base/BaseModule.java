@@ -10,9 +10,6 @@ import com.foreach.across.modules.user.UserModule;
 import com.foreach.across.modules.web.AcrossWebModule;
 import com.mattae.simal.modules.base.graphql.GraphQLModule;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.impl.DataSourceConnectionProvider;
-import org.jooq.impl.DefaultExecuteListenerProvider;
-import org.springframework.boot.autoconfigure.jooq.SpringTransactionProvider;
 
 @AcrossDepends(required = {
     AcrossHibernateJpaModule.NAME,

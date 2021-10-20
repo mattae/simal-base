@@ -203,6 +203,12 @@
         <dependency>
             <groupId>com.foreach.across.modules</groupId>
             <artifactId>bootstrap-ui-module</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.webjars</groupId>
+                    <artifactId>**</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.foreach.across.modules</groupId>

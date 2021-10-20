@@ -7,27 +7,24 @@ import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.spi.EntityViewConfiguration;
 import com.foreach.across.core.annotations.Exposed;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.*;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
+import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
-@Exposed
 public class BlazePersistenceConfiguration {
-
     @PersistenceUnit
     private EntityManagerFactory entityManagerFactory;
 
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
     @Lazy(false)
+    @Exposed
     public CriteriaBuilderFactory createCriteriaBuilderFactory() {
         CriteriaBuilderConfiguration config = Criteria.getDefault();
         return config.createCriteriaBuilderFactory(entityManagerFactory);
@@ -38,5 +35,12 @@ public class BlazePersistenceConfiguration {
     @Lazy(false)
     public EntityViewManager createEntityViewManager(CriteriaBuilderFactory cbf, EntityViewConfiguration entityViewConfiguration) {
         return entityViewConfiguration.createEntityViewManager(cbf);
+    }
+
+    @Bean
+    @Exposed
+    @Primary
+    public EntityManager entityManager(List<EntityManager> entityManagers) {
+        return entityManagers.get(0);
     }
 }
