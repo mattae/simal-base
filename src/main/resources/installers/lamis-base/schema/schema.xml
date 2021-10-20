@@ -533,4 +533,25 @@
                                  referencedColumnNames="id"/>
     </changeSet>
 
+    <changeSet author="mattae" id="20210120232001-16">
+        <createTable tableName="refresh_token">
+            <column name="id" type="serial" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="token" type="text">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="expiry_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="refresh_token" baseColumnNames="user_id"
+                                 constraintName="fk_refresh_token_user_id" referencedTableName="um_user"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
 </databaseChangeLog>

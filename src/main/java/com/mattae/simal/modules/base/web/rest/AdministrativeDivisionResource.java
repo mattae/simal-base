@@ -32,11 +32,11 @@ public class AdministrativeDivisionResource {
      *
      * @return the ResponseEntity with province 200 (OK) and the list of all level 1 AdministrativeDivisions in body
      */
-    /*@GetMapping("/administrative-divisions/country/{countryId}")
+    @GetMapping("/administrative-divisions/country/{countryId}")
     public List<AdministrativeDivision> getAllLevelOneAdministrativeDivisionsByCountry(@PathVariable Long countryId) {
         return countryRepository.findById(countryId)
             .map(administrativeDivisionRepository::findByCountryAndParentIsNull).orElse(new ArrayList<>());
-    }*/
+    }
 
     /**
      * GET  /administrative-divisions/parent/{parentId} : get all the level 1 administrativeDivisions for parent with id.

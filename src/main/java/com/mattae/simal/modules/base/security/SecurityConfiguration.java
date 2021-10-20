@@ -32,7 +32,6 @@ import org.springframework.web.filter.CorsFilter;
 @Slf4j
 public class SecurityConfiguration implements AcrossWebSecurityConfigurer {
     private final TokenProvider tokenProvider;
-    private final JHipsterProperties properties;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -60,7 +59,6 @@ public class SecurityConfiguration implements AcrossWebSecurityConfigurer {
             .antMatcher("/**")
             .csrf()
             .disable()
-            .addFilterBefore(corsFilter(), UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling()
             .and()
             .headers()
@@ -86,17 +84,6 @@ public class SecurityConfiguration implements AcrossWebSecurityConfigurer {
             .and()
             .apply(securityConfigurerAdapter());
         // @formatter:on
-    }
-
-    private CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = properties.getCors();
-        if (config.getAllowedOrigins() != null && !config.getAllowedOrigins().isEmpty()) {
-            LOG.debug("Registering CORS filter");
-            source.registerCorsConfiguration("/api/**", config);
-            source.registerCorsConfiguration("/graphql/**", config);
-        }
-        return new CorsFilter(source);
     }
 
     @Bean
