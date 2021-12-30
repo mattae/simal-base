@@ -101,7 +101,6 @@ public class ModuleService {
         Module module = new Module();
         ModuleConfig config = ModuleUtils.loadModuleConfig(file.getInputStream(), "module.yml");
         FileReference fileReference = fileReferenceService.save(file, ApplicationConfiguration.TEMP_MODULE_DIR);
-        LOG.info("Reference: {}", fileReference.getFileDescriptor());
         fileReferenceRepository.flush();
         FileReferenceProperties properties = fileReferencePropertiesService.getProperties(fileReference.getId());
         properties.put("name", config.getName());

@@ -1,27 +1,26 @@
 package com.mattae.simal.modules.base.domain.entities;
 
+import com.blazebit.persistence.view.EntityView;
+import com.blazebit.persistence.view.IdMapping;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.ResultCheckStyle;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Entity
+@Embeddable
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
-@Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@SQLDelete(sql = "update identifier set archived = true, last_modified_date = current_timestamp where id = ?", check = ResultCheckStyle.COUNT)
 @Where(clause = "archived = false")
+@Data
 public class Identifier {
-    @Id
-    @GeneratedValue
-    private UUID id;
 
     @Column(name = "type", nullable = false)
     @EqualsAndHashCode.Include
@@ -45,11 +44,22 @@ public class Identifier {
 
     private LocalDateTime lastModifiedDate = LocalDateTime.now();
 
-    @ManyToOne
-    private Party party;
-
     @PreUpdate
     public void update() {
         lastModifiedDate = LocalDateTime.now();
+    }
+
+    @EntityView(Identifier.class)
+    public interface View {
+
+        String getType();
+
+        String getValue();
+
+        String getRegister();
+
+        LocalDateTime getFromDate();
+
+        LocalDateTime getToDate();
     }
 }

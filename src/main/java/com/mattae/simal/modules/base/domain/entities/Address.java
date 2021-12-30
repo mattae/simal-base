@@ -1,40 +1,52 @@
 package com.mattae.simal.modules.base.domain.entities;
 
+import com.blazebit.persistence.view.EntityView;
+import com.blazebit.persistence.view.IdMapping;
+import com.foreach.across.modules.hibernate.business.AuditableEntity;
 import lombok.*;
 import org.hibernate.annotations.ResultCheckStyle;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Entity
+@Embeddable
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
-@Getter
-@EqualsAndHashCode(of = "id")
-@SQLDelete(sql = "update address set archived = true, last_modified_date = current_timestamp where id = ?", check = ResultCheckStyle.COUNT)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Where(clause = "archived = false")
+@Getter
+@Setter
+@ToString(onlyExplicitlyIncluded = true)
 public class Address {
-    @Id
-    @GeneratedValue
-    private UUID id;
 
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @NotNull
     private String line1;
 
+    @EqualsAndHashCode.Include
+    @ToString.Include
     private String line2;
 
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @NotNull
     private String city;
 
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @NotNull
     private String state;
 
+    @ToString.Include
     private String postalCode;
 
-    private String country;
-
+    @EqualsAndHashCode.Include
     private String addressType;
 
     private Boolean archived = false;
@@ -44,5 +56,20 @@ public class Address {
     @PreUpdate
     public void update() {
         lastModifiedDate = LocalDateTime.now();
+    }
+
+    @EntityView(Address.class)
+    public interface View {
+        String getLine1();
+
+        String getLine2();
+
+        String getCity();
+
+        String getState();
+
+        String getPostalCode();
+
+        String getAddressType();
     }
 }

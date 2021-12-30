@@ -1,5 +1,7 @@
 package com.mattae.simal.modules.base.domain.entities;
 
+import com.blazebit.persistence.view.EntityView;
+import com.blazebit.persistence.view.IdMapping;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -41,5 +43,17 @@ public class WebComponent implements Serializable, Persistable<UUID> {
     @JsonIgnore
     public boolean isNew() {
         return id == null;
+    }
+
+    @EntityView(WebComponent.class)
+    public interface View {
+        @IdMapping
+        UUID getId();
+
+        String getType();
+
+        UUID getComponentId();
+
+        Set<String> getAuthorities();
     }
 }

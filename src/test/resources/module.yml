@@ -1,0 +1,16 @@
+basePackage: com.mattae.modules
+name: TestModule
+store: true
+version: 1.0.0
+menus:
+    -   name: Tutorials
+        type: link
+        state: tutorials
+        icon: library_books
+webRemotes:
+    -   remoteEntry: "/across/resources/js/test/remoteEntry.js"
+        remoteName: _04006759_f4ec_4c71_97fc_7c23e6dc5c64
+        modules:
+            -   name: TutorialModule
+                ngModuleName: TutorialModule
+                routePath: tutorials

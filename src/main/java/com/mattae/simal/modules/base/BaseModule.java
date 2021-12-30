@@ -28,7 +28,7 @@ public class BaseModule extends AcrossModule {
         addApplicationContextConfigurer(new ComponentScanConfigurer(getClass().getPackage().getName() + ".services",
             getClass().getPackage().getName() + ".web", getClass().getPackage().getName() + ".security",
             getClass().getPackage().getName() + ".module", "org.springframework.web.socket",
-            getClass().getPackage().getName() + ".module"
+            getClass().getPackage().getName() + ".module", "com.blazebit.persistence.spring.data.webmvc"
         ));
     }
 

@@ -1,5 +1,6 @@
 package com.mattae.simal.modules.base.domain.entities;
 
+import com.foreach.across.modules.hibernate.business.AuditableEntity;
 import lombok.*;
 import org.hibernate.annotations.ResultCheckStyle;
 import org.hibernate.annotations.SQLDelete;
@@ -13,10 +14,10 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
-@Getter
 @SQLDelete(sql = "update individual_name set archived = true, last_modified_date = current_timestamp where id = ?", check = ResultCheckStyle.COUNT)
 @Where(clause = "archived = false")
+@Data
+@EqualsAndHashCode(of = "id")
 public class IndividualName {
 
     @Id

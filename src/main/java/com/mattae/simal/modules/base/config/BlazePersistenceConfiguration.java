@@ -3,6 +3,7 @@ package com.mattae.simal.modules.base.config;
 import com.blazebit.persistence.Criteria;
 import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.spi.CriteriaBuilderConfiguration;
+import com.blazebit.persistence.view.ConfigurationProperties;
 import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.spi.EntityViewConfiguration;
 import com.foreach.across.core.annotations.Exposed;
@@ -31,9 +32,10 @@ public class BlazePersistenceConfiguration {
     }
 
     @Bean
-    @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
-    @Lazy(false)
+    @Primary
     public EntityViewManager createEntityViewManager(CriteriaBuilderFactory cbf, EntityViewConfiguration entityViewConfiguration) {
+        entityViewConfiguration.setProperty(ConfigurationProperties.UPDATER_STRICT_CASCADING_CHECK, "false");
+        entityViewConfiguration.addEntityViewListener(AuditViewListenersConfiguration.class);
         return entityViewConfiguration.createEntityViewManager(cbf);
     }
 
