@@ -6,18 +6,16 @@ import com.blazebit.persistence.view.IdMapping;
 import com.blazebit.persistence.view.filter.EqualFilter;
 import com.mattae.simal.modules.base.domain.enumeration.PartyType;
 import lombok.*;
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.ResultCheckStyle;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
 @SQLDelete(sql = "update party set archived = true, last_modified_date = current_timestamp where id = ?", check = ResultCheckStyle.COUNT)
 @Where(clause = "archived = false")
@@ -39,14 +37,10 @@ public class Party {
     @Builder.Default
     private String displayName = "";
 
-    @ElementCollection
-    @CollectionTable(name = "party_addresses", joinColumns = @JoinColumn(name = "party_id"))
-    @SQLDeleteAll(sql = "update party_addresses set archived = true, last_modified_date = current_timestamp where party_id = ?", check = ResultCheckStyle.COUNT)
+    @OneToMany(mappedBy = "party", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
     private Set<Address> addresses;
 
-    @ElementCollection
-    @CollectionTable(name = "party_identifiers", joinColumns = @JoinColumn(name = "party_id"))
-    @SQLDeleteAll(sql = "update party_identifiers set archived = true, last_modified_date = current_timestamp where party_id = ?", check = ResultCheckStyle.COUNT)
+    @OneToMany(mappedBy = "party", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
     private Set<Identifier> identifiers;
 
     private Boolean archived = false;

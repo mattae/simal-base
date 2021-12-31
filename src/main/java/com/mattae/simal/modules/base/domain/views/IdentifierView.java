@@ -2,15 +2,17 @@ package com.mattae.simal.modules.base.domain.views;
 
 import com.blazebit.persistence.view.*;
 import com.mattae.simal.modules.base.domain.entities.Identifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.mattae.simal.modules.base.domain.entities.Party;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @EntityView(Identifier.class)
 @CreatableEntityView
 @UpdatableEntityView
 public interface IdentifierView extends Identifier.View {
+    void setId(UUID id);
+
     void setValue(String value);
 
     void setRegister(String register);
@@ -24,6 +26,10 @@ public interface IdentifierView extends Identifier.View {
     Boolean getArchived();
 
     void setArchived(Boolean archived);
+
+    Party.View getParty();
+
+    void setParty(Party.View party);
 
     LocalDateTime getLastModifiedDate();
 

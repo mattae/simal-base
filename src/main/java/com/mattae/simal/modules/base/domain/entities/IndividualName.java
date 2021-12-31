@@ -11,8 +11,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
 @SQLDelete(sql = "update individual_name set archived = true, last_modified_date = current_timestamp where id = ?", check = ResultCheckStyle.COUNT)
 @Where(clause = "archived = false")

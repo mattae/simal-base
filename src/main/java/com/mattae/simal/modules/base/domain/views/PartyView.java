@@ -13,12 +13,14 @@ import java.util.Set;
 public interface PartyView extends Party.View {
     void setType(PartyType type);
 
-    @UpdatableMapping
+    @UpdatableMapping(cascade = {CascadeType.UPDATE, CascadeType.PERSIST, CascadeType.DELETE})
+    @MappingInverse(removeStrategy = InverseRemoveStrategy.REMOVE)
     Set<AddressView> getAddresses();
 
     void setAddresses(Set<AddressView> addresses);
 
-    @UpdatableMapping
+    @UpdatableMapping(cascade = {CascadeType.UPDATE, CascadeType.PERSIST, CascadeType.DELETE})
+    @MappingInverse(removeStrategy = InverseRemoveStrategy.REMOVE)
     Set<IdentifierView> getIdentifiers();
 
     void setIdentifiers(Set<IdentifierView> identifiers);

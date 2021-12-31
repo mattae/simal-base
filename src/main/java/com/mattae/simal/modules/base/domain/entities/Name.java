@@ -1,13 +1,12 @@
 package com.mattae.simal.modules.base.domain.entities;
 
 import com.blazebit.persistence.view.EntityView;
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Embeddable;
 
 @Embeddable
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class Name {

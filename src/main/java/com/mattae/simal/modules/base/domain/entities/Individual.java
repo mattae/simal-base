@@ -20,8 +20,6 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 @SQLDelete(sql = "update individual set archived = true, last_modified_date = current_timestamp where id = ?", check = ResultCheckStyle.COUNT)

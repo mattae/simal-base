@@ -32,7 +32,6 @@ public class BlazePersistenceConfiguration {
     }
 
     @Bean
-    @Primary
     public EntityViewManager createEntityViewManager(CriteriaBuilderFactory cbf, EntityViewConfiguration entityViewConfiguration) {
         entityViewConfiguration.setProperty(ConfigurationProperties.UPDATER_STRICT_CASCADING_CHECK, "false");
         entityViewConfiguration.addEntityViewListener(AuditViewListenersConfiguration.class);
