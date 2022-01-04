@@ -1,15 +1,14 @@
 package com.mattae.simal.modules.base.domain.entities;
 
-import lombok.*;
+import com.blazebit.persistence.view.EntityView;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Embeddable;
 
 @Embeddable
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
-@Setter
-@Getter
+@Data
 public class Name {
 
     private String title;
@@ -32,4 +31,18 @@ public class Name {
 
     private String salutation;
 
+    @EntityView(Name.class)
+    public interface View {
+        String getTitle();
+
+        String getGivenName();
+
+        String getPreferredGivenName();
+
+        String getMiddleName();
+
+        String getInitials();
+
+        String getFamilyName();
+    }
 }

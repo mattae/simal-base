@@ -1,5 +1,6 @@
 package com.mattae.simal.modules.base.domain.entities;
 
+import com.mattae.simal.modules.base.config.AuditEntityListener;
 import com.vladmihalcea.hibernate.type.array.IntArrayType;
 import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
@@ -10,7 +11,6 @@ import lombok.Data;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 import org.springframework.data.domain.Persistable;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -25,7 +25,7 @@ import java.io.Serializable;
     @TypeDef(name = "jsonb-node", typeClass = JsonNodeBinaryType.class),
     @TypeDef(name = "json-node", typeClass = JsonNodeStringType.class),
 })
-@EntityListeners(AuditingEntityListener.class)
+@EntityListeners(AuditEntityListener.class)
 public class BaseEntity implements Serializable, Persistable<Long> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

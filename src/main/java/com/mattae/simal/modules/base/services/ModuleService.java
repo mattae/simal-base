@@ -83,7 +83,9 @@ public class ModuleService {
                 FileReference reference = fileReferenceRepository.getOne(id);
                 module.setFile(reference);
             });
+        LOG.info("Before save");
         Module module1 = moduleRepository.save(module);
+        LOG.info("After save");
         saveModuleData(module1);
         return module1;
     }
@@ -101,7 +103,6 @@ public class ModuleService {
         Module module = new Module();
         ModuleConfig config = ModuleUtils.loadModuleConfig(file.getInputStream(), "module.yml");
         FileReference fileReference = fileReferenceService.save(file, ApplicationConfiguration.TEMP_MODULE_DIR);
-        LOG.info("Reference: {}", fileReference.getFileDescriptor());
         fileReferenceRepository.flush();
         FileReferenceProperties properties = fileReferencePropertiesService.getProperties(fileReference.getId());
         properties.put("name", config.getName());
@@ -174,21 +175,24 @@ public class ModuleService {
         return dependencies;
     }
 
-    @SneakyThrows
     private void saveModuleData(Module module) {
         Collection<Long> ids = fileReferencePropertiesService.getEntityIdsForPropertyValue("name", module.getName());
         if (!ids.isEmpty()) {
-            FileReference reference = fileReferenceRepository.getOne(ids.iterator().next());
-            InputStream stream = fileManager.getFileResource(reference.getFileDescriptor()).getInputStream();
-            byte[] data = IOUtils.toByteArray(stream);
-            ModuleConfig config = ModuleUtils.loadModuleConfig(new ByteArrayInputStream(data), "module.yml");
-            if (config != null && config.isStore()) {
-                module.setData(data);
-                module.setFile(null);
-                fileReferenceService.delete(reference, true);
-                moduleRepository.save(module);
-            } else if (config != null && !config.isStore()) {
-                fileReferenceService.changeFileRepository(reference, MODULE_DIR);
+            try {
+                FileReference reference = fileReferenceRepository.getOne(ids.iterator().next());
+                InputStream stream = fileManager.getFileResource(reference.getFileDescriptor()).getInputStream();
+                byte[] data = IOUtils.toByteArray(stream);
+                ModuleConfig config = ModuleUtils.loadModuleConfig(new ByteArrayInputStream(data), "module.yml");
+                if (config != null && config.isStore()) {
+                    module.setData(data);
+                    module.setFile(null);
+                    fileReferenceService.delete(reference, true);
+                    moduleRepository.save(module);
+                } else if (config != null && !config.isStore()) {
+                    fileReferenceService.changeFileRepository(reference, MODULE_DIR);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }

@@ -1,9 +1,12 @@
 package com.mattae.simal.modules.base.web.rest;
 
+import com.mattae.simal.modules.base.domain.entities.ExposedComponent;
 import com.mattae.simal.modules.base.services.WebComponentService;
 import com.mattae.simal.modules.base.services.dto.ComponentDTO;
+import io.github.jhipster.web.util.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,9 +41,14 @@ public class WebComponentResource {
      *
      * @return the ResponseEntity with components 200 (OK) and the list of components in body
      */
-    @GetMapping("/web-components/{type}")
+    @GetMapping("/web-components/type/{type}")
     public List<ComponentDTO> getAllActiveWebComponents(@PathVariable String type) {
         LOG.debug("REST request to get all Components of type: {}", type);
         return webComponentService.getComponentsByType(type);
+    }
+
+    @GetMapping("/web-components/name/{name}")
+    public ResponseEntity<ExposedComponent.View> getByName(@PathVariable UUID name) {
+        return ResponseUtil.wrapOrNotFound(webComponentService.findByName(name));
     }
 }
