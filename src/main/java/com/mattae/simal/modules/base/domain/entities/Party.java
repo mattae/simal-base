@@ -5,7 +5,10 @@ import com.blazebit.persistence.view.EntityView;
 import com.blazebit.persistence.view.IdMapping;
 import com.blazebit.persistence.view.filter.EqualFilter;
 import com.mattae.simal.modules.base.domain.enumeration.PartyType;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.ResultCheckStyle;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -27,14 +30,11 @@ public class Party {
     @GeneratedValue
     private UUID id;
 
-    @Builder.Default
     @Enumerated(EnumType.STRING)
     private PartyType type = PartyType.INDIVIDUAL;
 
-    @Builder.Default
     private String legalType = "";
 
-    @Builder.Default
     private String displayName = "";
 
     @OneToMany(mappedBy = "party", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
