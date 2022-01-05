@@ -1,23 +1,23 @@
 package com.mattae.simal.modules.base.services;
 
+import com.blazebit.persistence.view.EntityViewManager;
 import com.mattae.simal.modules.base.domain.entities.Organisation;
-import com.mattae.simal.modules.base.domain.repositories.OrganisationRepository;
 import com.mattae.simal.modules.base.security.jwt.JWTFilter;
 import com.mattae.simal.modules.base.security.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class AuthService {
     private final HttpServletRequest servletRequest;
     private final TokenProvider tokenProvider;
-    private final OrganisationRepository organisationRepository;
+    private final EntityViewManager evm;
+    private final EntityManager em;
 
     public String username() {
         String jwt = JWTFilter.resolveToken(servletRequest);
@@ -27,10 +27,14 @@ public class AuthService {
         return null;
     }
 
-    public Organisation organisation() {
+    public Organisation.IdView organisation() {
         String jwt = JWTFilter.resolveToken(servletRequest);
         if (isValidToken(jwt)) {
-            return organisationRepository.findById(tokenProvider.getOrganisationId(jwt)).orElse(null);
+            try {
+                return evm.find(em, Organisation.IdView.class, tokenProvider.getOrganisationId(jwt));
+            } catch (Exception e) {
+                return null;
+            }
         }
         return null;
     }
