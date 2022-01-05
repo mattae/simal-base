@@ -2,7 +2,6 @@ package com.mattae.simal.modules.base.services;
 
 import com.blazebit.persistence.view.EntityViewManager;
 import com.mattae.simal.modules.base.domain.entities.Organisation;
-import com.mattae.simal.modules.base.domain.repositories.OrganisationRepository;
 import com.mattae.simal.modules.base.security.jwt.JWTFilter;
 import com.mattae.simal.modules.base.security.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 public class AuthService {
     private final HttpServletRequest servletRequest;
     private final TokenProvider tokenProvider;
-    private final OrganisationRepository organisationRepository;
     private final EntityViewManager evm;
     private final EntityManager em;
 

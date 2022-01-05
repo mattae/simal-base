@@ -2,6 +2,7 @@ package com.mattae.simal.modules.base;
 
 import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.view.EntityViewManager;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.foreach.across.core.AcrossContext;
 import com.foreach.across.modules.filemanager.FileManagerModuleSettings;
 import com.foreach.across.modules.filemanager.services.FileManager;
@@ -22,7 +23,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.graphql.GraphQlService;
-import org.springframework.graphql.boot.GraphQlProperties;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -34,13 +34,12 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.persistence.EntityManager;
-import java.time.Duration;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static io.zonky.test.db.AutoConfigureEmbeddedDatabase.DatabaseProvider.ZONKY;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -82,6 +81,10 @@ public class BaseModuleTest {
     EntityManager em;
     @Autowired
     CriteriaBuilderFactory cbf;
+    @Autowired
+    TransactionTemplate transactionTemplate;
+    @Autowired
+    ObjectMapper objectMapper;
     private GraphQlTester graphQlTester;
 
     @Test
@@ -112,41 +115,45 @@ public class BaseModuleTest {
         Flux.just(1, 2, 3, 4)
             .log()
             .subscribe(e-> LOG.info("Element: {}", e));*/
+        transactionTemplate.execute(status -> {
+            Party party = new Party();
+            party.setDisplayName("Party");
 
-        Party party = new Party();
-        party.setDisplayName("Party");
-        Address address = new Address();
-        address.setLine1("line1");
-        address.setLine2("line2");
-        address.setCity("city");
-        address.setAddressType("Residential");
-        address.setState("state");
+            party = partyRepository.save(party);
+            Address address = new Address();
+            address.setLine1("line1");
+            address.setLine2("line2");
+            address.setCity("city");
+            address.setAddressType("Residential");
+            address.setState("state");
+            address.setParty(party);
 
-        Address address2 = new Address();
-        address2.setLine1("line11");
-        address2.setLine2("line22");
-        address2.setCity("city2");
-        address2.setAddressType("Residential");
-        address2.setState("state2");
-        party.setAddresses(Set.of(address, address2));
+            Address address2 = new Address();
+            address2.setLine1("line11");
+            address2.setLine2("line22");
+            address2.setCity("city2");
+            address2.setAddressType("Residential");
+            address2.setState("state2");
+            address2.setParty(party);
+            party.setAddresses(Set.of(address, address2));
 
-        partyRepository.save(party);
-        partyRepository.flush();
-        Party party1 = partyRepository.findAll().get(1);
+            Party party1 = partyRepository.findAll().get(1);
 
-        Address address3 = new Address();
-        address3.setLine1("line13");
-        address3.setLine2("line23");
-        address3.setCity("city3");
-        address3.setAddressType("Residential");
-        address3.setState("state3");
+            Address address3 = new Address();
+            address3.setLine1("line13");
+            address3.setLine2("line23");
+            address3.setCity("city3");
+            address3.setAddressType("Residential");
+            address3.setState("state3");
 
-        PartyView pv = evm.find(em, PartyView.class, party.getId());
-        pv.getAddresses().remove(pv.getAddresses().iterator().next());
-        AddressView a = evm.convert(address3, AddressView.class);
-        pv.getAddresses().add(a);
-        evm.save(em, pv);
-        LOG.info("Address: {}", pv.getAddresses());
+            PartyView pv = evm.find(em, PartyView.class, party.getId());
+            pv.getAddresses().remove(pv.getAddresses().iterator().next());
+            AddressView a = objectMapper.convertValue(address3, AddressView.class);
+            pv.getAddresses().add(a);
+            evm.save(em, pv);
+            LOG.info("Address: {}", pv.getAddresses());
+            return null;
+        });
     }
 
     @SneakyThrows
@@ -156,7 +163,7 @@ public class BaseModuleTest {
     }
 
     @AcrossTestConfiguration(modules = BaseModule.NAME, expose = {FileManagerModuleSettings.class,
-        GraphQlService.class, EntityViewManager.class, EntityManager.class})
+        GraphQlService.class, EntityViewManager.class, EntityManager.class, ObjectMapper.class})
     @PropertySource("classpath:across-test.properties")
     @EnableTransactionManagement
     static class Config {
