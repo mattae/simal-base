@@ -1,5 +1,7 @@
 package com.mattae.simal.modules.base.domain.entities;
 
+import com.blazebit.persistence.view.EntityView;
+import com.blazebit.persistence.view.IdMapping;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.foreach.across.modules.filemanager.business.reference.FileReference;
 import lombok.Data;
@@ -79,5 +81,23 @@ public class Module implements Serializable, Persistable<UUID> {
         BeanUtils.copyProperties(this, module, "webComponents", "forms",
             "menus", "webRemotes", "file", "data");
         return module;
+    }
+
+    @EntityView(Module.class)
+    public interface View {
+        @IdMapping
+        UUID getId();
+
+        String getName();
+
+        String getBasePackage();
+
+        String getDescription();
+
+        String getVersion();
+
+        Date getBuildTime();
+
+        Boolean getActive();
     }
 }

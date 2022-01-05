@@ -1,5 +1,7 @@
 package com.mattae.simal.modules.base.domain.entities;
 
+import com.blazebit.persistence.view.EntityView;
+import com.blazebit.persistence.view.IdMapping;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -53,5 +55,25 @@ public class ExposedModule implements Persistable<UUID>, Serializable, Comparabl
     @Override
     public int compareTo(ExposedModule o) {
         return position.compareTo(o.position);
+    }
+
+    @EntityView(ExposedModule.class)
+    public interface View {
+        @IdMapping
+        UUID getId();
+
+        String getName();
+
+        String getNgModuleName();
+
+        String getRoutePath();
+
+        int getPosition();
+
+        String getBreadcrumb();
+
+        String getTitle();
+
+        Set<String> getAuthorities();
     }
 }

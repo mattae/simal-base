@@ -1,5 +1,7 @@
 package com.mattae.simal.modules.base.domain.entities;
 
+import com.blazebit.persistence.view.EntityView;
+import com.blazebit.persistence.view.IdMapping;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -44,5 +46,19 @@ public final class WebRemote implements Persistable<UUID>, Serializable {
     @JsonIgnore
     public boolean isNew() {
         return id == null;
+    }
+
+    @EntityView(WebRemote.class)
+    public interface View {
+        @IdMapping
+        UUID getId();
+
+        String getRemoteName();
+
+        String getRemoteEntry();
+
+        Set<ExposedModule.View> getModules();
+
+        Set<ExposedComponent.View> getComponents();
     }
 }

@@ -6,14 +6,12 @@ import com.foreach.across.modules.user.services.UserPropertiesService;
 import com.mattae.simal.modules.base.config.JwtProperties;
 import com.mattae.simal.modules.base.domain.entities.RefreshToken;
 import com.mattae.simal.modules.base.domain.repositories.RefreshTokenRepository;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -108,7 +106,7 @@ public class TokenProvider {
         refreshToken.setUser(user);
         refreshToken.setExpiryDate(Instant.now().plusMillis(jwtProperties.getRefreshTokenDurationMillis()));
 
-        if (org.apache.commons.lang3.StringUtils.isBlank(user.getUsername())) {
+        if (StringUtils.isBlank(user.getUsername())) {
             throw new IllegalArgumentException("Cannot create JWT Token without username");
         }
         Claims claims = Jwts.claims().setSubject(user.getUsername());
@@ -147,15 +145,21 @@ public class TokenProvider {
             .build()
             .parseClaimsJws(token)
             .getBody();
-        return claims.get(ORG_ID, UUID.class);
+        try {
+            return UUID.fromString(claims.get(ORG_ID, String.class));
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public boolean validateToken(String authToken) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(authToken);
             return true;
+        } catch (ExpiredJwtException e) {
+            LOG.trace("JWT token expired.");
+            throw e;
         } catch (JwtException | IllegalArgumentException e) {
-            LOG.info("Invalid JWT token.");
             LOG.trace("Invalid JWT token trace.", e);
         }
         return false;

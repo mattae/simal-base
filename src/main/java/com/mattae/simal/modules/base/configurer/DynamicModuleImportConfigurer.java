@@ -169,9 +169,11 @@ public class DynamicModuleImportConfigurer implements AcrossContextConfigurer {
 
     private void addClassPathURL(URL url) {
         ClassLoader classLoader = BootstrapClassLoaderHolder.CLASS_LOADER;
+
         if (classLoader != null) {
             try {
-                Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+                Method method = Class.forName("org.springframework.boot.loader.LaunchedURLClassLoader")
+                    .getMethod("addURL", URL.class);
                 method.setAccessible(true);
                 method.invoke(classLoader, url);
             } catch (Exception e) {
@@ -249,7 +251,6 @@ public class DynamicModuleImportConfigurer implements AcrossContextConfigurer {
                 String artifact = module.file;
                 final Path moduleRuntimePath = Paths.get(MODULE_PATH, "runtime",
                     StringUtils.replace(artifact, "\\", "/").replaceAll(":", "/"));
-                LOG.info("Module runtime: {} - {}", moduleRuntimePath, MODULE_PATH);
                 try {
                     addClassPathURL(moduleRuntimePath.toUri().toURL());
                 } catch (MalformedURLException e) {

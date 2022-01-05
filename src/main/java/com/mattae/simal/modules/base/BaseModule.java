@@ -10,9 +10,6 @@ import com.foreach.across.modules.user.UserModule;
 import com.foreach.across.modules.web.AcrossWebModule;
 import com.mattae.simal.modules.base.graphql.GraphQLModule;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.impl.DataSourceConnectionProvider;
-import org.jooq.impl.DefaultExecuteListenerProvider;
-import org.springframework.boot.autoconfigure.jooq.SpringTransactionProvider;
 
 @AcrossDepends(required = {
     AcrossHibernateJpaModule.NAME,
@@ -31,7 +28,7 @@ public class BaseModule extends AcrossModule {
         addApplicationContextConfigurer(new ComponentScanConfigurer(getClass().getPackage().getName() + ".services",
             getClass().getPackage().getName() + ".web", getClass().getPackage().getName() + ".security",
             getClass().getPackage().getName() + ".module", "org.springframework.web.socket",
-            getClass().getPackage().getName() + ".module"
+            getClass().getPackage().getName() + ".module", "com.blazebit.persistence.spring.data.webmvc"
         ));
     }
 

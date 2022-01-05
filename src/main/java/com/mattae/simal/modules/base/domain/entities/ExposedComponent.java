@@ -1,5 +1,8 @@
 package com.mattae.simal.modules.base.domain.entities;
 
+import com.blazebit.persistence.view.EntityView;
+import com.blazebit.persistence.view.IdMapping;
+import com.blazebit.persistence.view.Mapping;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -27,7 +30,6 @@ public class ExposedComponent implements Persistable<UUID>, Serializable {
 
     private String componentName;
 
-    @NotNull
     private String routePath;
 
     @NotNull
@@ -36,6 +38,8 @@ public class ExposedComponent implements Persistable<UUID>, Serializable {
     private String breadcrumb;
 
     private String title;
+
+    private UUID name;
 
     @ManyToOne
     @NotNull
@@ -52,5 +56,35 @@ public class ExposedComponent implements Persistable<UUID>, Serializable {
     @JsonIgnore
     public boolean isNew() {
         return id == null;
+    }
+
+    @EntityView(ExposedComponent.class)
+    public interface View {
+        @IdMapping
+        UUID getId();
+
+        String getExposedName();
+
+        String getElementName();
+
+        String getComponentName();
+
+        String getRoutePath();
+
+        int getPosition();
+
+        String getBreadcrumb();
+
+        String getTitle();
+
+        UUID getName();
+
+        @Mapping("webRemote.remoteEntry")
+        String getRemoteEntry();
+
+        @Mapping("webRemote.remoteName")
+        String getRemoteName();
+
+        Set<String> getAuthorities();
     }
 }
