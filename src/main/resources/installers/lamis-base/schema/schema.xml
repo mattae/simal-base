@@ -480,7 +480,6 @@
             <column name="party_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
-            <column name="user_id" type="bigint"/>
             <column name="archived" type="boolean" defaultValue="false"/>
             <column name="created_date" type="timestamp" defaultValueComputed="current_timestamp">
                 <constraints nullable="false"/>
@@ -490,9 +489,6 @@
 
         <addForeignKeyConstraint baseTableName="individual" baseColumnNames="party_id"
                                  constraintName="fk_individual_party_id" referencedTableName="party"
-                                 referencedColumnNames="id"/>
-        <addForeignKeyConstraint baseTableName="individual" baseColumnNames="user_id"
-                                 constraintName="fk_individual_user_id" referencedTableName="um_user"
                                  referencedColumnNames="id"/>
     </changeSet>
 
@@ -622,6 +618,12 @@
             <column name="provider"/>
             <column name="active"/>
         </createIndex>
+    </changeSet>
+
+    <changeSet id="20211019005923-07" author="mattae">
+        <addColumn tableName="um_user">
+            <column name="individual_id" type="UUID"/>
+        </addColumn>
     </changeSet>
 
 </databaseChangeLog>

@@ -1,5 +1,6 @@
 package com.mattae.simal.modules.base.graphql;
 
+import com.blazebit.persistence.view.EntityViewManager;
 import com.foreach.across.core.AcrossModule;
 import com.foreach.across.core.annotations.AcrossRole;
 import com.foreach.across.core.context.AcrossModuleRole;
@@ -26,5 +27,6 @@ public class GraphQLModule extends AcrossModule {
     @Override
     public void prepareForBootstrap(ModuleBootstrapConfig currentModule, AcrossBootstrapConfig contextConfig) {
         currentModule.expose("graphQlRouterFunction");
+        currentModule.expose(EntityViewManager.class);
     }
 }

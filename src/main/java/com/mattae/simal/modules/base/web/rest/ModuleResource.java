@@ -96,7 +96,7 @@ public class ModuleResource {
     @GetMapping("/modules/web-remotes")
     @Cacheable(cacheNames = "webRemotes")
     public List<WebRemote> getWebRemotes() {
-        return moduleRepository.findByActiveIsTrue().stream()
+        return moduleRepository.findByStartedIsTrue().stream()
             .flatMap(module -> webRemoteRepository.findByModule(module).stream())
             .collect(Collectors.toList());
     }

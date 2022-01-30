@@ -3,10 +3,12 @@ package com.mattae.simal.modules.base.domain.entities;
 import com.blazebit.persistence.view.PrePersist;
 import com.blazebit.persistence.view.PreRemove;
 import com.blazebit.persistence.view.*;
-import com.foreach.across.modules.user.business.User;
 import com.mattae.simal.modules.base.domain.views.NameView;
 import com.mattae.simal.modules.base.domain.views.PartyView;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.ResultCheckStyle;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -33,9 +35,6 @@ public class Individual {
 
     @ManyToOne(optional = false, cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private Party party;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private User user;
 
     @Embedded
     private Name name;

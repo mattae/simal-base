@@ -15,7 +15,6 @@ import com.mattae.simal.modules.base.services.dto.ModuleDependencyDTO;
 import com.mattae.simal.modules.base.yml.ModuleConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -37,7 +36,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ModuleService {
     public static final String MODULE_DIR = "module-data";
     private final ModuleRepository moduleRepository;
@@ -83,9 +81,7 @@ public class ModuleService {
                 FileReference reference = fileReferenceRepository.getOne(id);
                 module.setFile(reference);
             });
-        LOG.info("Before save");
         Module module1 = moduleRepository.save(module);
-        LOG.info("After save");
         saveModuleData(module1);
         return module1;
     }

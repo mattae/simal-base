@@ -15,6 +15,7 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -38,10 +39,10 @@ public class Party {
     private String displayName = "";
 
     @OneToMany(mappedBy = "party", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
-    private Set<Address> addresses;
+    private Set<Address> addresses = new HashSet<>();
 
     @OneToMany(mappedBy = "party", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
-    private Set<Identifier> identifiers;
+    private Set<Identifier> identifiers = new HashSet<>();
 
     private Boolean archived = false;
 

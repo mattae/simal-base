@@ -16,7 +16,6 @@ import com.mattae.simal.modules.base.yml.ModuleConfig;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,7 +32,6 @@ import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
@@ -47,7 +45,6 @@ import java.util.stream.Collectors;
 
 @Configuration
 @RequiredArgsConstructor
-@Slf4j
 public class DynamicModuleImportConfigurer implements AcrossContextConfigurer {
     private static final ObjectMapper MAPPER;
     public static String MODULE_PATH = "";
@@ -80,8 +77,8 @@ public class DynamicModuleImportConfigurer implements AcrossContextConfigurer {
                     Class<?> cls = classLoader.loadClass(className);
                     Constructor<?> ctor = cls.getConstructor();
                     context.addModule((AcrossModule) ctor.newInstance());
-                } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                    e.printStackTrace();
+                } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException |
+                    IllegalAccessException | InvocationTargetException ignored) {
                 }
             }
         });
@@ -176,8 +173,7 @@ public class DynamicModuleImportConfigurer implements AcrossContextConfigurer {
                     .getMethod("addURL", URL.class);
                 method.setAccessible(true);
                 method.invoke(classLoader, url);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception ignored) {
             }
         }
     }
@@ -194,8 +190,8 @@ public class DynamicModuleImportConfigurer implements AcrossContextConfigurer {
                     List<Dependency> deps = config.getDependencies();
                     List<Map<String, Object>> dependencies = config.getDependencies().stream()
                         .flatMap(d -> jdbcTemplate.queryForList(
-                            "select id, version installed, ? required, active, name from module where name = ?",
-                            d.getVersion(), d.getName())
+                                "select id, version installed, ? required, active, name from module where name = ?",
+                                d.getVersion(), d.getName())
                             .stream())
                         .collect(Collectors.toList());
                     boolean valid = dependencies.stream()
@@ -253,12 +249,10 @@ public class DynamicModuleImportConfigurer implements AcrossContextConfigurer {
                     StringUtils.replace(artifact, "\\", "/").replaceAll(":", "/"));
                 try {
                     addClassPathURL(moduleRuntimePath.toUri().toURL());
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
+                } catch (Exception ignored) {
                 }
             });
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
     }
 
