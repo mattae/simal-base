@@ -163,7 +163,7 @@ public class ModuleConfigProcessor {
         deleteRolesAndPermissions(module);
         webComponentRepository.deleteAll(webComponentRepository.findByModule(module));
         menuRepository.deleteAll(menuRepository.findByModule(module));
-        webRemoteRepository.findByModule(module).forEach(webRemoteRepository::delete);
+        webRemoteRepository.deleteAll(webRemoteRepository.findByModule(module));
         webRemoteRepository.flush();
     }
 

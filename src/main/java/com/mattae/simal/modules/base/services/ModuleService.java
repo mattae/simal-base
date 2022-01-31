@@ -12,12 +12,13 @@ import com.mattae.simal.modules.base.domain.entities.Module;
 import com.mattae.simal.modules.base.domain.repositories.ModuleRepository;
 import com.mattae.simal.modules.base.module.ModuleUtils;
 import com.mattae.simal.modules.base.services.dto.ModuleDependencyDTO;
+import com.mattae.simal.modules.base.web.vm.ModuleVM;
 import com.mattae.simal.modules.base.yml.ModuleConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -44,34 +45,35 @@ public class ModuleService {
     private final FileReferencePropertiesService fileReferencePropertiesService;
     private final FileReferenceRepository fileReferenceRepository;
 
-    public Optional<Module> getModule(UUID id) {
+    public Optional<ModuleVM> getModule(UUID id) {
         return moduleRepository.findById(id).stream()
-            .map(Module::copy)
+            .map(this::vmFromModule)
             .findFirst();
     }
 
-    public Module activate(Module module) {
+    public ModuleVM activate(Module module) {
         module.setActive(true);
-        return moduleRepository.save(module);
+        module = moduleRepository.save(module);
+        return vmFromModule(module);
     }
 
-    public Module deactivate(Module module) {
+    public ModuleVM deactivate(Module module) {
         module.setActive(false);
-        return moduleRepository.save(module);
+        module = moduleRepository.save(module);
+        return vmFromModule(module);
     }
 
-    public List<Module> getModules() {
+    public List<ModuleVM> getModules() {
         return moduleRepository.findAll().stream()
-            .map(Module::copy)
+            .map(this::vmFromModule)
             .collect(Collectors.toList());
     }
 
     @SneakyThrows
     @Transactional
-    public Module installOrUpdate(Module updateModule) {
+    public ModuleVM installOrUpdate(Module updateModule) {
         final Module module = moduleRepository.findByName(updateModule.getName()).orElse(updateModule);
         module.setVersion(updateModule.getVersion());
-        module.setDescription(updateModule.getDescription());
         module.setBasePackage(updateModule.getBasePackage());
         module.setBuildTime(updateModule.getBuildTime());
         module.setActive(true);
@@ -83,7 +85,9 @@ public class ModuleService {
             });
         Module module1 = moduleRepository.save(module);
         saveModuleData(module1);
-        return module1;
+        ModuleVM vm = new ModuleVM();
+        BeanUtils.copyProperties(module1, vm);
+        return vm;
     }
 
     public void uninstall(UUID id) {
@@ -98,6 +102,12 @@ public class ModuleService {
     public Module uploadModuleData(MultipartFile file) {
         Module module = new Module();
         ModuleConfig config = ModuleUtils.loadModuleConfig(file.getInputStream(), "module.yml");
+        fileReferencePropertiesService.getEntityIdsForPropertyValue("name", config.getName())
+            .forEach(id -> {
+                fileReferenceRepository.findById(id).ifPresent(fileReference -> {
+                    fileReferenceService.delete(fileReference, true);
+                });
+            });
         FileReference fileReference = fileReferenceService.save(file, ApplicationConfiguration.TEMP_MODULE_DIR);
         fileReferenceRepository.flush();
         FileReferenceProperties properties = fileReferencePropertiesService.getProperties(fileReference.getId());
@@ -111,10 +121,6 @@ public class ModuleService {
         Manifest manifest = new Manifest(url.openStream());
         Attributes attributes = manifest.getMainAttributes();
         module.setVersion(attributes.getValue("Implementation-Version"));
-        module.setDescription(attributes.getValue("Implementation-Title"));
-        if (StringUtils.isNotBlank(config.getSummary())) {
-            module.setDescription(config.getSummary());
-        }
         try {
             Date date = DateUtils.parseDate(attributes.getValue("Build-Time"), "yyyyMMdd-HHmm",
                 "yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -158,6 +164,7 @@ public class ModuleService {
                                 dto.setId(m.getId());
                                 dto.setActive(m.getActive());
                                 dto.setInstalledVersion(m.getVersion());
+                                dto.setStarted(m.getStarted());
                                 Version installed = Version.valueOf(m.getVersion());
                                 dto.setVersionSatisfied(installed.satisfies(version));
                             });
@@ -191,5 +198,33 @@ public class ModuleService {
                 e.printStackTrace();
             }
         }
+    }
+
+    private ModuleVM vmFromModule(Module module) {
+        try {
+            InputStream inputStream = null;
+            byte[] data = module.getData();
+            if (data != null) {
+                inputStream = new ByteArrayInputStream(data);
+            } else {
+                Collection<Long> ids = fileReferencePropertiesService.getEntityIdsForPropertyValue("name", module.getName());
+                if (!ids.isEmpty()) {
+                    FileReference reference = fileReferenceRepository.getOne(ids.iterator().next());
+                    inputStream = fileManager.getFileResource(reference.getFileDescriptor()).getInputStream();
+                }
+            }
+            Assert.notNull(inputStream, "Cannot read module data");
+            ModuleConfig config = ModuleUtils.loadModuleConfig(inputStream, "module.yml");
+            ModuleVM vm = new ModuleVM();
+            BeanUtils.copyProperties(module, vm);
+            BeanUtils.copyProperties(config, vm);
+            if (vm.getBuildDate() == null) {
+                vm.setBuildDate(vm.getBuildTime());
+            }
+            return vm;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

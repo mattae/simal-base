@@ -36,8 +36,6 @@ public class Module implements Serializable, Persistable<UUID> {
     @Column(unique = true)
     private String basePackage;
 
-    private String description;
-
     private String version;
 
     private Date buildTime;
@@ -91,8 +89,6 @@ public class Module implements Serializable, Persistable<UUID> {
         String getName();
 
         String getBasePackage();
-
-        String getDescription();
 
         String getVersion();
 

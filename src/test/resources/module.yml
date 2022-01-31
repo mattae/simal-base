@@ -2,6 +2,9 @@ basePackage: com.mattae.modules
 name: TestModule
 store: true
 version: 1.0.0
+buildDate: 1987-03-31
+url: https://foo.com/blah_blah
+image: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==
 menus:
     -   name: Tutorials
         type: link
@@ -14,3 +17,6 @@ webRemotes:
             -   name: TutorialModule
                 ngModuleName: TutorialModule
                 routePath: tutorials
+        components:
+            -   exposedName: Component
+                componentName: Component

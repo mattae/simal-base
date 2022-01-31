@@ -35,7 +35,8 @@ public class ConfigSchemaValidator {
     @SneakyThrows
     public static boolean isValid(String config) {
         URI schemaFile = new ClassPathResource("config-schema.json").getURI();
-        JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)).objectMapper(MAPPER).build();
+        JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory
+            .getInstance(SpecVersion.VersionFlag.V201909)).objectMapper(MAPPER).build();
 
         Set<ValidationMessage> invalidMessages = factory.getSchema(schemaFile)
             .validate(MAPPER.readTree(config));
