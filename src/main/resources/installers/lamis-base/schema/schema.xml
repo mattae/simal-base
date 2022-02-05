@@ -611,7 +611,6 @@
             <column name="active" type="boolean" defaultValue="true"/>
         </createTable>
 
-        <addUniqueConstraint tableName="value_set" columnNames="value,type,provider"/>
         <createIndex tableName="value_set" indexName="idx_value_set_type_provider_active">
             <column name="type"/>
             <column name="provider"/>
@@ -623,6 +622,16 @@
         <addColumn tableName="um_user">
             <column name="individual_id" type="UUID"/>
         </addColumn>
+    </changeSet>
+
+    <changeSet id="20220205001723-01" author="mattae">
+        <addColumn tableName="value_set">
+            <column name="lang" type="varchar(2)"/>
+        </addColumn>
+
+        <sql>
+            create unique index idx_value_set_unique on value_set (value, type, provider, ( lang is null)) where lang is null;
+        </sql>
     </changeSet>
 
 </databaseChangeLog>

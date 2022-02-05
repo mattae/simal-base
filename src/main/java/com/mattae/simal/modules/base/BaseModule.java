@@ -21,14 +21,14 @@ import lombok.extern.slf4j.Slf4j;
 })
 @Slf4j
 public class BaseModule extends AcrossModule {
-    public static final String NAME = "SIMALBaseModule";
+    public static final String NAME = "SIMALCoreModule";
 
     public BaseModule() {
         super();
         addApplicationContextConfigurer(new ComponentScanConfigurer(getClass().getPackage().getName() + ".services",
             getClass().getPackage().getName() + ".web", getClass().getPackage().getName() + ".security",
             getClass().getPackage().getName() + ".module", "org.springframework.web.socket",
-            getClass().getPackage().getName() + ".module", "com.blazebit.persistence.spring.data.webmvc"
+            "com.blazebit.persistence.spring.data.webmvc"
         ));
     }
 

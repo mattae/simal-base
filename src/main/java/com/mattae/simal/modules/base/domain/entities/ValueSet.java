@@ -36,8 +36,14 @@ public class ValueSet {
 
     private Boolean active = true;
 
+    private String lang;
+
     @EntityView(ValueSet.class)
+    @CreatableEntityView
     public interface BaseView {
+        @IdMapping
+        Long getId();
+
         String getType();
 
         void setType(String type);
@@ -58,17 +64,19 @@ public class ValueSet {
 
         void setActive(Boolean active);
 
+        String getLang();
+
+        void setLang(String lang);
+
         @PostCreate
         default void init() {
             setActive(true);
         }
     }
 
-    @CreatableEntityView
     @UpdatableEntityView
     @EntityView(ValueSet.class)
     public interface UpdateView extends BaseView {
-        @IdMapping
-        Long getId();
+        void setId(Long id);
     }
 }

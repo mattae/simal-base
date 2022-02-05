@@ -5,23 +5,25 @@ import com.mattae.simal.modules.base.services.ValueSetService;
 import io.github.jhipster.web.util.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Secured("ROLE_USER")
+@PreAuthorize("hasRole('ROLE_USER')")
 @RestController
 @RequestMapping("/api/value-sets")
 @RequiredArgsConstructor
 public class ValueSetResource {
-    private final ValueSetService valueSetService;
+    public final ValueSetService valueSetService;
+    private final List<HttpMessageConverter<?>> messageConverters;
 
     @GetMapping("/provider/{provider}/type/{type}")
     public List<ValueSet.BaseView> getValuesFor(@PathVariable String provider, @PathVariable String type,
-                                                @RequestParam(required = false, defaultValue = "true") Boolean active) {
-        return valueSetService.getValues(type, provider, active);
+                                                @RequestParam(required = false, defaultValue = "true") Boolean active,
+                                                @RequestParam(required = false) String lang) {
+        return valueSetService.getValues(type, provider, active, lang);
     }
 
     @GetMapping("/{id}")
@@ -29,18 +31,24 @@ public class ValueSetResource {
         return ResponseUtil.wrapOrNotFound(valueSetService.getById(id));
     }
 
+    @GetMapping("/display-text/type/{type}/provider/{provider}/value/{value}")
+    public String getDisplayText(@PathVariable String type, @PathVariable String provider, @PathVariable String value,
+                                 @RequestParam(required = false) String lang) {
+        return valueSetService.getDisplay(type, provider, value, lang);
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ValueSet.UpdateView> createValue(@RequestBody ValueSet.UpdateView value) {
-        value = valueSetService.saveValue(value);
-        return ResponseEntity.ok(value);
+    public ResponseEntity<ValueSet.UpdateView> createValue(@RequestBody ValueSet.BaseView value) {
+        ValueSet.UpdateView result = valueSetService.saveValue(value);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/multi")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<ValueSet.UpdateView>> createValues(@RequestBody List<ValueSet.UpdateView> values) {
-        values = valueSetService.saveValues(values);
-        return ResponseEntity.ok(values);
+    public ResponseEntity<List<ValueSet.UpdateView>> createValues(@RequestBody List<ValueSet.BaseView> values) {
+        List<ValueSet.UpdateView> result = valueSetService.saveValues(values);
+        return ResponseEntity.ok(result);
     }
 
     @PutMapping

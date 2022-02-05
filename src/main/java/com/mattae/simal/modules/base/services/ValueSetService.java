@@ -28,28 +28,62 @@ public class ValueSetService {
     }
 
     @Transactional
-    public ValueSet.UpdateView saveValue(ValueSet.UpdateView value) {
+    public ValueSet.UpdateView saveValue(ValueSet.BaseView value) {
         evm.save(em, value);
-        return evm.find(em, ValueSet.UpdateView.class, value.getId());
+        return evm.convert(value, ValueSet.UpdateView.class);
     }
 
     @Transactional
-    public List<ValueSet.UpdateView> saveValues(List<ValueSet.UpdateView> values) {
+    public List<ValueSet.UpdateView> saveValues(List<ValueSet.BaseView> values) {
         return values.stream()
             .map(value -> {
                 evm.save(em, value);
-                return evm.find(em, ValueSet.UpdateView.class, value.getId());
+                return evm.convert(value, ValueSet.UpdateView.class);
             }).collect(Collectors.toList());
     }
 
-    public List<ValueSet.BaseView> getValues(String type, String provider, Boolean active) {
+    public List<ValueSet.BaseView> getValues(String type, String provider, Boolean active, String lang) {
+        var settings = EntityViewSetting.create(ValueSet.BaseView.class);
+        var cb = cbf.create(em, ValueSet.class);
+        cb.where("type").eq(type)
+            .where("provider").eq(provider);
+        if (active != null) {
+            cb = cb.where("active").eq(active);
+        }
+        if (lang != null) {
+            // @formatter:off
+            cb = cb.whereOr()
+                    .where("lang").eq(lang)
+                    .where("lang").isNull()
+                .endOr();
+            // @formatter:on
+        }
+
+        cb.orderBy("value", true);
+        var query = evm.applySetting(settings, cb);
+        return query.getResultList();
+    }
+
+    public String getDisplay(String type, String provider, String lang, String value) {
         var settings = EntityViewSetting.create(ValueSet.BaseView.class);
         var cb = cbf.create(em, ValueSet.class);
         cb.where("type").eq(type)
             .where("provider").eq(provider)
-            .where("active").eq(active)
-            .orderBy("value", true);
+            .where("active").eq(true)
+            .where("value").eq(value);
+        if (lang != null) {
+            // @formatter:off
+            cb = cb.whereOr()
+                    .where("lang").eq(lang)
+                    .where("lang").isNull()
+                .endOr();
+            // @formatter:on
+        }
         var query = evm.applySetting(settings, cb);
-        return query.getResultList();
+        var result = query.getResultList();
+        if (!result.isEmpty()) {
+            return result.get(0).getDisplay();
+        }
+        return "";
     }
 }
