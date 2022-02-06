@@ -634,4 +634,27 @@
         </sql>
     </changeSet>
 
+    <changeSet id="20220205161025-01" author="mattae">
+        <createTable tableName="translation">
+            <column name="id" type="serial" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="module_id" type="UUID"/>
+            <column name="lang" type="varchar(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="data" type="jsonb">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="translation" indexName="idx_translation_lang">
+            <column name="lang"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseTableName="translation" baseColumnNames="module_id"
+                                 constraintName="fk_translation_module_id" referencedTableName="module"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
 </databaseChangeLog>

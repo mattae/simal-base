@@ -1,5 +1,7 @@
 package com.mattae.simal.modules.base.module;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.foreach.across.modules.user.business.Permission;
 import com.foreach.across.modules.user.business.PermissionGroup;
 import com.foreach.across.modules.user.business.Role;
@@ -11,22 +13,26 @@ import com.foreach.across.modules.user.services.RoleService;
 import com.mattae.simal.modules.base.business.PermissionProperties;
 import com.mattae.simal.modules.base.business.PermissionPropertiesService;
 import com.mattae.simal.modules.base.business.RoleProperties;
+import com.mattae.simal.modules.base.domain.entities.*;
+import com.mattae.simal.modules.base.domain.entities.Module;
 import com.mattae.simal.modules.base.domain.repositories.MenuRepository;
+import com.mattae.simal.modules.base.domain.repositories.TranslationsRepository;
 import com.mattae.simal.modules.base.domain.repositories.WebComponentRepository;
 import com.mattae.simal.modules.base.domain.repositories.WebRemoteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import com.mattae.simal.modules.base.business.RolePropertiesService;
-import com.mattae.simal.modules.base.domain.entities.ExposedComponent;
-import com.mattae.simal.modules.base.domain.entities.ExposedModule;
-import com.mattae.simal.modules.base.domain.entities.Menu;
-import com.mattae.simal.modules.base.domain.entities.Module;
 import com.mattae.simal.modules.base.yml.ModuleConfig;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.FileCopyUtils;
 
+import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +40,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ModuleConfigProcessor {
     private final PermissionService permissionService;
     private final PermissionPropertiesService permissionPropertiesService;
@@ -46,6 +51,7 @@ public class ModuleConfigProcessor {
     private final UserRepository userRepository;
     private final RoleService roleService;
     private final RoleRepository roleRepository;
+    private final TranslationsRepository translationsRepository;
 
     @Transactional
     public void processConfig(ModuleConfig moduleConfig, Module module) {
@@ -142,6 +148,8 @@ public class ModuleConfigProcessor {
                 webComponent.setModule(module);
                 return webComponent;
             }).collect(Collectors.toList()));
+
+        saveTranslations(module, moduleConfig);
     }
 
     public void savePermission(List<PermissionProperties> permissionProperties, com.mattae.simal.modules.base.yml.Permission perm,
@@ -160,6 +168,7 @@ public class ModuleConfigProcessor {
 
     @Transactional
     public void deleteRelationships(Module module) {
+        translationsRepository.deleteByModule(module);
         deleteRolesAndPermissions(module);
         webComponentRepository.deleteAll(webComponentRepository.findByModule(module));
         menuRepository.deleteAll(menuRepository.findByModule(module));
@@ -199,5 +208,26 @@ public class ModuleConfigProcessor {
                 });
                 roleRepository.deleteById(id);
             });
+    }
+
+    private void saveTranslations(Module module, ModuleConfig config) {
+        if (config.getTranslation() != null) {
+            String path = config.getTranslation().getPath();
+            String lang = config.getTranslation().getLang();
+            Translation translation = new Translation();
+            translation.setLang(lang);
+            translation.setModule(module);
+            Resource resource = new ClassPathResource(path);
+            if (resource.isFile()) {
+                try {
+                    String data = new String(FileCopyUtils.copyToByteArray(resource.getInputStream()));
+                    JsonNode node = new ObjectMapper().readTree(data);
+                    translation.setData(node);
+                    translationsRepository.save(translation);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

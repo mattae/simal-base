@@ -10,6 +10,9 @@ menus:
         type: link
         state: tutorials
         icon: library_books
+translation:
+    lang: en
+    path: lang.json
 webRemotes:
     -   remoteEntry: "/across/resources/js/test/remoteEntry.js"
         remoteName: _04006759_f4ec_4c71_97fc_7c23e6dc5c64
