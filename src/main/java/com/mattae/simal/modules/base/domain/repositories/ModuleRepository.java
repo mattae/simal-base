@@ -15,7 +15,7 @@ public interface ModuleRepository extends JpaRepository<Module, UUID> {
 
     List<Module> findByUninstallIsTrue();
 
-    List<Module> findByActiveIsTrue();
+    List<Module> findByStartedIsTrue();
 
     List<Module> findByActiveIsTrueAndStartedIsTrue();
 }

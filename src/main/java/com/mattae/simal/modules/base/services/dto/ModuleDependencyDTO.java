@@ -9,6 +9,7 @@ public class ModuleDependencyDTO {
     private UUID id;
     private String name;
     private Boolean active;
+    private Boolean started;
     private String requiredVersion;
     private String installedVersion;
     private Boolean versionSatisfied;

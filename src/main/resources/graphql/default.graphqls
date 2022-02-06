@@ -1,3 +1,7 @@
+scalar JSON
+scalar Date
+scalar Time
+
 type Query {
-    greeting(name: ID!): String
+    test: String
 }

@@ -28,15 +28,15 @@ public class AdministrativeDivisionResource {
     private final CountryRepository countryRepository;
 
     /**
-     * GET  /administrative-divisions/country/{countryId} : get all the level 1 administrativeDivisions for country with id.
+     * GET  /administrative-divisions/country/{countryCode} : get all the level 1 administrativeDivisions for country with id.
      *
      * @return the ResponseEntity with province 200 (OK) and the list of all level 1 AdministrativeDivisions in body
      */
-    /*@GetMapping("/administrative-divisions/country/{countryId}")
-    public List<AdministrativeDivision> getAllLevelOneAdministrativeDivisionsByCountry(@PathVariable Long countryId) {
-        return countryRepository.findById(countryId)
+    @GetMapping("/administrative-divisions/country/{countryCode}")
+    public List<AdministrativeDivision> getAllLevelOneAdministrativeDivisionsByCountry(@PathVariable String countryCode) {
+        return countryRepository.findByCode(countryCode)
             .map(administrativeDivisionRepository::findByCountryAndParentIsNull).orElse(new ArrayList<>());
-    }*/
+    }
 
     /**
      * GET  /administrative-divisions/parent/{parentId} : get all the level 1 administrativeDivisions for parent with id.
@@ -56,7 +56,7 @@ public class AdministrativeDivisionResource {
      * @return the ResponseEntity with link 200 (OK) and with body the link, or with 404 (Not Found)
      */
     @GetMapping("/administrative-divisions/{id}")
-    public ResponseEntity<AdministrativeDivision> getState(@PathVariable Long id) {
+    public ResponseEntity<AdministrativeDivision> getById(@PathVariable Long id) {
         Optional<AdministrativeDivision> division = administrativeDivisionRepository.findById(id);
         return ResponseUtil.wrapOrNotFound(division);
     }

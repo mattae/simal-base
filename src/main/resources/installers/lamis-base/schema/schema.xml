@@ -6,6 +6,13 @@
 
     <property name="autoIncrement" value="true"/>
 
+    <changeSet author="mattae" id="20210120232001-00">
+        <sql>
+            CREATE
+            EXTENSION IF NOT EXISTS "uuid-ossp";
+        </sql>
+    </changeSet>
+
     <changeSet author="mattae" id="20210120232001-01">
         <preConditions onFail="MARK_RAN">
             <not>
@@ -91,7 +98,6 @@
             <column name="base_package" type="varchar(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="description" type="varchar(512)"/>
             <column name="active" type="boolean" defaultValue="true">
                 <constraints nullable="false"/>
             </column>
@@ -214,8 +220,9 @@
             </column>
             <column name="component_name" type="varchar(32)"/>
             <column name="element_name" type="varchar(32)"/>
-            <column name="route_path" type="varchar(128)">
-                <constraints nullable="false"/>
+            <column name="route_path" type="varchar(128)"/>
+            <column name="name" type="UUID">
+                <constraints unique="true"/>
             </column>
             <column name="position" type="int" defaultValue="1">
                 <constraints nullable="false"/>
@@ -354,31 +361,6 @@
     </changeSet>
 
     <changeSet author="mattae" id="20210120232001-10">
-        <createTable tableName="address">
-            <column name="id" type="UUID">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="address_type" type="varchar(32)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="line1" type="varchar(64)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="line2" type="varchar(64)"/>
-            <column name="city" type="varchar(32)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="state" type="varchar(32)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="postal_code" type="varchar(16)"/>
-            <column name="country" type="varchar(32)">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-    </changeSet>
-
-    <changeSet author="mattae" id="20210120232001-11">
         <createTable tableName="party">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true"/>
@@ -388,30 +370,57 @@
             </column>
             <column name="legal_type" type="varchar(32)"/>
             <column name="display_name" type="varchar(16)"/>
+            <column name="archived" type="boolean" defaultValue="false"/>
+            <column name="created_date" type="timestamp" defaultValueComputed="current_timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_date" type="timestamp" defaultValueComputed="current_timestamp"/>
         </createTable>
+    </changeSet>
 
-        <createTable tableName="party_address">
+    <changeSet author="mattae" id="20210120232001-11">
+        <createTable tableName="party_addresses">
+            <column name="id" type="uuid" defaultValueComputed="uuid_generate_v4()">
+                <constraints unique="true" nullable="false"/>
+            </column>
             <column name="party_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
-            <column name="location_id" type="UUID">
+            <column name="address_type" type="varchar(32)">
                 <constraints nullable="false"/>
             </column>
+            <column name="line1" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="line2" type="varchar(64)"/>
+            <column name="city" type="varchar(32)"/>
+            <column name="state" type="varchar(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="postal_code" type="varchar(16)"/>
+            <column name="archived" type="boolean" defaultValue="false"/>
+            <column name="created_date" type="timestamp" defaultValueComputed="current_timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_date" type="timestamp" defaultValueComputed="current_timestamp"/>
         </createTable>
 
-        <addForeignKeyConstraint baseTableName="party_address" baseColumnNames="party_id"
+        <addForeignKeyConstraint baseTableName="party_addresses" baseColumnNames="party_id"
                                  constraintName="fk_party_address_party_id" referencedTableName="party"
                                  referencedColumnNames="id"/>
-        <addForeignKeyConstraint baseTableName="party_address" baseColumnNames="party_id"
-                                 constraintName="fk_party_address_address_id" referencedTableName="address"
-                                 referencedColumnNames="id"/>
-        <addPrimaryKey tableName="party_address" columnNames="party_id,location_id"/>
+
+        <sql>
+            CREATE INDEX idx_party_addresses ON party_addresses (party_id) WHERE archived = false;
+        </sql>
     </changeSet>
 
     <changeSet author="mattae" id="20210120232001-12">
-        <createTable tableName="identifier">
-            <column name="id" type="UUID">
-                <constraints nullable="false" primaryKey="true"/>
+        <createTable tableName="party_identifiers">
+            <column name="id" type="uuid" defaultValueComputed="uuid_generate_v4()">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="party_id" type="UUID">
+                <constraints nullable="false"/>
             </column>
             <column name="type" type="varchar(32)">
                 <constraints nullable="false"/>
@@ -425,26 +434,26 @@
             <column name="lifecycle_status" type="varchar(32)"/>
             <column name="from_date" type="timestamp"/>
             <column name="to_date" type="timestamp"/>
-            <column name="party_id" type="UUID">
+            <column name="archived" type="boolean" defaultValue="false"/>
+            <column name="created_date" type="timestamp" defaultValueComputed="current_timestamp">
                 <constraints nullable="false"/>
             </column>
+            <column name="last_modified_date" type="timestamp" defaultValueComputed="current_timestamp"/>
         </createTable>
 
-        <addForeignKeyConstraint baseTableName="identifier" baseColumnNames="party_id"
-                                 constraintName="fk_identifier_party_id" referencedTableName="party"
+        <addForeignKeyConstraint baseTableName="party_identifiers" baseColumnNames="party_id"
+                                 constraintName="fk_party_identifiers_party_id" referencedTableName="party"
                                  referencedColumnNames="id"/>
 
-        <addUniqueConstraint tableName="identifier" columnNames="type,value,register,party_id"
-                             constraintName="ux_identifier_party"/>
+        <sql>
+            CREATE INDEX idx_party_identifiers ON party_identifiers (party_id) WHERE archived = false;
+        </sql>
     </changeSet>
 
     <changeSet author="mattae" id="20210120232001-13">
         <createTable tableName="individual">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="type" type="varchar(32)">
-                <constraints nullable="false"/>
             </column>
             <column name="title" type="varchar(32)"/>
             <column name="initials" type="varchar(8)"/>
@@ -470,6 +479,11 @@
             <column name="party_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
+            <column name="archived" type="boolean" defaultValue="false"/>
+            <column name="created_date" type="timestamp" defaultValueComputed="current_timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_date" type="timestamp" defaultValueComputed="current_timestamp"/>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="individual" baseColumnNames="party_id"
@@ -500,6 +514,11 @@
             <column name="individual_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
+            <column name="archived" type="boolean" defaultValue="false"/>
+            <column name="created_date" type="timestamp" defaultValueComputed="current_timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_date" type="timestamp" defaultValueComputed="current_timestamp"/>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="individual_name" baseColumnNames="individual_id"
@@ -522,6 +541,12 @@
             <column name="party_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
+            <column name="archived" type="boolean" defaultValue="false"/>
+            <column name="active" type="boolean" defaultValue="true"/>
+            <column name="created_date" type="timestamp" defaultValueComputed="current_timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_date" type="timestamp" defaultValueComputed="current_timestamp"/>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="organisation" baseColumnNames="parent_id"
@@ -530,6 +555,105 @@
 
         <addForeignKeyConstraint baseTableName="organisation" baseColumnNames="party_id"
                                  constraintName="fk_organisation_party_id" referencedTableName="party"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet author="mattae" id="20210120232001-16">
+        <createTable tableName="refresh_token">
+            <column name="id" type="serial" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="token" type="varchar(4096)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="expiry_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="refresh_token" baseColumnNames="user_id"
+                                 constraintName="fk_refresh_token_user_id" referencedTableName="um_user"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet author="mattae" id="20210120232001-17">
+        <insert tableName="party">
+            <column name="id" value="2a549d51-58b9-4dcf-9dfe-547749bc76dc"/>
+            <column name="type" value="ORGANISATION"/>
+        </insert>
+        <insert tableName="organisation">
+            <column name="id" value="df60cbee-e8bc-41b4-bc20-2f7cb8f02646"/>
+            <column name="name" value="test org"/>
+            <column name="party_id" value="2a549d51-58b9-4dcf-9dfe-547749bc76dc"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="20211019005923-06" author="mattae">
+        <createTable tableName="value_set">
+            <column name="id" type="serial" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="value" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="display" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="provider" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="boolean" defaultValue="true"/>
+        </createTable>
+
+        <createIndex tableName="value_set" indexName="idx_value_set_type_provider_active">
+            <column name="type"/>
+            <column name="provider"/>
+            <column name="active"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="20211019005923-07" author="mattae">
+        <addColumn tableName="um_user">
+            <column name="individual_id" type="UUID"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="20220205001723-01" author="mattae">
+        <addColumn tableName="value_set">
+            <column name="lang" type="varchar(2)"/>
+        </addColumn>
+
+        <sql>
+            create unique index idx_value_set_unique on value_set (value, type, provider, ( lang is null)) where lang is null;
+        </sql>
+    </changeSet>
+
+    <changeSet id="20220205161025-01" author="mattae">
+        <createTable tableName="translation">
+            <column name="id" type="serial" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="module_id" type="UUID"/>
+            <column name="lang" type="varchar(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="data" type="jsonb">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="translation" indexName="idx_translation_lang">
+            <column name="lang"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseTableName="translation" baseColumnNames="module_id"
+                                 constraintName="fk_translation_module_id" referencedTableName="module"
                                  referencedColumnNames="id"/>
     </changeSet>
 

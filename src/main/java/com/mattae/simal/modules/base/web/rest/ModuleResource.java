@@ -3,16 +3,16 @@ package com.mattae.simal.modules.base.web.rest;
 import com.mattae.simal.modules.base.domain.entities.Menu;
 import com.mattae.simal.modules.base.domain.entities.Module;
 import com.mattae.simal.modules.base.domain.entities.WebRemote;
-import com.mattae.simal.modules.base.domain.repositories.MenuRepository;
 import com.mattae.simal.modules.base.domain.repositories.ModuleRepository;
 import com.mattae.simal.modules.base.domain.repositories.WebRemoteRepository;
-import com.mattae.simal.modules.base.services.dto.ModuleDependencyDTO;
+import com.mattae.simal.modules.base.services.MenuService;
 import com.mattae.simal.modules.base.services.ModuleService;
+import com.mattae.simal.modules.base.services.dto.ModuleDependencyDTO;
+import com.mattae.simal.modules.base.web.vm.ModuleVM;
 import io.github.jhipster.web.util.ResponseUtil;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.mattae.simal.modules.base.services.MenuService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class ModuleResource {
-    private final MenuRepository menuRepository;
     private final ModuleRepository moduleRepository;
     private final WebRemoteRepository webRemoteRepository;
     private final ModuleService moduleService;
@@ -36,7 +35,7 @@ public class ModuleResource {
 
     @GetMapping("/modules/{id}")
     @Timed
-    public ResponseEntity<Module> getModule(@PathVariable("id") UUID id) {
+    public ResponseEntity<ModuleVM> getModule(@PathVariable("id") UUID id) {
         LOG.debug("Getting module: {}", id);
 
         return ResponseUtil.wrapOrNotFound(moduleService.getModule(id));
@@ -45,18 +44,17 @@ public class ModuleResource {
     @GetMapping("/modules")
     @Timed
     @Cacheable("modules")
-    public List<Module> getWebModules() {
-        LOG.debug("Getting all modules");
+    public List<ModuleVM> getWebModules() {
         return moduleService.getModules();
     }
 
     @PostMapping("/modules/activate")
-    public Module activateModule(@RequestBody Module module) {
+    public ModuleVM activateModule(@RequestBody Module module) {
         return moduleService.activate(module);
     }
 
     @PostMapping("/modules/deactivate")
-    public Module deactivateModule(@RequestBody Module module) {
+    public ModuleVM deactivateModule(@RequestBody Module module) {
         return moduleService.deactivate(module);
     }
 
@@ -67,7 +65,7 @@ public class ModuleResource {
     }
 
     @PostMapping("/modules/update")
-    public Module updateModule(@RequestBody Module module) {
+    public ModuleVM updateModule(@RequestBody Module module) {
         return moduleService.installOrUpdate(module);
     }
 
@@ -78,7 +76,7 @@ public class ModuleResource {
 
     @PostMapping("/modules/install")
     @CacheEvict({"modules"})
-    public Module installModule(final @RequestBody Module module) {
+    public ModuleVM installModule(final @RequestBody Module module) {
         return moduleService.installOrUpdate(module);
     }
 
@@ -96,7 +94,7 @@ public class ModuleResource {
     @GetMapping("/modules/web-remotes")
     @Cacheable(cacheNames = "webRemotes")
     public List<WebRemote> getWebRemotes() {
-        return moduleRepository.findByActiveIsTrue().stream()
+        return moduleRepository.findByStartedIsTrue().stream()
             .flatMap(module -> webRemoteRepository.findByModule(module).stream())
             .collect(Collectors.toList());
     }

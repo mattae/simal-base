@@ -1,9 +1,9 @@
 package com.mattae.simal.modules.base.module;
 
+import com.mattae.simal.modules.base.yml.ModuleConfig;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.utils.IOUtils;
-import com.mattae.simal.modules.base.yml.ModuleConfig;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -12,6 +12,9 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.*;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
@@ -54,16 +57,6 @@ public class ModuleUtils {
                     return FileVisitResult.CONTINUE;
                 }
             });
-        }
-    }
-
-    static void addClassPathUrl(URL url, ClassLoader classLoader) {
-        try {
-            Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-            method.setAccessible(true);
-            method.invoke(classLoader, url);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

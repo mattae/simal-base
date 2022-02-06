@@ -4,7 +4,6 @@ import com.foreach.across.core.annotations.Exposed;
 import com.foreach.across.modules.spring.security.configuration.AcrossWebSecurityConfigurer;
 import com.mattae.simal.modules.base.security.jwt.JWTConfigurer;
 import com.mattae.simal.modules.base.security.jwt.TokenProvider;
-import io.github.jhipster.config.JHipsterProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -18,21 +17,16 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @RequiredArgsConstructor
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Slf4j
 public class SecurityConfiguration implements AcrossWebSecurityConfigurer {
     private final TokenProvider tokenProvider;
-    private final JHipsterProperties properties;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -60,7 +54,6 @@ public class SecurityConfiguration implements AcrossWebSecurityConfigurer {
             .antMatcher("/**")
             .csrf()
             .disable()
-            .addFilterBefore(corsFilter(), UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling()
             .and()
             .headers()
@@ -86,17 +79,6 @@ public class SecurityConfiguration implements AcrossWebSecurityConfigurer {
             .and()
             .apply(securityConfigurerAdapter());
         // @formatter:on
-    }
-
-    private CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = properties.getCors();
-        if (config.getAllowedOrigins() != null && !config.getAllowedOrigins().isEmpty()) {
-            LOG.debug("Registering CORS filter");
-            source.registerCorsConfiguration("/api/**", config);
-            source.registerCorsConfiguration("/graphql/**", config);
-        }
-        return new CorsFilter(source);
     }
 
     @Bean

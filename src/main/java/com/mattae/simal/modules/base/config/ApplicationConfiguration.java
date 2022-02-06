@@ -17,10 +17,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.convert.TypeDescriptor;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Configuration
 @Import({
-    JHipsterProperties.class,
     JooqAutoConfiguration.class,
     MailSenderAutoConfiguration.class
 })
@@ -34,6 +34,7 @@ public class ApplicationConfiguration {
         userPropertiesRegistry.register(currentModule, "activationKey", TypeDescriptor.valueOf(String.class));
         userPropertiesRegistry.register(currentModule, "resetKey", TypeDescriptor.valueOf(String.class));
         userPropertiesRegistry.register(currentModule, "resetDate", TypeDescriptor.valueOf(Instant.class));
+        userPropertiesRegistry.register(currentModule, "organisationId", TypeDescriptor.valueOf(UUID.class));
         rolePropertiesRegistry.register(currentModule, "moduleId", TypeDescriptor.valueOf(Long.class));
         permissionPropertiesRegistry.register(currentModule, "moduleId", TypeDescriptor.valueOf(Long.class));
     }
