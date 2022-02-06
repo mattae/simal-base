@@ -104,6 +104,10 @@
         },
         "summary": {
             "type": "string"
+        },
+        "translation": {
+            "type": "object",
+            "$ref": "#/definitions/translation"
         }
     },
     "definitions": {
@@ -387,6 +391,21 @@
                         "type": "object",
                         "$ref": "#/definitions/permission"
                     }
+                }
+            }
+        },
+        "translation": {
+            "required": [
+                "lang",
+                "path"
+            ],
+            "properties": {
+                "lang": {
+                    "type": "string",
+                    "maxLength": 6
+                },
+                "path": {
+                    "type": "string"
                 }
             }
         }

@@ -19,6 +19,7 @@ public class ModuleConfig {
     private String url;
     private String image;
     private Date buildDate;
+    private Translation translation;
     private List<Dependency> dependencies = new ArrayList<>();
     private List<WebRemote> webRemotes = new ArrayList<>();
     private List<Permission> permissions = new ArrayList<>();

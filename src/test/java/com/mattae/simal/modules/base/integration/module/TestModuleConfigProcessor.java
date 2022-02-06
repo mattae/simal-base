@@ -1,15 +1,17 @@
-package com.mattae.simal.modules.base.integration.services;
+package com.mattae.simal.modules.base.integration.module;
 
 import com.blazebit.persistence.integration.jackson.EntityViewAwareObjectMapper;
-import com.blazebit.persistence.view.ConvertOption;
 import com.blazebit.persistence.view.EntityViewManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.foreach.across.test.AcrossTestConfiguration;
 import com.foreach.across.test.AcrossWebAppConfiguration;
 import com.mattae.simal.modules.base.BaseModule;
-import com.mattae.simal.modules.base.domain.entities.ValueSet;
-import com.mattae.simal.modules.base.domain.repositories.ValueSetRepository;
-import com.mattae.simal.modules.base.services.ValueSetService;
+import com.mattae.simal.modules.base.domain.entities.Module;
+import com.mattae.simal.modules.base.domain.repositories.ModuleRepository;
+import com.mattae.simal.modules.base.domain.repositories.TranslationsRepository;
+import com.mattae.simal.modules.base.module.ModuleConfigProcessor;
+import com.mattae.simal.modules.base.yml.ModuleConfig;
+import com.mattae.simal.modules.base.yml.Translation;
 import io.github.benas.randombeans.EnhancedRandomBuilder;
 import io.github.benas.randombeans.api.EnhancedRandom;
 import io.github.benas.randombeans.randomizers.range.DoubleRangeRandomizer;
@@ -18,6 +20,7 @@ import io.github.benas.randombeans.randomizers.text.StringRandomizer;
 import io.github.glytching.junit.extension.random.Random;
 import io.github.glytching.junit.extension.random.RandomBeansExtension;
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,10 +38,8 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.util.List;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith({SpringExtension.class})
 @DirtiesContext
@@ -50,94 +51,46 @@ import static org.junit.jupiter.api.Assertions.*;
     DirtiesContextTestExecutionListener.class,
     TransactionalTestExecutionListener.class
 })
-public class TestValueSetService {
+@Slf4j
+public class TestModuleConfigProcessor {
     static EnhancedRandom enhancedRandom = EnhancedRandomBuilder
         .aNewEnhancedRandomBuilder()
         .stringLengthRange(10, 20)
         .randomize(Integer.class, IntegerRangeRandomizer.aNewIntegerRangeRandomizer(0, 10))
-        .randomize(String.class, StringRandomizer.aNewStringRandomizer(8))
+        .randomize(String.class, StringRandomizer.aNewStringRandomizer(6))
         .randomize(Double.class, DoubleRangeRandomizer.aNewDoubleRangeRandomizer(0.0, 10.0))
         .collectionSizeRange(2, 3)
         .objectPoolSize(30)
         .build();
     @RegisterExtension
     static RandomBeansExtension randomBeansExtension = new RandomBeansExtension(enhancedRandom);
-
     @Autowired
-    ValueSetService valueSetService;
+    ModuleRepository moduleRepository;
     @Autowired
-    ValueSetRepository valueSetRepository;
+    TranslationsRepository translationsRepository;
+    @Random(excludes = {"id", "data", "file", "webRemotes", "menus", "webComponents"})
+    Module module;
     @Autowired
-    EntityViewManager evm;
-    @Random(excludes = {"id"})
-    ValueSet valueSet;
+    private ModuleConfigProcessor configProcessor;
 
     @BeforeEach
-    @Transactional
     public void setup() {
-        valueSetRepository.deleteAll();
+        translationsRepository.deleteAll();
+        moduleRepository.deleteAll();
     }
 
     @Test
     @Transactional
-    public void testSave() {
-        valueSet.setLang("en");
-        ValueSet.UpdateView value = evm.convert(valueSet, ValueSet.UpdateView.class, ConvertOption.CREATE_NEW);
+    public void testProcessConfigTranslation() {
+        moduleRepository.save(module);
+        ModuleConfig config = new ModuleConfig();
+        Translation translation = new Translation();
+        translation.setLang("en");
+        translation.setPath("lang.json");
+        config.setTranslation(translation);
 
-        assertNull(value.getId());
-        valueSetService.saveValue(value);
-        assertNotNull(value.getId());
-    }
-
-    @Test
-    @Transactional
-    public void testSaveValues() {
-        valueSet.setLang("en");
-        ValueSet.UpdateView value = evm.convert(valueSet, ValueSet.UpdateView.class, ConvertOption.CREATE_NEW);
-
-        List<ValueSet.UpdateView> values = valueSetService.saveValues(List.of(value));
-        assertEquals(1, values.size());
-        assertEquals(value.getValue(), values.get(0).getValue());
-    }
-
-    @Transactional
-    @Test
-    public void testGetById() {
-        valueSet.setLang("en");
-        valueSet = valueSetRepository.save(valueSet);
-        Optional<ValueSet.BaseView> result = valueSetService.getById(valueSet.getId());
-        assertTrue(result.isPresent());
-        assertEquals(valueSet.getId(), result.get().getId());
-    }
-
-    @Test
-    @Transactional
-    public void testGetDisplay() {
-        valueSet.setLang(null);
-        valueSetRepository.save(valueSet);
-        String display = valueSetService.getDisplay(valueSet.getType(), valueSet.getProvider(), valueSet.getLang(),
-            valueSet.getValue());
-        assertEquals(valueSet.getDisplay(), display);
-        display = valueSetService.getDisplay(valueSet.getType(), valueSet.getProvider(), valueSet.getLang(),
-            "A".repeat(30));
-        assertEquals(0, display.length());
-    }
-
-    @Test
-    @Transactional
-    public void testGetValues() {
-        valueSet.setLang(null);
-        valueSetRepository.save(valueSet);
-
-        List<ValueSet.BaseView> values = valueSetService.getValues(valueSet.getType(), valueSet.getProvider(), null,
-            valueSet.getLang());
-        assertEquals(1, values.size());
-        values = valueSetService.getValues(valueSet.getType(), valueSet.getProvider(), valueSet.getActive(),
-            valueSet.getLang());
-        assertEquals(1, values.size());
-        values = valueSetService.getValues("a".repeat(30), valueSet.getProvider(), valueSet.getActive(),
-            valueSet.getLang());
-        assertEquals(0, values.size());
+        configProcessor.processConfig(config, module);
+        assertEquals(1, translationsRepository.count());
     }
 
     @Configuration

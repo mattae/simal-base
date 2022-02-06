@@ -1,15 +1,16 @@
 package com.mattae.simal.modules.base.integration.services;
 
 import com.blazebit.persistence.integration.jackson.EntityViewAwareObjectMapper;
-import com.blazebit.persistence.view.ConvertOption;
 import com.blazebit.persistence.view.EntityViewManager;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.foreach.across.test.AcrossTestConfiguration;
 import com.foreach.across.test.AcrossWebAppConfiguration;
 import com.mattae.simal.modules.base.BaseModule;
-import com.mattae.simal.modules.base.domain.entities.ValueSet;
-import com.mattae.simal.modules.base.domain.repositories.ValueSetRepository;
-import com.mattae.simal.modules.base.services.ValueSetService;
+import com.mattae.simal.modules.base.domain.entities.Translation;
+import com.mattae.simal.modules.base.domain.repositories.TranslationsRepository;
+import com.mattae.simal.modules.base.services.TranslationService;
 import io.github.benas.randombeans.EnhancedRandomBuilder;
 import io.github.benas.randombeans.api.EnhancedRandom;
 import io.github.benas.randombeans.randomizers.range.DoubleRangeRandomizer;
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -35,7 +37,6 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -50,94 +51,76 @@ import static org.junit.jupiter.api.Assertions.*;
     DirtiesContextTestExecutionListener.class,
     TransactionalTestExecutionListener.class
 })
-public class TestValueSetService {
+public class TestTranslationService {
     static EnhancedRandom enhancedRandom = EnhancedRandomBuilder
         .aNewEnhancedRandomBuilder()
         .stringLengthRange(10, 20)
         .randomize(Integer.class, IntegerRangeRandomizer.aNewIntegerRangeRandomizer(0, 10))
-        .randomize(String.class, StringRandomizer.aNewStringRandomizer(8))
+        .randomize(String.class, StringRandomizer.aNewStringRandomizer(6))
         .randomize(Double.class, DoubleRangeRandomizer.aNewDoubleRangeRandomizer(0.0, 10.0))
         .collectionSizeRange(2, 3)
         .objectPoolSize(30)
         .build();
     @RegisterExtension
     static RandomBeansExtension randomBeansExtension = new RandomBeansExtension(enhancedRandom);
-
     @Autowired
-    ValueSetService valueSetService;
+    TranslationsRepository translationsRepository;
     @Autowired
-    ValueSetRepository valueSetRepository;
-    @Autowired
-    EntityViewManager evm;
-    @Random(excludes = {"id"})
-    ValueSet valueSet;
+    TranslationService translationService;
+    @Random(excludes = {"id", "data", "module"})
+    private Translation translation;
 
     @BeforeEach
-    @Transactional
     public void setup() {
-        valueSetRepository.deleteAll();
+        ObjectNode data = new ObjectMapper().createObjectNode();
+        data.put("name", "test");
+        translation.setData(data);
+
+        translationsRepository.deleteAll();
     }
 
     @Test
     @Transactional
     public void testSave() {
-        valueSet.setLang("en");
-        ValueSet.UpdateView value = evm.convert(valueSet, ValueSet.UpdateView.class, ConvertOption.CREATE_NEW);
-
-        assertNull(value.getId());
-        valueSetService.saveValue(value);
-        assertNotNull(value.getId());
+        Translation translation = translationService.save(this.translation);
+        assertNotNull(translation.getId());
     }
 
     @Test
     @Transactional
-    public void testSaveValues() {
-        valueSet.setLang("en");
-        ValueSet.UpdateView value = evm.convert(valueSet, ValueSet.UpdateView.class, ConvertOption.CREATE_NEW);
-
-        List<ValueSet.UpdateView> values = valueSetService.saveValues(List.of(value));
-        assertEquals(1, values.size());
-        assertEquals(value.getValue(), values.get(0).getValue());
-    }
-
-    @Transactional
-    @Test
     public void testGetById() {
-        valueSet.setLang("en");
-        valueSet = valueSetRepository.save(valueSet);
-        Optional<ValueSet.BaseView> result = valueSetService.getById(valueSet.getId());
+        translation = translationsRepository.save(translation);
+        Optional<Translation> result = translationService.getById(translation.getId());
         assertTrue(result.isPresent());
-        assertEquals(valueSet.getId(), result.get().getId());
+        assertEquals(translation.getId(), result.get().getId());
     }
 
     @Test
     @Transactional
-    public void testGetDisplay() {
-        valueSet.setLang(null);
-        valueSetRepository.save(valueSet);
-        String display = valueSetService.getDisplay(valueSet.getType(), valueSet.getProvider(), valueSet.getLang(),
-            valueSet.getValue());
-        assertEquals(valueSet.getDisplay(), display);
-        display = valueSetService.getDisplay(valueSet.getType(), valueSet.getProvider(), valueSet.getLang(),
-            "A".repeat(30));
-        assertEquals(0, display.length());
+    public void testDeleteById() {
+        translation = translationsRepository.save(translation);
+        assertEquals(1, translationsRepository.count());
+        translationService.deleteById(translation.getId());
+        assertEquals(0, translationsRepository.count());
     }
 
-    @Test
     @Transactional
-    public void testGetValues() {
-        valueSet.setLang(null);
-        valueSetRepository.save(valueSet);
+    @Test
+    public void testListByLang() {
+        translation = translationsRepository.save(translation);
+        Translation translation2 = new Translation();
+        BeanUtils.copyProperties(translation, translation2);
+        ObjectNode data = new ObjectMapper().createObjectNode();
+        data.put("name2", "test2");
+        ObjectNode inner = new ObjectMapper().createObjectNode();
+        inner.put("inner", "yes");
+        data.set("nested", inner);
+        translation2.setData(data);
+        translationsRepository.save(translation2);
+        JsonNode trans = translationService.listByLang(translation.getLang());
 
-        List<ValueSet.BaseView> values = valueSetService.getValues(valueSet.getType(), valueSet.getProvider(), null,
-            valueSet.getLang());
-        assertEquals(1, values.size());
-        values = valueSetService.getValues(valueSet.getType(), valueSet.getProvider(), valueSet.getActive(),
-            valueSet.getLang());
-        assertEquals(1, values.size());
-        values = valueSetService.getValues("a".repeat(30), valueSet.getProvider(), valueSet.getActive(),
-            valueSet.getLang());
-        assertEquals(0, values.size());
+        assertNotNull(trans);
+        assertEquals("yes", trans.get("nested").get("inner").asText());
     }
 
     @Configuration

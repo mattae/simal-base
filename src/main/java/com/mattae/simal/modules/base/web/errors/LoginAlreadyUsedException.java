@@ -1,10 +1,10 @@
 package com.mattae.simal.modules.base.web.errors;
 
-public class LoginAlreadyUsedException extends BadRequestAlertException {
+public class LoginAlreadyUsedException extends BadRequestException {
 
     private static final long serialVersionUID = 1L;
 
     public LoginAlreadyUsedException() {
-        super(ErrorConstants.LOGIN_ALREADY_USED_TYPE, "Login name already used!", "userManagement", "userexists");
+        super("Login name already used!");
     }
 }

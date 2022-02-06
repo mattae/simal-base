@@ -7,7 +7,7 @@ import com.mattae.simal.modules.base.config.Constants;
 import com.mattae.simal.modules.base.security.AuthoritiesConstants;
 import com.mattae.simal.modules.base.services.UserManagementService;
 import com.mattae.simal.modules.base.services.dto.UserDTO;
-import com.mattae.simal.modules.base.web.errors.BadRequestAlertException;
+import com.mattae.simal.modules.base.web.errors.BadRequestException;
 import com.mattae.simal.modules.base.web.errors.EmailAlreadyUsedException;
 import com.mattae.simal.modules.base.web.errors.LoginAlreadyUsedException;
 import io.github.jhipster.web.util.HeaderUtil;
@@ -63,7 +63,7 @@ public class UserResource {
         LOG.debug("REST request to save User : {}", userDTO);
 
         if (userDTO.getId() != null) {
-            throw new BadRequestAlertException("A new user cannot already have an ID", "userManagement", "idexists");
+            throw new BadRequestException("A new user cannot already have an ID");
             // Lowercase the user login before comparing with database
         } else if (userRepository.findByUsername(userDTO.getUsername().toLowerCase()).isPresent()) {
             throw new LoginAlreadyUsedException();

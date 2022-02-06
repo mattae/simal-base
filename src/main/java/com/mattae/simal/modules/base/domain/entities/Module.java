@@ -45,6 +45,7 @@ public class Module implements Serializable, Persistable<UUID> {
 
     @ManyToOne
     @JoinColumn(name = "file_id", referencedColumnName = "id")
+    @JsonIgnore
     private FileReference file;
 
     private Boolean processConfig = true;

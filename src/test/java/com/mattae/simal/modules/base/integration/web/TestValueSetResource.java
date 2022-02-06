@@ -68,7 +68,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     WithSecurityContextTestExecutionListener.class,
     MockitoTestExecutionListener.class
 })
-@Slf4j
 public class TestValueSetResource {
     private static final String BASE_URL = "/api/value-sets/";
     static EnhancedRandom enhancedRandom = EnhancedRandomBuilder
