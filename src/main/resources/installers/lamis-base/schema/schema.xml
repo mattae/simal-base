@@ -465,8 +465,7 @@
             <column name="preferred_name" type="varchar(64)"/>
             <column name="honorific" type="varchar(32)"/>
             <column name="salutation" type="varchar(32)"/>
-            <column name="sex" type="varchar(16)"/>
-            <column name="gender" type="varchar(16)"/>
+            <column name="sex" type="varchar(32)"/>
             <column name="email" type="varchar(64)"/>
             <column name="phone" type="varchar(32)"/>
             <column name="photo_url" type="varchar(512)"/>

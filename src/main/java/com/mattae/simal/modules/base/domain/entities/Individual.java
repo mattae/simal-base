@@ -44,8 +44,6 @@ public class Individual {
 
     private String sex;
 
-    private String gender;
-
     private String email;
 
     private String phone;
@@ -86,8 +84,6 @@ public class Individual {
 
         String getEmail();
 
-        String getGender();
-
         String getPhone();
 
         String getPhotoUrl();
@@ -108,8 +104,6 @@ public class Individual {
         void setSex(String sex);
 
         void setEmail(String email);
-
-        void setGender(String gender);
 
         void setPhone(String phone);
 
