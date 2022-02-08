@@ -3,6 +3,16 @@
         "Phone": "Phone",
         "EMAIL": "Email",
         "ADDRESS_LABEL": "Address",
+        "BUTTONS": {
+            "SAVE": "Save",
+            "SAVE_TOOLTIP": "Save",
+            "DELETE": "Delete",
+            "DELETE_TOOLTIP": "Delete",
+            "UPDATE": "Update",
+            "UPDATE_TOOLTIP": "Update",
+            "CANCEL": "Cancel",
+            "CANCEL_TOOLTIP": "Cancel"
+        },
         "LOGIN": {
             "SIGN_IN": "Sign in",
             "USERNAME": "Username",

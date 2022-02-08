@@ -95,7 +95,7 @@
             }
         },
         "translation": {
-            "type": "object",
+            "type": "array",
             "$ref": "#/definitions/translation"
         }
     },
