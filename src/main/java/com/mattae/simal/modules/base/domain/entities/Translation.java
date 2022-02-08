@@ -25,6 +25,9 @@ public class Translation {
     @NotNull
     private String lang;
 
+    @Column(name = "_order")
+    private Integer order = 1;
+
     @Type(type = "jsonb-node")
     @Column(columnDefinition = "jsonb")
     @NotNull

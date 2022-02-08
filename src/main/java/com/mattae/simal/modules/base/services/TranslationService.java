@@ -1,6 +1,7 @@
 package com.mattae.simal.modules.base.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mattae.simal.modules.base.domain.entities.Translation;
 import com.mattae.simal.modules.base.domain.repositories.TranslationsRepository;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -47,10 +49,10 @@ public class TranslationService {
 
         List<Translation> translations = translationsRepository.getByLang(lang);
         var ref = new Object() {
-            JsonNode primary = null;
+            JsonNode primary = new ObjectMapper().createObjectNode();
         };
         if (!translations.isEmpty()) {
-            ref.primary = translations.get(0).getData();
+            ref.primary = translations.stream().min(Comparator.comparing(Translation::getOrder)).get().getData();
         }
         translations.stream()
             .skip(1)

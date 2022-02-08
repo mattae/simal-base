@@ -21,7 +21,7 @@ public class ValueSet {
 
     @EqualsAndHashCode.Include
     @NotNull
-    private String value;
+    private String code;
 
     @EqualsAndHashCode.Include
     @NotNull
@@ -52,9 +52,9 @@ public class ValueSet {
 
         void setProvider(String provider);
 
-        String getValue();
+        String getCode();
 
-        void setValue(String value);
+        void setCode(String code);
 
         String getDisplay();
 

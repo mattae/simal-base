@@ -3,7 +3,6 @@ package com.mattae.simal.modules.base.services;
 import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.EntityViewSetting;
-import com.foreach.across.core.annotations.Exposed;
 import com.mattae.simal.modules.base.domain.entities.Organisation;
 import com.mattae.simal.modules.base.web.rest.vm.PagedResult;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +15,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@Exposed
 @RequiredArgsConstructor
 public class OrganisationService {
     private final EntityViewManager evm;
@@ -46,7 +44,7 @@ public class OrganisationService {
             keyword = "%" + keyword + "%";
             settings.addAttributeFilter("name", keyword);
             settings.addAttributeFilter("email", keyword);
-            settings.addAttributeFilter("phoneNumber", keyword);
+            settings.addAttributeFilter("phone", keyword);
         }
         if (StringUtils.isNotBlank(type)) {
             settings.addAttributeFilter("type", type);

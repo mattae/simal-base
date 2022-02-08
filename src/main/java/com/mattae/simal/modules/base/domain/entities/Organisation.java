@@ -42,7 +42,7 @@ public class Organisation {
 
     private String email;
 
-    private String phoneNumber;
+    private String phone;
 
     private LocalDate establishmentDate;
 
@@ -79,7 +79,7 @@ public class Organisation {
         String getEmail();
 
         @AttributeFilter(ContainsIgnoreCaseFilter.class)
-        String getPhoneNumber();
+        String getPhone();
 
         LocalDate getEstablishmentDate();
 
@@ -98,7 +98,7 @@ public class Organisation {
 
         void setEmail(String email);
 
-        void setPhoneNumber(String phoneNumber);
+        void setPhone(String phone);
 
         void setEstablishmentDate(LocalDate date);
 

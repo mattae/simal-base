@@ -39,6 +39,6 @@ public class BaseModule extends AcrossModule {
 
     @Override
     public String getDescription() {
-        return "Module containing SIMAL base entities and services";
+        return "Module containing SIMAL core functionalities";
     }
 }
