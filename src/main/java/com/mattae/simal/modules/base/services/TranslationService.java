@@ -24,7 +24,7 @@ public class TranslationService {
         while (fieldNames.hasNext()) {
             String fieldName = fieldNames.next();
             JsonNode primaryValue = primary.get(fieldName);
-            if (primaryValue == null) {
+            if (primaryValue == null || !primaryValue.isContainerNode()) {
                 JsonNode backupValue = backup.get(fieldName).deepCopy();
                 primary.set(fieldName, backupValue);
             } else if (primaryValue.isObject()) {
@@ -48,17 +48,19 @@ public class TranslationService {
     public JsonNode listByLang(String lang) {
 
         List<Translation> translations = translationsRepository.getByLang(lang);
+        translations.sort(Comparator.comparing(Translation::getOrder));
         var ref = new Object() {
             JsonNode primary = new ObjectMapper().createObjectNode();
         };
         if (!translations.isEmpty()) {
-            ref.primary = translations.stream().min(Comparator.comparing(Translation::getOrder)).get().getData();
+            ref.primary = translations.get(0).getData();
         }
-        translations.stream()
-            .skip(1)
-            .forEach(translation -> {
-                merge((ObjectNode) ref.primary, (ObjectNode) translation.getData());
-            });
+        if (translations.size() > 1) {
+            translations.subList(1, translations.size())
+                .forEach(translation -> {
+                    merge((ObjectNode) ref.primary, (ObjectNode) translation.getData());
+                });
+        }
         return ref.primary;
     }
 
