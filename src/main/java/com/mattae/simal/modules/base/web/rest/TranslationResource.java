@@ -13,7 +13,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/translations")
-@PreAuthorize("hasRole('ROLE_ADMIN')")
 @RequiredArgsConstructor
 public class TranslationResource {
     private final TranslationService translationService;

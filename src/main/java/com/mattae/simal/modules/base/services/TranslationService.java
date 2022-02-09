@@ -1,6 +1,7 @@
 package com.mattae.simal.modules.base.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mattae.simal.modules.base.domain.entities.Translation;
 import com.mattae.simal.modules.base.domain.repositories.TranslationsRepository;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +24,7 @@ public class TranslationService {
         while (fieldNames.hasNext()) {
             String fieldName = fieldNames.next();
             JsonNode primaryValue = primary.get(fieldName);
-            if (primaryValue == null) {
+            if (primaryValue == null || !primaryValue.isContainerNode()) {
                 JsonNode backupValue = backup.get(fieldName).deepCopy();
                 primary.set(fieldName, backupValue);
             } else if (primaryValue.isObject()) {
@@ -46,17 +48,19 @@ public class TranslationService {
     public JsonNode listByLang(String lang) {
 
         List<Translation> translations = translationsRepository.getByLang(lang);
+        translations.sort(Comparator.comparing(Translation::getOrder));
         var ref = new Object() {
-            JsonNode primary = null;
+            JsonNode primary = new ObjectMapper().createObjectNode();
         };
         if (!translations.isEmpty()) {
             ref.primary = translations.get(0).getData();
         }
-        translations.stream()
-            .skip(1)
-            .forEach(translation -> {
-                merge((ObjectNode) ref.primary, (ObjectNode) translation.getData());
-            });
+        if (translations.size() > 1) {
+            translations.subList(1, translations.size())
+                .forEach(translation -> {
+                    merge((ObjectNode) ref.primary, (ObjectNode) translation.getData());
+                });
+        }
         return ref.primary;
     }
 

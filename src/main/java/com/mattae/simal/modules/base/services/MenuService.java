@@ -24,10 +24,10 @@ public class MenuService {
     public List<Menu> getMenu() {
         List<Menu> menuItems = new ArrayList<>();
         Menu menu = new Menu();
-        menu.setName("Dashboard");
+        menu.setName("CORE.MENU.DASHBOARD");
         menu.setState("dashboard");
         menu.setType(MenuType.icon);
-        menu.setTooltip("Dashboard");
+        menu.setTooltip("CORE.MENU.DASHBOARD");
         menu.setIcon("dashboard");
         menu.setPosition(Integer.MIN_VALUE);
         menuItems.add(menu);
@@ -39,16 +39,15 @@ public class MenuService {
         menuItems.add(menu);
 
         menu = new Menu();
-        menu.setName("Dashboard");
+        menu.setName("CORE.MENU.DASHBOARD");
         menu.setState("dashboard");
         menu.setType(MenuType.link);
-        menu.setTooltip("Dashboard");
         menu.setIcon("dashboard");
         menu.setPosition(Integer.MIN_VALUE + 2);
         menuItems.add(menu);
 
         Menu admin = new Menu();
-        admin.setName("Administration");
+        admin.setName("CORE.MENU.ADMINISTRATION");
         admin.setState("admin");
         admin.setType(MenuType.dropDown);
         admin.setIcon("settings");
@@ -56,7 +55,7 @@ public class MenuService {
         admin.setPosition(Integer.MAX_VALUE);
 
         Menu mm = new Menu();
-        mm.setName("Modules");
+        mm.setName("CORE.MENU.MODULES");
         mm.setPosition(10);
         mm.setState("modules");
         admin.getSubs().add(mm);
