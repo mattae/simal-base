@@ -2,9 +2,9 @@ package com.mattae.simal.modules.base.integration.services;
 
 import com.blazebit.persistence.integration.jackson.EntityViewAwareObjectMapper;
 import com.blazebit.persistence.view.EntityViewManager;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.foreach.across.test.AcrossTestConfiguration;
 import com.foreach.across.test.AcrossWebAppConfiguration;
 import com.mattae.simal.modules.base.BaseModule;
@@ -71,10 +71,23 @@ public class TestTranslationService {
     private Translation translation;
 
     @BeforeEach
-    public void setup() {
-        ObjectNode data = new ObjectMapper().createObjectNode();
-        data.put("name", "test");
-        translation.setData(data);
+    public void setup() throws JsonProcessingException {
+        String json = "{\n" +
+            "    \"EHR\": {\n" +
+            "        \"PATIENT\": {\n" +
+            "            \"RHESUS\": \"Rhesus\",\n" +
+            "            \"HB\": \"HB\",\n" +
+            "            \"EDUCATION\": \"Education\",\n" +
+            "            \"OCCUPATION\": \"Occupation\",\n" +
+            "            \"GENERAL_INFORMATION\": \"General information\",\n" +
+            "            \"GENERAL_INFORMATION_PLACEHOLDER\": \"General information\",\n" +
+            "            \"MENU\": {\n" +
+            "                \"PATIENTS\": \"Patients\"\n" +
+            "            }\n" +
+            "        }\n" +
+            "    }\n" +
+            "}";
+        translation.setData(new ObjectMapper().readTree(json));
 
         translationsRepository.deleteAll();
     }
@@ -106,21 +119,30 @@ public class TestTranslationService {
 
     @Transactional
     @Test
-    public void testListByLang() {
+    public void testListByLang() throws JsonProcessingException {
+        translation.setOrder(2);
         translation = translationsRepository.save(translation);
         Translation translation2 = new Translation();
-        BeanUtils.copyProperties(translation, translation2);
-        ObjectNode data = new ObjectMapper().createObjectNode();
-        data.put("name2", "test2");
-        ObjectNode inner = new ObjectMapper().createObjectNode();
-        inner.put("inner", "yes");
-        data.set("nested", inner);
-        translation2.setData(data);
+        BeanUtils.copyProperties(translation, translation2, "id");
+        String json = "{\n" +
+            "    \"EHR\": {\n" +
+            "        \"PATIENT\": {\n" +
+            "            \"MENU\": {\n" +
+            "                \"PATIENTS\": \"Clients\",\n" +
+            "                \"PATIENTS_SETTINGS\": \"Clients Setting\"\n" +
+            "            }\n" +
+            "        }\n" +
+            "    }\n" +
+            "}";
+        translation2.setData(new ObjectMapper().readTree(json));
+        translation2.setOrder(3);
         translationsRepository.save(translation2);
         JsonNode trans = translationService.listByLang(translation.getLang());
 
         assertNotNull(trans);
-        assertEquals("yes", trans.get("nested").get("inner").asText());
+        assertEquals("Clients", trans.get("EHR").get("PATIENT").get("MENU").get("PATIENTS").asText());
+        assertEquals("Rhesus", trans.get("EHR").get("PATIENT").get("RHESUS").asText());
+        assertEquals("Clients Setting", trans.get("EHR").get("PATIENT").get("MENU").get("PATIENTS_SETTINGS").asText());
     }
 
     @Configuration

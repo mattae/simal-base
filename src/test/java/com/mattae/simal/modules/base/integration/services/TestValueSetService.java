@@ -79,7 +79,6 @@ public class TestValueSetService {
     }
 
     @Test
-    @Transactional
     public void testSave() {
         valueSet.setLang("en");
         ValueSet.UpdateView value = evm.convert(valueSet, ValueSet.UpdateView.class, ConvertOption.CREATE_NEW);
@@ -90,17 +89,15 @@ public class TestValueSetService {
     }
 
     @Test
-    @Transactional
     public void testSaveValues() {
         valueSet.setLang("en");
         ValueSet.UpdateView value = evm.convert(valueSet, ValueSet.UpdateView.class, ConvertOption.CREATE_NEW);
 
         List<ValueSet.UpdateView> values = valueSetService.saveValues(List.of(value));
         assertEquals(1, values.size());
-        assertEquals(value.getValue(), values.get(0).getValue());
+        assertEquals(value.getCode(), values.get(0).getCode());
     }
 
-    @Transactional
     @Test
     public void testGetById() {
         valueSet.setLang("en");
@@ -111,12 +108,11 @@ public class TestValueSetService {
     }
 
     @Test
-    @Transactional
     public void testGetDisplay() {
         valueSet.setLang(null);
         valueSetRepository.save(valueSet);
         String display = valueSetService.getDisplay(valueSet.getType(), valueSet.getProvider(), valueSet.getLang(),
-            valueSet.getValue());
+            valueSet.getCode());
         assertEquals(valueSet.getDisplay(), display);
         display = valueSetService.getDisplay(valueSet.getType(), valueSet.getProvider(), valueSet.getLang(),
             "A".repeat(30));
@@ -124,7 +120,6 @@ public class TestValueSetService {
     }
 
     @Test
-    @Transactional
     public void testGetValues() {
         valueSet.setLang(null);
         valueSetRepository.save(valueSet);

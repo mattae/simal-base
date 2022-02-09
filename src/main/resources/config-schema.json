@@ -86,14 +86,6 @@
                 "$ref": "#/definitions/dependency"
             }
         },
-        "formElements": {
-            "type": "array",
-            "minItems": 1,
-            "items": {
-                "type": "object",
-                "$ref": "#/definitions/formElement"
-            }
-        },
         "webComponents": {
             "type": "array",
             "minItems": 1,
@@ -102,11 +94,8 @@
                 "$ref": "#/definitions/webComponent"
             }
         },
-        "summary": {
-            "type": "string"
-        },
         "translation": {
-            "type": "object",
+            "type": "array",
             "$ref": "#/definitions/translation"
         }
     },
@@ -301,48 +290,6 @@
                 }
             }
         },
-        "formElement": {
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "minLength": 4
-                },
-                "location": {
-                    "type": "string",
-                    "minLength": 6
-                },
-                "priority": {
-                    "type": "integer"
-                },
-                "componentId": {
-                    "type": "string",
-                    "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
-                },
-                "breadcrumb": {
-                    "type": "string",
-                    "minLength": 1
-                },
-                "title": {
-                    "type": "string",
-                    "minLength": 1
-                }
-            },
-            "oneOf": [
-                {
-                    "required": [
-                        "location"
-                    ]
-                },
-                {
-                    "required": [
-                        "componentId"
-                    ]
-                }
-            ]
-        },
         "webComponent": {
             "required": [
                 "type",
@@ -406,6 +353,10 @@
                 },
                 "path": {
                     "type": "string"
+                },
+                "order": {
+                    "type": "integer",
+                    "minimum": 1
                 }
             }
         }

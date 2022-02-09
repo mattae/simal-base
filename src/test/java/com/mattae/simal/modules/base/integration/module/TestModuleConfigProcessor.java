@@ -39,6 +39,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith({SpringExtension.class})
@@ -87,7 +89,7 @@ public class TestModuleConfigProcessor {
         Translation translation = new Translation();
         translation.setLang("en");
         translation.setPath("lang.json");
-        config.setTranslation(translation);
+        config.setTranslations(List.of(translation));
 
         configProcessor.processConfig(config, module);
         assertEquals(1, translationsRepository.count());
