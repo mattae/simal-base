@@ -8,7 +8,6 @@ import com.mattae.simal.modules.base.domain.entities.Individual;
 import com.mattae.simal.modules.base.domain.views.UserView;
 import com.mattae.simal.modules.base.web.rest.vm.PagedResult;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +19,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class IndividualService {
     private final EntityViewManager evm;
     private final EntityManager em;
@@ -51,7 +49,7 @@ public class IndividualService {
             settings.addAttributeFilter("name.familyName", keyword);
             settings.addAttributeFilter("name.middleName", keyword);
             settings.addAttributeFilter("email", keyword);
-            settings.addAttributeFilter("phoneNumber", keyword);
+            settings.addAttributeFilter("phone", keyword);
         }
         if (active == null) {
             active = true;

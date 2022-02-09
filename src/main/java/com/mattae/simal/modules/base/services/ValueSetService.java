@@ -5,7 +5,6 @@ import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.EntityViewSetting;
 import com.mattae.simal.modules.base.domain.entities.ValueSet;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +15,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ValueSetService {
     private final EntityViewManager evm;
     private final EntityManager em;
@@ -59,7 +57,7 @@ public class ValueSetService {
             // @formatter:on
         }
 
-        cb.orderBy("value", true);
+        cb.orderBy("code", true);
         var query = evm.applySetting(settings, cb);
         return query.getResultList();
     }
@@ -70,7 +68,7 @@ public class ValueSetService {
         cb.where("type").eq(type)
             .where("provider").eq(provider)
             .where("active").eq(true)
-            .where("value").eq(value);
+            .where("code").eq(value);
         if (lang != null) {
             // @formatter:off
             cb = cb.whereOr()

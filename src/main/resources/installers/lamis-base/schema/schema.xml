@@ -465,10 +465,9 @@
             <column name="preferred_name" type="varchar(64)"/>
             <column name="honorific" type="varchar(32)"/>
             <column name="salutation" type="varchar(32)"/>
-            <column name="sex" type="varchar(16)"/>
-            <column name="gender" type="varchar(16)"/>
+            <column name="sex" type="varchar(32)"/>
             <column name="email" type="varchar(64)"/>
-            <column name="phone_number" type="varchar(32)"/>
+            <column name="phone" type="varchar(32)"/>
             <column name="photo_url" type="varchar(512)"/>
             <column name="date_of_birth" type="date"/>
             <column name="place_of_birth" type="varchar(64)"/>
@@ -535,7 +534,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="email" type="varchar(64)"/>
-            <column name="phone_number" type="varchar(32)"/>
+            <column name="phone" type="varchar(32)"/>
             <column name="establishment_date" type="date"/>
             <column name="parent_id" type="UUID"/>
             <column name="party_id" type="UUID">
@@ -596,13 +595,13 @@
             <column name="id" type="serial" autoIncrement="true">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="value" type="varchar(256)">
+            <column name="code" type="varchar(256)">
                 <constraints nullable="false"/>
             </column>
             <column name="type" type="varchar(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="display" type="varchar(256)">
+            <column name="display" type="varchar(512)">
                 <constraints nullable="false"/>
             </column>
             <column name="provider" type="varchar(64)">
@@ -630,8 +629,13 @@
         </addColumn>
 
         <sql>
-            create unique index idx_value_set_unique on value_set (value, type, provider, ( lang is null)) where lang is null;
+            create unique index idx_value_set_unique on value_set (code, type, provider, ( lang is null)) where lang is null;
         </sql>
+
+        <loadData encoding="UTF-8"
+                  file="installers/lamis-base/value_set.csv"
+                  separator=";"
+                  tableName="value_set"/>
     </changeSet>
 
     <changeSet id="20220205161025-01" author="mattae">
@@ -641,6 +645,9 @@
             </column>
             <column name="module_id" type="UUID"/>
             <column name="lang" type="varchar(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="_order" type="int">
                 <constraints nullable="false"/>
             </column>
             <column name="data" type="jsonb">
