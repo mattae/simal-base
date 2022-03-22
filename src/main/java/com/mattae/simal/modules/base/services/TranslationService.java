@@ -48,7 +48,7 @@ public class TranslationService {
     public JsonNode listByLang(String lang) {
 
         List<Translation> translations = translationsRepository.getByLang(lang);
-        translations.sort(Comparator.comparing(Translation::getOrder));
+        translations.sort(Comparator.comparing(Translation::getOrder).thenComparing(Translation::getId));
         var ref = new Object() {
             JsonNode primary = new ObjectMapper().createObjectNode();
         };

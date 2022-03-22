@@ -215,11 +215,11 @@
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pkExposedComponent"/>
             </column>
-            <column name="exposed_name" type="varchar(32)">
+            <column name="exposed_name" type="varchar(128)">
                 <constraints nullable="false"/>
             </column>
-            <column name="component_name" type="varchar(32)"/>
-            <column name="element_name" type="varchar(32)"/>
+            <column name="component_name" type="varchar(128)"/>
+            <column name="element_name" type="varchar(128)"/>
             <column name="route_path" type="varchar(128)"/>
             <column name="name" type="UUID">
                 <constraints unique="true"/>
@@ -468,7 +468,7 @@
             <column name="sex" type="varchar(32)"/>
             <column name="email" type="varchar(64)"/>
             <column name="phone" type="varchar(32)"/>
-            <column name="photo_url" type="varchar(512)"/>
+            <column name="photo_url" type="text"/>
             <column name="date_of_birth" type="date"/>
             <column name="place_of_birth" type="varchar(64)"/>
             <column name="country_of_birth" type="varchar(64)"/>
@@ -487,41 +487,6 @@
 
         <addForeignKeyConstraint baseTableName="individual" baseColumnNames="party_id"
                                  constraintName="fk_individual_party_id" referencedTableName="party"
-                                 referencedColumnNames="id"/>
-    </changeSet>
-
-    <changeSet author="mattae" id="20210120232001-14">
-        <createTable tableName="individual_name">
-            <column name="id" type="UUID">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="type" type="varchar(32)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="title" type="varchar(32)"/>
-            <column name="initials" type="varchar(8)"/>
-            <column name="given_name" type="varchar(64)"/>
-            <column name="preferred_given_name" type="varchar(64)"/>
-            <column name="middle_name" type="varchar(64)"/>
-            <column name="family_name" type="varchar(64)"/>
-            <column name="preferred_family_name" type="varchar(64)"/>
-            <column name="preferred_name" type="varchar(64)"/>
-            <column name="honorific" type="varchar(32)"/>
-            <column name="salutation" type="varchar(32)"/>
-            <column name="from_date" type="timestamp"/>
-            <column name="to_date" type="timestamp"/>
-            <column name="individual_id" type="UUID">
-                <constraints nullable="false"/>
-            </column>
-            <column name="archived" type="boolean" defaultValue="false"/>
-            <column name="created_date" type="timestamp" defaultValueComputed="current_timestamp">
-                <constraints nullable="false"/>
-            </column>
-            <column name="last_modified_date" type="timestamp" defaultValueComputed="current_timestamp"/>
-        </createTable>
-
-        <addForeignKeyConstraint baseTableName="individual_name" baseColumnNames="individual_id"
-                                 constraintName="fk_individual_name_individual_id" referencedTableName="individual"
                                  referencedColumnNames="id"/>
     </changeSet>
 
@@ -664,4 +629,26 @@
                                  referencedColumnNames="id"/>
     </changeSet>
 
+    <changeSet id="20220309111625-01" author="mattae">
+        <createTable tableName="configuration">
+            <column name="id" type="serial" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="category" type="varchar(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="data" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="_order" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="module_id" type="UUID"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="configuration" baseColumnNames="module_id"
+                                 constraintName="fk_configuration_module_id"
+                                 referencedTableName="module"
+                                 referencedColumnNames="id"/>
+    </changeSet>
 </databaseChangeLog>

@@ -52,17 +52,6 @@ import static org.junit.jupiter.api.Assertions.*;
     TransactionalTestExecutionListener.class
 })
 public class TestTranslationService {
-    static EnhancedRandom enhancedRandom = EnhancedRandomBuilder
-        .aNewEnhancedRandomBuilder()
-        .stringLengthRange(10, 20)
-        .randomize(Integer.class, IntegerRangeRandomizer.aNewIntegerRangeRandomizer(0, 10))
-        .randomize(String.class, StringRandomizer.aNewStringRandomizer(6))
-        .randomize(Double.class, DoubleRangeRandomizer.aNewDoubleRangeRandomizer(0.0, 10.0))
-        .collectionSizeRange(2, 3)
-        .objectPoolSize(30)
-        .build();
-    @RegisterExtension
-    static RandomBeansExtension randomBeansExtension = new RandomBeansExtension(enhancedRandom);
     @Autowired
     TranslationsRepository translationsRepository;
     @Autowired
@@ -151,4 +140,16 @@ public class TestTranslationService {
     static class Config {
 
     }
+
+    static EnhancedRandom enhancedRandom = EnhancedRandomBuilder
+        .aNewEnhancedRandomBuilder()
+        .stringLengthRange(10, 20)
+        .randomize(Integer.class, IntegerRangeRandomizer.aNewIntegerRangeRandomizer(0, 10))
+        .randomize(String.class, StringRandomizer.aNewStringRandomizer(6))
+        .randomize(Double.class, DoubleRangeRandomizer.aNewDoubleRangeRandomizer(0.0, 10.0))
+        .collectionSizeRange(2, 3)
+        .objectPoolSize(30)
+        .build();
+    @RegisterExtension
+    static RandomBeansExtension randomBeansExtension = new RandomBeansExtension(enhancedRandom);
 }

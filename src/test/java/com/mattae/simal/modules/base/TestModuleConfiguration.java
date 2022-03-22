@@ -11,7 +11,7 @@ import java.nio.file.Files;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
-public class TestTestModuleConfiguration {
+public class TestModuleConfiguration {
 
 
     @Test

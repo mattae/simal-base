@@ -1,13 +1,24 @@
 {
     "CORE": {
-        "Phone": "Phone",
+        "PAGINATOR": {
+            "OF": "of",
+            "ITEMS_PER_PAGE": "Items per page",
+            "NEXT_PAGE": "Next page",
+            "PREVIOUS_PAGE": "Previous page",
+            "LAST_PAGE": "Last page",
+            "FIRST_PAGE": "First page"
+        },
+        "PHONE": "Phone",
         "EMAIL": "Email",
         "ADDRESS_LABEL": "Address",
         "BUTTONS": {
             "SAVE": "Save",
+            "ADD": "Add",
             "SAVE_TOOLTIP": "Save",
             "DELETE": "Delete",
             "DELETE_TOOLTIP": "Delete",
+            "EDIT": "Edit",
+            "EDIT_TOOLTIP": "Edit",
             "UPDATE": "Update",
             "UPDATE_TOOLTIP": "Update",
             "CANCEL": "Cancel",

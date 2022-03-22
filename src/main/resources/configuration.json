@@ -1,0 +1,29 @@
+[
+    {
+        "category": "CORE.ADDRESS",
+        "order": 1,
+        "data": [
+            {
+                "key": "ALPHA3CODE",
+                "value": "ngn",
+                "type": "string"
+            },
+            {
+                "key": "COUNT",
+                "value": "2022-03-04",
+                "type": "date"
+            }
+        ]
+    },
+    {
+        "category": "CORE.ADDRESS",
+        "order": 1,
+        "data": [
+            {
+                "key": "ALPHA3CODE",
+                "value": "ghn",
+                "type": "string"
+            }
+        ]
+    }
+]

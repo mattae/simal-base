@@ -5,6 +5,7 @@ import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.EntityViewSetting;
 import com.mattae.simal.modules.base.domain.entities.ValueSet;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,7 +53,7 @@ public class ValueSetService {
             // @formatter:off
             cb = cb.whereOr()
                     .where("lang").eq(lang)
-                    .where("lang").isNull()
+                .where("lang").isNull()
                 .endOr();
             // @formatter:on
         }
@@ -62,18 +63,18 @@ public class ValueSetService {
         return query.getResultList();
     }
 
-    public String getDisplay(String type, String provider, String lang, String value) {
-        var settings = EntityViewSetting.create(ValueSet.BaseView.class);
+    public String getDisplay(String type, String provider, String lang, String code) {
+        var settings = EntityViewSetting.create(ValueSet.DisplayView.class);
         var cb = cbf.create(em, ValueSet.class);
         cb.where("type").eq(type)
             .where("provider").eq(provider)
             .where("active").eq(true)
-            .where("code").eq(value);
+            .where("code").eq(StringUtils.trimToEmpty(code));
         if (lang != null) {
             // @formatter:off
             cb = cb.whereOr()
-                    .where("lang").eq(lang)
-                    .where("lang").isNull()
+                .where("lang").eq(lang)
+                .where("lang").isNull()
                 .endOr();
             // @formatter:on
         }

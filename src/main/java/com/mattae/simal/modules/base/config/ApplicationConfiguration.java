@@ -7,7 +7,6 @@ import com.foreach.across.modules.filemanager.services.LocalFileRepository;
 import com.foreach.across.modules.user.services.UserPropertiesRegistry;
 import com.mattae.simal.modules.base.services.PermissionPropertiesRegistry;
 import com.mattae.simal.modules.base.services.RolePropertiesRegistry;
-import io.github.jhipster.config.JHipsterProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jooq.JooqAutoConfiguration;
 import org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration;

@@ -1,9 +1,9 @@
 package com.mattae.simal.modules.base.yml;
 
 import com.mattae.simal.modules.base.domain.entities.Menu;
-import lombok.Data;
 import com.mattae.simal.modules.base.domain.entities.WebComponent;
 import com.mattae.simal.modules.base.domain.entities.WebRemote;
+import lombok.Data;
 
 import java.util.*;
 
@@ -19,6 +19,7 @@ public class ModuleConfig {
     private String url;
     private String image;
     private Date buildDate;
+    private Configuration configuration;
     private List<Translation> translations = new ArrayList<>();
     private List<Dependency> dependencies = new ArrayList<>();
     private List<WebRemote> webRemotes = new ArrayList<>();

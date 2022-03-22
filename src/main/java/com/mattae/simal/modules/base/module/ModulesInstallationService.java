@@ -2,12 +2,11 @@ package com.mattae.simal.modules.base.module;
 
 import com.foreach.across.core.AcrossContext;
 import com.foreach.across.modules.filemanager.business.reference.FileReferenceService;
+import com.mattae.simal.modules.base.configurer.DynamicModuleImportConfigurer;
 import com.mattae.simal.modules.base.domain.entities.Module;
 import com.mattae.simal.modules.base.domain.repositories.ModuleRepository;
 import com.mattae.simal.modules.base.yml.ModuleConfig;
-import com.mattae.simal.modules.base.configurer.DynamicModuleImportConfigurer;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -21,7 +20,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ModulesInstallationService {
     private final ModuleConfigProcessor configProcessor;
     private final ModuleRepository moduleRepository;
@@ -64,6 +62,8 @@ public class ModulesInstallationService {
             fileReferenceService.delete(module.getFile(), true);
         }
         configProcessor.deleteRolesAndPermissions(module);
+        configProcessor.deleteConfigurations(module);
+        configProcessor.deleteTranslations(module);
         moduleRepository.delete(module);
     }
 }

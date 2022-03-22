@@ -1,11 +1,8 @@
 package com.mattae.simal.modules.base.web.errors;
 
-public class UsernameAlreadyUsedException extends RuntimeException {
+import org.zalando.problem.AbstractThrowableProblem;
 
-    private static final long serialVersionUID = 1L;
+public class UsernameAlreadyUsedException extends AbstractThrowableProblem {
 
-    public UsernameAlreadyUsedException() {
-        super("Login name already used!");
-    }
 
 }

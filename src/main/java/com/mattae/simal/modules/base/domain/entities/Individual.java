@@ -5,10 +5,7 @@ import com.blazebit.persistence.view.PreRemove;
 import com.blazebit.persistence.view.*;
 import com.mattae.simal.modules.base.domain.views.NameView;
 import com.mattae.simal.modules.base.domain.views.PartyView;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.ResultCheckStyle;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -26,8 +23,8 @@ import java.util.UUID;
 @EqualsAndHashCode(of = "id")
 @SQLDelete(sql = "update individual set archived = true, last_modified_date = current_timestamp where id = ?", check = ResultCheckStyle.COUNT)
 @Where(clause = "archived = false")
-@Data
-@ToString(of = {"id", "name", "party"})
+@Getter
+@Setter
 public class Individual {
     @Id
     @GeneratedValue
@@ -38,9 +35,6 @@ public class Individual {
 
     @Embedded
     private Name name;
-
-    @OneToMany(mappedBy = "individual", cascade = CascadeType.REMOVE)
-    private Set<IndividualName> names;
 
     private String sex;
 

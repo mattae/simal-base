@@ -5,8 +5,8 @@ import com.foreach.across.modules.spring.security.configuration.AcrossWebSecurit
 import com.mattae.simal.modules.base.security.jwt.JWTConfigurer;
 import com.mattae.simal.modules.base.security.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -18,15 +18,18 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
+import org.springframework.web.filter.CorsFilter;
+import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @RequiredArgsConstructor
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@Slf4j
+//@Import(SecurityProblemSupport.class)
 public class SecurityConfiguration implements AcrossWebSecurityConfigurer {
     private final TokenProvider tokenProvider;
+    // private final SecurityProblemSupport problemSupport;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -52,10 +55,12 @@ public class SecurityConfiguration implements AcrossWebSecurityConfigurer {
         // @formatter:off
         http
             .antMatcher("/**")
-                .csrf()
-                .disable()
-                .exceptionHandling()
-        .and()
+            .csrf()
+            .disable()
+            .exceptionHandling()
+            //    .authenticationEntryPoint(problemSupport)
+            //    .accessDeniedHandler(problemSupport)
+            .and()
             .headers()
             .contentSecurityPolicy("default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:")
         .and()
@@ -69,7 +74,7 @@ public class SecurityConfiguration implements AcrossWebSecurityConfigurer {
             .requestMatchers()
             .antMatchers("/api/modules/web-remotes", "/api/authenticate", "/api/register", "/api/activate",
                 "/api/account/reset-password/init", "/api/account/reset-password/finish", "/websocket/**",
-                "/api/translations/**")
+                "/api/translations/lang/**")
         .and()
             .authorizeRequests().anyRequest().permitAll()
         .and()

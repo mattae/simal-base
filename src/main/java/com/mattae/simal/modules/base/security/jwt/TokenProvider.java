@@ -157,8 +157,7 @@ public class TokenProvider {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(authToken);
             return true;
         } catch (ExpiredJwtException e) {
-            LOG.trace("JWT token expired.");
-            throw e;
+            LOG.debug("JWT token expired.");
         } catch (JwtException | IllegalArgumentException e) {
             LOG.trace("Invalid JWT token trace.", e);
         }

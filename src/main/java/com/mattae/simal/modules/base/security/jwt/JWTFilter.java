@@ -1,6 +1,7 @@
 package com.mattae.simal.modules.base.security.jwt;
 
 
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,13 +13,10 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-/**
- * Filters incoming requests and installs a Spring Security principal if a header corresponding to a valid user is
- * found.
- */
-@Slf4j
+
 public class JWTFilter extends GenericFilterBean {
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
@@ -41,6 +39,7 @@ public class JWTFilter extends GenericFilterBean {
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } else {
             SecurityContextHolder.getContext().setAuthentication(null);
+            // ((HttpServletResponse) servletResponse).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
         filterChain.doFilter(servletRequest, servletResponse);
     }
