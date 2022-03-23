@@ -7,7 +7,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.foreach.across.test.AcrossTestConfiguration;
 import com.foreach.across.test.AcrossWebAppConfiguration;
 import com.mattae.simal.modules.base.BaseModule;
+import com.mattae.simal.modules.base.domain.entities.Module;
 import com.mattae.simal.modules.base.domain.entities.ValueSet;
+import com.mattae.simal.modules.base.domain.repositories.ModuleRepository;
 import com.mattae.simal.modules.base.domain.repositories.ValueSetRepository;
 import com.mattae.simal.modules.base.services.ValueSetService;
 import io.github.benas.randombeans.EnhancedRandomBuilder;
@@ -69,8 +71,12 @@ public class TestValueSetService {
     ValueSetRepository valueSetRepository;
     @Autowired
     EntityViewManager evm;
-    @Random(excludes = {"id"})
+    @Random(excludes = {"id", "module"})
     ValueSet valueSet;
+    @Autowired
+    ModuleRepository moduleRepository;
+    @Random(excludes = {"id", "file", "webRemotes", "menus", "webComponents"})
+    private Module module;
 
     @BeforeEach
     @Transactional
@@ -121,6 +127,9 @@ public class TestValueSetService {
 
     @Test
     public void testGetValues() {
+        module.setStarted(true);
+        moduleRepository.save(module);
+        valueSet.setModule(module);
         valueSet.setLang(null);
         valueSetRepository.save(valueSet);
 

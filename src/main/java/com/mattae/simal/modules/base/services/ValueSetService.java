@@ -47,18 +47,24 @@ public class ValueSetService {
         cb.where("type").eq(type)
             .where("provider").eq(provider);
         if (active != null) {
-            cb = cb.where("active").eq(active);
+            cb.where("active").eq(active);
         }
         if (lang != null) {
             // @formatter:off
-            cb = cb.whereOr()
+            cb.whereOr()
                     .where("lang").eq(lang)
-                .where("lang").isNull()
+                    .where("lang").isNull()
                 .endOr();
             // @formatter:on
         }
+        // @formatter:off
+        cb.whereOr()
+                .where("module").isNull()
+                .where("module.started").eq(true)
+            .endOr();
+        // @formatter:on
 
-        cb.orderBy("code", true);
+        cb.orderBy("display", true);
         var query = evm.applySetting(settings, cb);
         return query.getResultList();
     }
@@ -72,12 +78,19 @@ public class ValueSetService {
             .where("code").eq(StringUtils.trimToEmpty(code));
         if (lang != null) {
             // @formatter:off
-            cb = cb.whereOr()
-                .where("lang").eq(lang)
-                .where("lang").isNull()
+            cb.whereOr()
+                    .where("lang").eq(lang)
+                    .where("lang").isNull()
                 .endOr();
             // @formatter:on
         }
+        // @formatter:off
+        cb.whereOr()
+                .where("module").isNull()
+                .where("module.started").eq(true)
+            .endOr();
+        // @formatter:on
+
         var query = evm.applySetting(settings, cb);
         var result = query.getResultList();
         if (!result.isEmpty()) {

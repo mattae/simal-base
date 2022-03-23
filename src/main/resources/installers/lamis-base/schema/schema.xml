@@ -573,6 +573,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="active" type="boolean" defaultValue="true"/>
+            <column name="module_id" type="JAVA.UTIL.UUID"/>
         </createTable>
 
         <createIndex tableName="value_set" indexName="idx_value_set_type_provider_active">
@@ -580,6 +581,11 @@
             <column name="provider"/>
             <column name="active"/>
         </createIndex>
+
+        <addForeignKeyConstraint baseTableName="value_set" baseColumnNames="module_id"
+                                 constraintName="fk_value_set_module_id"
+                                 referencedTableName="module"
+                                 referencedColumnNames="id"/>
     </changeSet>
 
     <changeSet id="20211019005923-07" author="mattae">

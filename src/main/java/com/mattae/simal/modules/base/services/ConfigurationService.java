@@ -44,6 +44,16 @@ public class ConfigurationService {
         if (StringUtils.isNotBlank(category)) {
             cb.where("category").like(false).value("%" + category + "%").noEscape();
         }
+        // @formatter:off
+        cb.whereOr()
+                .where("module").isNull()
+                .whereAnd()
+                    .where("module").isNotNull()
+                    .where("module.started").eq(true)
+                .endAnd()
+            .endOr();
+        // @formatter:on
+
         List<Configuration.View> configurations = evm.applySetting(settings, cb).getResultList();
         if (StringUtils.isNotBlank(key)) {
             return configurations.stream()
@@ -100,8 +110,19 @@ public class ConfigurationService {
     private Optional<Configuration.Data> findByCategoryAndKey(String category, String key) {
         var settings = EntityViewSetting.create(Configuration.View.class);
         var cb = cbf.create(em, Configuration.View.class);
+
+        // @formatter:off
         cb.from(Configuration.class)
-            .where("category").eq(category);
+            .where("category").eq(category)
+            .whereOr()
+                .where("module").isNull()
+                .whereAnd()
+                    .where("module").isNotNull()
+                    .where("module.started").eq(true)
+                .endAnd()
+            .endOr();
+        // @formatter:on
+
         var ref = new Object() {
             JsonNode primary = new ObjectMapper().createObjectNode();
         };
