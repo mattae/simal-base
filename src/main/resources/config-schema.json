@@ -90,9 +90,13 @@
             "type": "array",
             "$ref": "#/definitions/translation"
         },
-        "configurations": {
-            "type": "object",
-            "$ref": "#/definitions/configuration"
+        "configurationsPath": {
+            "type": "string",
+            "minLength": 4
+        },
+        "valueSetsPath": {
+            "type": "string",
+            "minLength": 4
         }
     },
     "definitions": {

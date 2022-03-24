@@ -234,24 +234,6 @@
             </column>
         </createTable>
 
-        <createTable tableName="web_component">
-            <column name="id" type="UUID">
-                <constraints nullable="false" primaryKey="true" primaryKeyName="pkWebComponent"/>
-            </column>
-            <column name="name" type="varchar(64)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="type" type="varchar(64)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="component_id" type="UUID">
-                <constraints nullable="false" unique="true"/>
-            </column>
-            <column name="module_id" type="UUID">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-
         <createTable tableName="web_module_authorities">
             <column name="module_id" type="UUID">
                 <constraints nullable="false"/>
@@ -260,13 +242,6 @@
         </createTable>
 
         <createTable tableName="component_authorities">
-            <column name="component_id" type="UUID">
-                <constraints nullable="false"/>
-            </column>
-            <column name="authorities" type="varchar(128)"/>
-        </createTable>
-
-        <createTable tableName="web_component_authorities">
             <column name="component_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
@@ -293,10 +268,6 @@
 
         <addForeignKeyConstraint baseTableName="web_remote" baseColumnNames="module_id"
                                  constraintName="fk_web_remote_module_id" referencedTableName="module"
-                                 referencedColumnNames="id"/>
-
-        <addForeignKeyConstraint baseTableName="web_component" baseColumnNames="module_id"
-                                 constraintName="fk_web_component_module_id" referencedTableName="module"
                                  referencedColumnNames="id"/>
     </changeSet>
 

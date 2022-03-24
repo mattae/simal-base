@@ -3,6 +3,7 @@ package com.mattae.simal.modules.base.domain.repositories;
 import com.mattae.simal.modules.base.domain.entities.Module;
 import com.mattae.simal.modules.base.domain.entities.WebRemote;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,4 +13,7 @@ import java.util.UUID;
 public interface WebRemoteRepository extends JpaRepository<WebRemote, UUID> {
 
     List<WebRemote> findByModule(Module module);
+
+    @Modifying
+    void deleteByModule(Module module);
 }

@@ -1,7 +1,12 @@
 package com.mattae.simal.modules.base.module;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.foreach.across.modules.filemanager.business.reference.FileReference;
+import com.foreach.across.modules.filemanager.business.reference.FileReferenceRepository;
+import com.foreach.across.modules.filemanager.business.reference.properties.FileReferencePropertiesService;
+import com.foreach.across.modules.filemanager.services.FileManager;
 import com.foreach.across.modules.user.business.Permission;
 import com.foreach.across.modules.user.business.PermissionGroup;
 import com.foreach.across.modules.user.business.Role;
@@ -19,42 +24,178 @@ import com.mattae.simal.modules.base.domain.entities.*;
 import com.mattae.simal.modules.base.domain.repositories.*;
 import com.mattae.simal.modules.base.yml.ModuleConfig;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.FileCopyUtils;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ModuleConfigProcessor {
     private final PermissionService permissionService;
     private final PermissionPropertiesService permissionPropertiesService;
     private final RolePropertiesService rolePropertiesService;
-    private final WebComponentRepository webComponentRepository;
     private final MenuRepository menuRepository;
     private final WebRemoteRepository webRemoteRepository;
+    private final ExposedComponentRepository exposedComponentRepository;
     private final PermissionRepository permissionRepository;
     private final UserRepository userRepository;
     private final RoleService roleService;
     private final RoleRepository roleRepository;
     private final TranslationsRepository translationsRepository;
     private final ConfigurationRepository configurationRepository;
+    private final ValueSetRepository valueSetRepository;
+    private final FileReferenceRepository fileReferenceRepository;
+    private final FileManager fileManager;
+    private final FileReferencePropertiesService fileReferencePropertiesService;
 
     @Transactional
-    public void processConfig(ModuleConfig moduleConfig, Module module) {
+    public void processConfig(Module module, ModuleConfig moduleConfig) {
         Assert.notNull(moduleConfig, "Module Config cannot be null");
+
+        saveRolesAndPermissions(module, moduleConfig);
+        saveMenus(module, moduleConfig);
+        saveWebRemotes(module, moduleConfig);
+        saveTranslations(module, moduleConfig);
+        saveConfigurations(module, moduleConfig);
+        saveValueSets(module, moduleConfig);
+    }
+
+    @Transactional
+    public void deleteRelatedResources(Module module) {
+        deleteRolesAndPermissions(module);
+        translationsRepository.deleteByModule(module);
+        configurationRepository.deleteByModule(module);
+        valueSetRepository.deleteByModule(module);
+        menuRepository.deleteByModule(module);
+        exposedComponentRepository.deleteByWebRemoteModule(module);
+        webRemoteRepository.deleteByModule(module);
+    }
+
+    private void deleteRolesAndPermissions(Module module) {
+        List<PermissionGroup> permissionGroups = new ArrayList<>();
+        permissionPropertiesService.getEntityIdsForPropertyValue("moduleId", module.getId())
+            .forEach(id -> permissionRepository.findById(id).ifPresent(permission -> {
+                permissionPropertiesService.deleteProperties(id);
+                PermissionGroup group = permission.getGroup();
+                permissionGroups.add(group);
+                roleService.getRoles().forEach(role -> {
+                    role.getPermissions().remove(permission);
+                });
+                try {
+                    permissionService.deletePermission(permission);
+                } catch (Exception ignored) {
+                }
+            }));
+        permissionGroups.forEach(permissionService::deleteGroup);
+        rolePropertiesService.getEntityIdsForPropertyValue("moduleId", module.getId())
+            .forEach(id -> {
+                rolePropertiesService.deleteProperties(id);
+                roleRepository.findById(id).ifPresent(role -> {
+                    userRepository.findAll()
+                        .forEach(user -> {
+                            user.getRoles().remove(role);
+                        });
+                });
+                roleRepository.deleteById(id);
+            });
+    }
+
+    private void saveConfigurations(Module module, ModuleConfig config) {
+        if (config.getConfigurationsPath() != null) {
+            try {
+                URLClassLoader classLoader = new URLClassLoader(new URL[]{urlForModule(module)});
+                URL url = classLoader.getResource(config.getConfigurationsPath());
+                if (url != null) {
+                    List<Configuration> configurations = new ObjectMapper().readValue(url, new TypeReference<>() {
+                    });
+                    configurations = configurations.stream()
+                        .map(configuration -> {
+                            configuration.setModule(module);
+                            configuration.setId(null);
+                            return configuration;
+                        })
+                        .toList();
+
+                    configurationRepository.saveAll(configurations);
+                }
+                classLoader.close();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    private void saveValueSets(Module module, ModuleConfig config) {
+
+        if (config.getValueSetsPath() != null) {
+            try {
+                URLClassLoader classLoader = new URLClassLoader(new URL[]{urlForModule(module)});
+                URL url = classLoader.getResource(config.getValueSetsPath());
+                if (url != null) {
+                    List<ValueSet> valueSets = new ObjectMapper().readValue(url, new TypeReference<>() {
+                    });
+                    valueSets = valueSets.stream()
+                        .map(valueSet -> {
+                            valueSet.setModule(module);
+                            valueSet.setId(null);
+                            return valueSet;
+                        })
+                        .toList();
+
+                    valueSetRepository.saveAll(valueSets);
+                }
+                classLoader.close();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    private void saveTranslations(Module module, ModuleConfig config) {
+        translationsRepository.deleteByModule(module);
+        if (!config.getTranslations().isEmpty()) {
+            config.getTranslations().forEach(tran -> {
+                String path = tran.getPath();
+                String lang = tran.getLang();
+                Translation translation = new Translation();
+                translation.setLang(lang);
+                translation.setModule(module);
+                try {
+                    URLClassLoader classLoader = new URLClassLoader(new URL[]{urlForModule(module)});
+                    URL url = classLoader.getResource(path);
+                    if (url != null) {
+                        try {
+                            String data = new String(FileCopyUtils.copyToByteArray(url.openConnection().getInputStream()));
+                            JsonNode node = new ObjectMapper().readTree(data);
+                            translation.setData(node);
+                            translationsRepository.save(translation);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    classLoader.close();
+                } catch (IOException ignored) {
+                }
+            });
+        }
+    }
+
+    private void saveRolesAndPermissions(Module module, ModuleConfig moduleConfig) {
         List<RoleProperties> roleProperties = new ArrayList<>();
         List<PermissionProperties> permissionProperties = new ArrayList<>();
         moduleConfig.getPermissions()
@@ -86,10 +227,31 @@ public class ModuleConfigProcessor {
             });
         permissionProperties.forEach(permissionPropertiesService::saveProperties);
         roleProperties.forEach(rolePropertiesService::saveProperties);
+    }
 
-        module.getMenus().clear();
-        Set<Menu> menus;
-        menus = moduleConfig.getMenus().stream()
+    private void saveWebRemotes(Module module, ModuleConfig moduleConfig) {
+        List<WebRemote> webRemotes = moduleConfig.getWebRemotes().stream()
+            .map(webRemote -> {
+                webRemote.setModule(module);
+                Set<ExposedComponent> components = webRemote.getComponents().stream()
+                    .map(c -> {
+                        c.setWebRemote(webRemote);
+                        return c;
+                    }).collect(Collectors.toSet());
+                webRemote.setComponents(components);
+                Set<ExposedModule> modules = webRemote.getModules().stream()
+                    .map(c -> {
+                        c.setWebRemote(webRemote);
+                        return c;
+                    }).collect(Collectors.toSet());
+                webRemote.setModules(modules);
+                return webRemote;
+            }).toList();
+        webRemoteRepository.saveAll(webRemotes);
+    }
+
+    private void saveMenus(Module module, ModuleConfig moduleConfig) {
+        Set<Menu> menus = moduleConfig.getMenus().stream()
             .map(menuItem -> {
                 menuItem.setModule(module);
                 return menuItem;
@@ -121,38 +283,11 @@ public class ModuleConfigProcessor {
                 return menu;
             })
             .collect(Collectors.toSet());
-        module.setMenus(menus);
-
-        module.getWebRemotes().addAll(moduleConfig.getWebRemotes().stream()
-            .map(webRemote -> {
-                webRemote.setModule(module);
-                Set<ExposedComponent> components = webRemote.getComponents().stream()
-                    .map(c -> {
-                        c.setWebRemote(webRemote);
-                        return c;
-                    }).collect(Collectors.toSet());
-                webRemote.setComponents(components);
-                Set<ExposedModule> modules = webRemote.getModules().stream()
-                    .map(c -> {
-                        c.setWebRemote(webRemote);
-                        return c;
-                    }).collect(Collectors.toSet());
-                webRemote.setModules(modules);
-                return webRemote;
-            }).toList());
-
-        module.getWebComponents().addAll(moduleConfig.getWebComponents().stream()
-            .map(webComponent -> {
-                webComponent.setModule(module);
-                return webComponent;
-            }).toList());
-
-        saveTranslations(module, moduleConfig);
-        saveConfigurations(module, moduleConfig);
+        menuRepository.saveAll(menus);
     }
 
-    public void savePermission(List<PermissionProperties> permissionProperties, com.mattae.simal.modules.base.yml.Permission perm,
-                               Module module) {
+    private void savePermission(List<PermissionProperties> permissionProperties, com.mattae.simal.modules.base.yml.Permission perm,
+                                Module module) {
         String name = StringUtils.stripStart(module.getName(), "#");
         Permission permission = permissionService.definePermission(perm.getName(), perm.getDescription(), name);
         PermissionGroup permissionGroup = permissionService.getPermissionGroup(name);
@@ -165,120 +300,21 @@ public class ModuleConfigProcessor {
         permissionProperties.add(properties);
     }
 
-    @Transactional
-    public void deleteRelationships(Module module) {
-        translationsRepository.deleteByModule(module);
-        configurationRepository.deleteByModule(module);
-        deleteRolesAndPermissions(module);
-        webComponentRepository.deleteAll(webComponentRepository.findByModule(module));
-        menuRepository.deleteAll(menuRepository.findByModule(module));
-        webRemoteRepository.deleteAll(webRemoteRepository.findByModule(module));
-        webRemoteRepository.flush();
-    }
-
-    @Transactional
-    public void deleteRolesAndPermissions(Module module) {
-        List<PermissionGroup> permissionGroups = new ArrayList<>();
-        permissionPropertiesService.getEntityIdsForPropertyValue("moduleId", module.getId())
-            .forEach(id -> {
-                permissionRepository.findById(id).ifPresent(permission -> {
-                    permissionPropertiesService.deleteProperties(id);
-                    PermissionGroup group = permission.getGroup();
-                    permissionGroups.add(group);
-                    roleService.getRoles().forEach(role -> {
-                        role.getPermissions().remove(permission);
-                        roleService.save(role);
-                    });
-                    try {
-                        permissionService.deletePermission(permission);
-                    } catch (Exception ignored) {
-                    }
-                });
-            });
-        permissionGroups.forEach(permissionService::deleteGroup);
-        rolePropertiesService.getEntityIdsForPropertyValue("moduleId", module.getId())
-            .forEach(id -> {
-                rolePropertiesService.deleteProperties(id);
-                roleRepository.findById(id).ifPresent(role -> {
-                    userRepository.findAll()
-                        .forEach(user -> {
-                            user.getRoles().remove(role);
-                            userRepository.save(user);
-                        });
-                });
-                roleRepository.deleteById(id);
-            });
-    }
-
-    @Transactional
-    public void deleteConfigurations(Module module) {
-        configurationRepository.deleteByModule(module);
-    }
-
-    @Transactional
-    public void deleteTranslations(Module module) {
-        translationsRepository.deleteByModule(module);
-    }
-
-    private void saveConfigurations(Module module, ModuleConfig config) {
-        if (config.getConfiguration() != null) {
-            String path = config.getConfiguration().getPath();
-            URL url = module.getClass().getClassLoader().getResource(path);
-            if (url != null) {
-                try {
-                    String data = new String(FileCopyUtils.copyToByteArray(url.openConnection().getInputStream()));
-                    Configuration configuration = new ObjectMapper().readValue(data, Configuration.class);
-                    try (BufferedReader csvReader = new BufferedReader(
-                        new BufferedReader(new InputStreamReader(url.openConnection().getInputStream())))) {
-                        String row;
-                        List<Configuration> configurations = new ArrayList<>();
-                        while ((row = csvReader.readLine()) != null) {
-                            String[] line = row.split(config.getConfiguration().getSeparator());
-                            if (line.length == 4) {
-                                if (List.of("string", "numeric", "bool", "date").contains(line[3])) {
-                                    //Configuration configuration = new Configuration();
-                                    configuration.setCategory(line[0]);
-                                    /*ConfigurationData data = new ConfigurationData();
-                                    data.setKey(line[1]);
-                                    data.setValue(line[2]);
-                                    data.setType(ConfigurationData.ConfigurationType.valueOf(line[3]));
-                                    configuration.setModule(module);*/
-                                    configurations.add(configuration);
-                                }
-                            }
-                        }
-                        configurationRepository.saveAll(configurations);
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+    private URL urlForModule(Module module) throws IOException {
+        InputStream inputStream = null;
+        Path tmp = Files.createTempFile("module", null);
+        byte[] data = module.getData();
+        if (data != null) {
+            inputStream = new ByteArrayInputStream(data);
+        } else {
+            Collection<Long> ids = fileReferencePropertiesService.getEntityIdsForPropertyValue("name", module.getName());
+            if (!ids.isEmpty()) {
+                FileReference reference = fileReferenceRepository.getOne(ids.iterator().next());
+                inputStream = fileManager.getFileResource(reference.getFileDescriptor()).getInputStream();
             }
         }
-    }
 
-    private void saveTranslations(Module module, ModuleConfig config) {
-        translationsRepository.deleteByModule(module);
-
-        if (!config.getTranslations().isEmpty()) {
-            config.getTranslations().forEach(tran -> {
-                String path = tran.getPath();
-                String lang = tran.getLang();
-                Translation translation = new Translation();
-                translation.setLang(lang);
-                translation.setModule(module);
-                URL url = module.getClass().getClassLoader().getResource(path);
-                if (url != null) {
-                    try {
-                        String data = new String(FileCopyUtils.copyToByteArray(url.openConnection().getInputStream()));
-                        JsonNode node = new ObjectMapper().readTree(data);
-                        translation.setData(node);
-                        translationsRepository.save(translation);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        }
+        IOUtils.copy(inputStream, new FileOutputStream(tmp.toFile()));
+        return tmp.toUri().toURL();
     }
 }

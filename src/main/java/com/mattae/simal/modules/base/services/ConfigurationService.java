@@ -47,10 +47,7 @@ public class ConfigurationService {
         // @formatter:off
         cb.whereOr()
                 .where("module").isNull()
-                .whereAnd()
-                    .where("module").isNotNull()
-                    .where("module.started").eq(true)
-                .endAnd()
+                .where("module.started").eq(true)
             .endOr();
         // @formatter:on
 
@@ -116,10 +113,7 @@ public class ConfigurationService {
             .where("category").eq(category)
             .whereOr()
                 .where("module").isNull()
-                .whereAnd()
-                    .where("module").isNotNull()
-                    .where("module.started").eq(true)
-                .endAnd()
+                .where("module.started").eq(true)
             .endOr();
         // @formatter:on
 

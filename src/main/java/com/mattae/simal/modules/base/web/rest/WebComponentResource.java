@@ -25,27 +25,6 @@ import java.util.UUID;
 public class WebComponentResource {
     private final WebComponentService webComponentService;
 
-    /**
-     * GET  /web-components/{id} : get Web Component by id.
-     *
-     * @return the ResponseEntity with components 200 (OK) and the web component in body
-     */
-    @GetMapping("/web-components/{id}")
-    public ComponentDTO getComponentById(@PathVariable UUID id) {
-        LOG.debug("REST request to get Web Component with id: {}", id);
-        return webComponentService.getComponentById(id);
-    }
-
-    /**
-     * GET  /web-components/{type} : get all the active components by type.
-     *
-     * @return the ResponseEntity with components 200 (OK) and the list of components in body
-     */
-    @GetMapping("/web-components/type/{type}")
-    public List<ComponentDTO> getAllActiveWebComponents(@PathVariable String type) {
-        LOG.debug("REST request to get all Components of type: {}", type);
-        return webComponentService.getComponentsByType(type);
-    }
 
     @GetMapping("/web-components/name/{name}")
     public ResponseEntity<ExposedComponent.View> getByName(@PathVariable UUID name) {

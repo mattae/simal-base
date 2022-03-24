@@ -36,7 +36,6 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 
 import javax.persistence.EntityManager;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.List;
 
 @ExtendWith({SpringExtension.class})
@@ -49,7 +48,6 @@ import java.util.List;
     DirtiesContextTestExecutionListener.class,
     TransactionalTestExecutionListener.class
 })
-@Slf4j
 public class TestConfigurationService {
 
     static EnhancedRandom enhancedRandom = EnhancedRandomBuilder
@@ -82,13 +80,11 @@ public class TestConfigurationService {
     @Test
     public void testSave() throws IOException {
 
-        LOG.info("Configuration: {}", configurationService.list(null, null));
     }
 
     @Test
     public void testGetKey() throws IOException {
 
-        LOG.info("Configurations: {}", configurationService.getValueAsNumericForKey("CORE.ADDRESS", "COUNT"));
     }
 
     @org.springframework.context.annotation.Configuration

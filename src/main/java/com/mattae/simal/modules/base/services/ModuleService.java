@@ -16,6 +16,7 @@ import com.mattae.simal.modules.base.web.vm.ModuleVM;
 import com.mattae.simal.modules.base.yml.ModuleConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.BeanUtils;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ModuleService {
     public static final String MODULE_DIR = "module-data";
     private final ModuleRepository moduleRepository;
@@ -85,9 +87,7 @@ public class ModuleService {
             });
         Module module1 = moduleRepository.save(module);
         saveModuleData(module1);
-        ModuleVM vm = new ModuleVM();
-        BeanUtils.copyProperties(module1, vm);
-        return vm;
+        return vmFromModule(module);
     }
 
     public void uninstall(UUID id) {
@@ -182,7 +182,8 @@ public class ModuleService {
         Collection<Long> ids = fileReferencePropertiesService.getEntityIdsForPropertyValue("name", module.getName());
         if (!ids.isEmpty()) {
             try {
-                FileReference reference = fileReferenceRepository.getOne(ids.iterator().next());
+                Long id = ids.iterator().next();
+                FileReference reference = fileReferenceRepository.getOne(id);
                 InputStream stream = fileManager.getFileResource(reference.getFileDescriptor()).getInputStream();
                 byte[] data = IOUtils.toByteArray(stream);
                 ModuleConfig config = ModuleUtils.loadModuleConfig(new ByteArrayInputStream(data), "module.yml");

@@ -4,9 +4,9 @@ import com.blazebit.persistence.view.EntityView;
 import com.blazebit.persistence.view.IdMapping;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.foreach.across.modules.filemanager.business.reference.FileReference;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Persistable;
 
@@ -14,15 +14,13 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "module")
 @EqualsAndHashCode(of = "name", callSuper = false)
-@ToString(of = {"id", "name"})
 public class Module implements Serializable, Persistable<UUID> {
     @Id
     @GeneratedValue
@@ -58,18 +56,6 @@ public class Module implements Serializable, Persistable<UUID> {
     @JsonIgnore
     private byte[] data;
 
-    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private Set<WebRemote> webRemotes = new HashSet<>();
-
-    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private Set<Menu> menus = new HashSet<>();
-
-    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private Set<WebComponent> webComponents = new HashSet<>();
-
     @Override
     public boolean isNew() {
         return id == null;
@@ -77,8 +63,7 @@ public class Module implements Serializable, Persistable<UUID> {
 
     public Module copy() {
         Module module = new Module();
-        BeanUtils.copyProperties(this, module, "webComponents", "forms",
-            "menus", "webRemotes", "file", "data");
+        BeanUtils.copyProperties(this, module, "file", "data");
         return module;
     }
 

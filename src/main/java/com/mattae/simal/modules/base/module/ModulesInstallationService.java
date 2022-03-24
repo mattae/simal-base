@@ -42,8 +42,8 @@ public class ModulesInstallationService {
                 }
                 if (config != null) {
                     module.setProcessConfig(false);
-                    configProcessor.deleteRelationships(module);
-                    configProcessor.processConfig(config, module);
+                    configProcessor.deleteRelatedResources(module);
+                    configProcessor.processConfig(module, config);
                 }
             });
         List<Module> uninstall = moduleRepository.findByUninstallIsTrue();
@@ -61,9 +61,7 @@ public class ModulesInstallationService {
         if (module.getFile() != null) {
             fileReferenceService.delete(module.getFile(), true);
         }
-        configProcessor.deleteRolesAndPermissions(module);
-        configProcessor.deleteConfigurations(module);
-        configProcessor.deleteTranslations(module);
+        configProcessor.deleteRelatedResources(module);
         moduleRepository.delete(module);
     }
 }

@@ -4,6 +4,7 @@ import com.mattae.simal.modules.base.domain.entities.Menu;
 import com.mattae.simal.modules.base.domain.entities.Module;
 import com.mattae.simal.modules.base.domain.enumeration.MenuLevel;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,4 +16,7 @@ public interface MenuRepository extends JpaRepository<Menu, Long> {
     List<Menu> findByLevelAndParentName(MenuLevel level, String name);
 
     List<Menu> findByModule(Module module);
+
+    @Modifying
+    void deleteByModule(Module module);
 }

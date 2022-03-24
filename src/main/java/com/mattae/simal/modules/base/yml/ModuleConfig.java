@@ -1,11 +1,12 @@
 package com.mattae.simal.modules.base.yml;
 
 import com.mattae.simal.modules.base.domain.entities.Menu;
-import com.mattae.simal.modules.base.domain.entities.WebComponent;
 import com.mattae.simal.modules.base.domain.entities.WebRemote;
 import lombok.Data;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Data
 public class ModuleConfig {
@@ -19,12 +20,12 @@ public class ModuleConfig {
     private String url;
     private String image;
     private Date buildDate;
-    private Configuration configuration;
+    private String configurationsPath;
+    private String valueSetsPath;
     private List<Translation> translations = new ArrayList<>();
     private List<Dependency> dependencies = new ArrayList<>();
     private List<WebRemote> webRemotes = new ArrayList<>();
     private List<Permission> permissions = new ArrayList<>();
     private List<Role> roles = new ArrayList<>();
     private List<Menu> menus = new ArrayList<>();
-    private Set<WebComponent> webComponents = new HashSet<>();
 }

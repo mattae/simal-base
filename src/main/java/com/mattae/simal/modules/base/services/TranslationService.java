@@ -59,10 +59,7 @@ public class TranslationService {
         cb.where("lang").eq(lang)
             .whereOr()
                 .where("module").isNull()
-                .whereAnd()
-                    .where("module").isNotNull()
-                    .where("module.started").eq(true)
-                .endAnd()
+                .where("module.started").eq(true)
             .endOr();
         // @formatter:on
         List<Translation.View> translations = evm.applySetting(settings, cb).getResultList();
