@@ -24,6 +24,7 @@ import com.mattae.simal.modules.base.domain.entities.*;
 import com.mattae.simal.modules.base.domain.repositories.*;
 import com.mattae.simal.modules.base.yml.ModuleConfig;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -31,10 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.FileCopyUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
@@ -47,6 +45,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ModuleConfigProcessor {
     private final PermissionService permissionService;
     private final PermissionPropertiesService permissionPropertiesService;
@@ -66,7 +65,8 @@ public class ModuleConfigProcessor {
     private final FileReferencePropertiesService fileReferencePropertiesService;
 
     @Transactional
-    public void processConfig(Module module, ModuleConfig moduleConfig) {
+    public void processConfig(Module module) throws IOException {
+        ModuleConfig moduleConfig = getConfigFromUrl(urlForModule(module));
         Assert.notNull(moduleConfig, "Module Config cannot be null");
 
         saveRolesAndPermissions(module, moduleConfig);
@@ -316,5 +316,13 @@ public class ModuleConfigProcessor {
 
         IOUtils.copy(inputStream, new FileOutputStream(tmp.toFile()));
         return tmp.toUri().toURL();
+    }
+
+    private ModuleConfig getConfigFromUrl(URL url) {
+        try {
+            return ModuleUtils.loadModuleConfig(new FileInputStream(url.getFile()), "module.yml");
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

@@ -32,7 +32,7 @@ public class Configuration {
     private String category;
 
     @Column(name = "_order")
-    private Integer order;
+    private Integer order = 1;
 
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb")

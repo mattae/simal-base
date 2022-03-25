@@ -123,7 +123,7 @@ public class DynamicModuleImportConfigurer implements AcrossContextConfigurer {
 
         if (config != null) {
             String yaml = MAPPER.writeValueAsString(config);
-            valid = valid && ConfigSchemaValidator.isValid(yaml);
+            valid = valid && ConfigSchemaValidator.isValid(yaml, false);
         } else {
             valid = false;
         }

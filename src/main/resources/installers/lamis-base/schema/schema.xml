@@ -589,7 +589,7 @@
             <column name="lang" type="varchar(6)">
                 <constraints nullable="false"/>
             </column>
-            <column name="_order" type="int">
+            <column name="_order" type="int" defaultValue="1">
                 <constraints nullable="false"/>
             </column>
             <column name="data" type="jsonb">
@@ -614,10 +614,10 @@
             <column name="category" type="varchar(128)">
                 <constraints nullable="false"/>
             </column>
-            <column name="data" type="text">
+            <column name="data" type="jsonb">
                 <constraints nullable="false"/>
             </column>
-            <column name="_order" type="int">
+            <column name="_order" type="int" defaultValue="1">
                 <constraints nullable="false"/>
             </column>
             <column name="module_id" type="UUID"/>

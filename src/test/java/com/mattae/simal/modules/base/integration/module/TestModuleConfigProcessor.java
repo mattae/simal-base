@@ -27,7 +27,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -44,6 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
+import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -125,33 +125,8 @@ public class TestModuleConfigProcessor {
 
     @Test
     @Transactional
-    public void testProcessConfigWithoutRelatedResources() {
-        ModuleConfig moduleConfig = new ModuleConfig();
-        BeanUtils.copyProperties(moduleConfig, config, "name", "basePackage", "version");
-
-        configProcessor.processConfig(module, config);
-
-        assertAll("Should without related resources",
-            () -> assertEquals(0, translationsRepository.count()),
-            () -> assertEquals(0, configurationRepository.count()),
-            () -> assertEquals(0, valueSetRepository.count()),
-            () -> assertEquals(1, moduleRepository.count()),
-            () -> assertEquals(0, roleRepository.count()),
-            () -> assertEquals(0, permissionPropertiesService.getEntityIdsForPropertyValue("moduleId",
-                module.getId()).size()),
-            () -> assertEquals(0, rolePropertiesService.getEntityIdsForPropertyValue("moduleId",
-                module.getId()).size()),
-            () -> assertEquals(0, roleRepository.count()),
-            () -> assertEquals(0, permissionRepository.count()),
-            () -> assertEquals(0, exposedComponentRepository.count()),
-            () -> assertEquals(0, webRemoteRepository.count())
-        );
-    }
-
-    @Test
-    @Transactional
-    public void testProcessConfigWithRelatedResources() {
-        configProcessor.processConfig(module, config);
+    public void testProcessConfigWithRelatedResources() throws IOException {
+        configProcessor.processConfig(module);
 
         assertAll("Should save all related resources",
             () -> assertNotEquals(0, translationsRepository.count()),
@@ -172,8 +147,8 @@ public class TestModuleConfigProcessor {
 
     @Test
     @Transactional
-    public void testDeleteRelatedResources() {
-        configProcessor.processConfig(module, config);
+    public void testDeleteRelatedResources() throws IOException {
+        configProcessor.processConfig(module);
         userRepository.findByUsername("admin").ifPresent(user -> {
             Role role = roleService.getRole("ROLE_TEST");
             user.getRoles().add(role);
