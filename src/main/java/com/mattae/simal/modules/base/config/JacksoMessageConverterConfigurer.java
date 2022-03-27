@@ -3,7 +3,7 @@ package com.mattae.simal.modules.base.config;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
+import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -26,7 +26,7 @@ public class JacksoMessageConverterConfigurer implements WebMvcConfigurer {
                     new Jdk8Module(),
                     new JavaTimeModule(),
                     new Hibernate5Module(),
-                    new AfterburnerModule(),
+                    new BlackbirdModule(),
                     new ConstraintViolationProblemModule()
                 ));
     }
