@@ -15,8 +15,6 @@ import com.mattae.simal.modules.base.services.dto.ModuleDependencyDTO;
 import com.mattae.simal.modules.base.web.vm.ModuleVM;
 import com.mattae.simal.modules.base.yml.ModuleConfig;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.BeanUtils;
@@ -38,7 +36,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ModuleService {
     public static final String MODULE_DIR = "module-data";
     private final ModuleRepository moduleRepository;
@@ -53,16 +50,20 @@ public class ModuleService {
             .findFirst();
     }
 
+    @Transactional
     public ModuleVM activate(Module module) {
-        module.setActive(true);
-        module = moduleRepository.save(module);
-        return vmFromModule(module);
+        return vmFromModule(moduleRepository.findByName(module.getName()).map(m -> {
+            m.setActive(true);
+            return m;
+        }).orElse(module));
     }
 
+    @Transactional
     public ModuleVM deactivate(Module module) {
-        module.setActive(false);
-        module = moduleRepository.save(module);
-        return vmFromModule(module);
+        return vmFromModule(moduleRepository.findByName(module.getName()).map(m -> {
+            m.setActive(false);
+            return m;
+        }).orElse(module));
     }
 
     public List<ModuleVM> getModules() {
@@ -71,7 +72,6 @@ public class ModuleService {
             .collect(Collectors.toList());
     }
 
-    @SneakyThrows
     @Transactional
     public ModuleVM installOrUpdate(Module updateModule) {
         final Module module = moduleRepository.findByName(updateModule.getName()).orElse(updateModule);
@@ -97,9 +97,8 @@ public class ModuleService {
         });
     }
 
-    @SneakyThrows
     @Transactional
-    public Module uploadModuleData(MultipartFile file) {
+    public Module uploadModuleData(MultipartFile file) throws Exception {
         Module module = new Module();
         ModuleConfig config = ModuleUtils.loadModuleConfig(file.getInputStream(), "module.yml");
         fileReferencePropertiesService.getEntityIdsForPropertyValue("name", config.getName())
@@ -132,25 +131,12 @@ public class ModuleService {
         return module;
     }
 
-    @SneakyThrows
     @Transactional
     public List<ModuleDependencyDTO> getDependencies(UUID id) {
         List<ModuleDependencyDTO> dependencies = new ArrayList<>();
         moduleRepository.findById(id).ifPresent(module -> {
             try {
-                InputStream inputStream = null;
-                byte[] data = module.getData();
-                if (data != null) {
-                    inputStream = new ByteArrayInputStream(data);
-                } else {
-                    Collection<Long> ids = fileReferencePropertiesService.getEntityIdsForPropertyValue("name", module.getName());
-                    if (!ids.isEmpty()) {
-                        FileReference reference = fileReferenceRepository.getOne(ids.iterator().next());
-                        inputStream = fileManager.getFileResource(reference.getFileDescriptor()).getInputStream();
-                    }
-                }
-                Assert.notNull(inputStream, "Cannot read module data");
-                ModuleConfig config = ModuleUtils.loadModuleConfig(inputStream, "module.yml");
+                ModuleConfig config = getConfig(module);
                 if (config != null) {
                     config.getDependencies()
                         .forEach(dependency -> {
@@ -178,6 +164,36 @@ public class ModuleService {
         return dependencies;
     }
 
+    @Transactional
+    public List<ModuleDependencyDTO> getDependents(UUID moduleId) {
+        List<ModuleDependencyDTO> dependents = new ArrayList<>();
+        moduleRepository.findById(moduleId).ifPresent(module -> {
+            String name = module.getName();
+            moduleRepository.findByUninstallIsFalse().forEach(m -> {
+                try {
+                    getConfig(m).getDependencies().stream()
+                        .filter(d -> d.getName().equals(name) && !m.getName().equals(name))
+                        .findFirst().ifPresent(dependency -> {
+                        ModuleDependencyDTO dependent = new ModuleDependencyDTO();
+                        dependent.setId(m.getId());
+                        dependent.setName(m.getName());
+                        dependent.setActive(m.getActive());
+                        dependent.setInstalledVersion(m.getVersion());
+                        dependent.setRequiredVersion(dependency.getVersion());
+                        dependent.setStarted(m.getStarted());
+                        Version installed = Version.valueOf(module.getVersion());
+                        dependent.setVersionSatisfied(installed.satisfies(dependency.getVersion()));
+                        dependents.add(dependent);
+                    });
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        });
+        return dependents;
+    }
+
     private void saveModuleData(Module module) {
         Collection<Long> ids = fileReferencePropertiesService.getEntityIdsForPropertyValue("name", module.getName());
         if (!ids.isEmpty()) {
@@ -203,19 +219,7 @@ public class ModuleService {
 
     private ModuleVM vmFromModule(Module module) {
         try {
-            InputStream inputStream = null;
-            byte[] data = module.getData();
-            if (data != null) {
-                inputStream = new ByteArrayInputStream(data);
-            } else {
-                Collection<Long> ids = fileReferencePropertiesService.getEntityIdsForPropertyValue("name", module.getName());
-                if (!ids.isEmpty()) {
-                    FileReference reference = fileReferenceRepository.getOne(ids.iterator().next());
-                    inputStream = fileManager.getFileResource(reference.getFileDescriptor()).getInputStream();
-                }
-            }
-            Assert.notNull(inputStream, "Cannot read module data");
-            ModuleConfig config = ModuleUtils.loadModuleConfig(inputStream, "module.yml");
+            ModuleConfig config = getConfig(module);
             ModuleVM vm = new ModuleVM();
             BeanUtils.copyProperties(module, vm);
             BeanUtils.copyProperties(config, vm);
@@ -227,5 +231,21 @@ public class ModuleService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private ModuleConfig getConfig(Module module) throws Exception {
+        InputStream inputStream = null;
+        byte[] data = module.getData();
+        if (data != null) {
+            inputStream = new ByteArrayInputStream(data);
+        } else {
+            Collection<Long> ids = fileReferencePropertiesService.getEntityIdsForPropertyValue("name", module.getName());
+            if (!ids.isEmpty()) {
+                FileReference reference = fileReferenceRepository.getOne(ids.iterator().next());
+                inputStream = fileManager.getFileResource(reference.getFileDescriptor()).getInputStream();
+            }
+        }
+        Assert.notNull(inputStream, "Cannot read module data");
+        return ModuleUtils.loadModuleConfig(inputStream, "module.yml");
     }
 }

@@ -16,6 +16,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ClassPathResource;
@@ -27,9 +28,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -65,7 +66,7 @@ public class TestModuleService {
     }
 
     @Test
-    public void testUploadModuleData() throws IOException {
+    public void testUploadModuleData() throws Exception {
         MultipartFile file = new MockMultipartFile("file", "test", null,
             IOUtils.toByteArray(new ClassPathResource("test-1.0.0.jar").getURL()));
 
@@ -78,7 +79,7 @@ public class TestModuleService {
     }
 
     @Test
-    public void testInstallOrUpdate() throws IOException {
+    public void testInstallOrUpdate() throws Exception {
         MultipartFile file = new MockMultipartFile("file", "test", null,
             IOUtils.toByteArray(new ClassPathResource("test-1.0.0.jar").getURL()));
         Module module = moduleService.uploadModuleData(file);
@@ -105,7 +106,7 @@ public class TestModuleService {
     }
 
     @Test
-    public void testInstallOrUpdateNonStore() throws IOException {
+    public void testInstallOrUpdateNonStore() throws Exception {
         MultipartFile file = new MockMultipartFile("file", "test", null,
             IOUtils.toByteArray(new ClassPathResource("test-non-store-1.0.0.jar").getURL()));
         Module module = moduleService.uploadModuleData(file);
@@ -119,7 +120,7 @@ public class TestModuleService {
     }
 
     @Test
-    public void testGetDependencies() throws IOException {
+    public void testGetDependencies() throws Exception {
         MultipartFile file = new MockMultipartFile("file", "test", null,
             IOUtils.toByteArray(new ClassPathResource("test-1.0.0.jar").getURL()));
         Module module = moduleService.uploadModuleData(file);
@@ -128,6 +129,50 @@ public class TestModuleService {
         List<ModuleDependencyDTO> dependencies = moduleService.getDependencies(vm.getId());
         assertEquals(1, dependencies.size());
         assertEquals("DepModule", dependencies.get(0).getName());
+    }
+
+    @Test
+    public void testGetDependents() throws Exception {
+        MultipartFile file = new MockMultipartFile("file", "test", null,
+            IOUtils.toByteArray(new ClassPathResource("test-1.0.0.jar").getURL()));
+        Module module = moduleService.uploadModuleData(file);
+        moduleService.installOrUpdate(module);
+
+        file = new MockMultipartFile("file", "test", null,
+            IOUtils.toByteArray(new ClassPathResource("dep-1.0.0.jar").getURL()));
+        module = moduleService.uploadModuleData(file);
+        ModuleVM vm = moduleService.installOrUpdate(module);
+        List<ModuleDependencyDTO> dependencies = moduleService.getDependents(vm.getId());
+
+        assertEquals(1, dependencies.size());
+        assertEquals("TestModule", dependencies.get(0).getName());
+    }
+
+    @Test
+    @Transactional
+    public void testActivate() throws Exception {
+        MultipartFile file = new MockMultipartFile("file", "test", null,
+            IOUtils.toByteArray(new ClassPathResource("test-1.0.0.jar").getURL()));
+        Module module = moduleService.uploadModuleData(file);
+        ModuleVM vm = moduleService.installOrUpdate(module);
+        moduleRepository.findById(vm.getId()).ifPresent(m -> m.setActive(false));
+
+        assertFalse(moduleRepository.getOne(module.getId()).getActive());
+        BeanUtils.copyProperties(vm, module);
+        moduleService.activate(module);
+        assertTrue(moduleRepository.getOne(module.getId()).getActive());
+    }
+
+    @Test
+    public void testDeactivate() throws Exception {
+        MultipartFile file = new MockMultipartFile("file", "test", null,
+            IOUtils.toByteArray(new ClassPathResource("test-1.0.0.jar").getURL()));
+        Module module = moduleService.uploadModuleData(file);
+        ModuleVM vm = moduleService.installOrUpdate(module);
+
+        BeanUtils.copyProperties(vm, module);
+        moduleService.deactivate(module);
+        assertFalse(moduleRepository.getOne(module.getId()).getActive());
     }
 
     @org.springframework.context.annotation.Configuration

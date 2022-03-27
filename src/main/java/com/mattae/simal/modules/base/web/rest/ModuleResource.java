@@ -70,7 +70,7 @@ public class ModuleResource {
     }
 
     @PostMapping("/modules/upload")
-    public Module uploadModuleData(@RequestParam("file") MultipartFile file) {
+    public Module uploadModuleData(@RequestParam("file") MultipartFile file) throws Exception {
         return moduleService.uploadModuleData(file);
     }
 
@@ -83,6 +83,11 @@ public class ModuleResource {
     @GetMapping("/modules/{id}/dependencies")
     public List<ModuleDependencyDTO> getDependencies(@PathVariable UUID id) {
         return moduleService.getDependencies(id);
+    }
+
+    @GetMapping("/modules/{id}/dependents")
+    public List<ModuleDependencyDTO> getDependents(@PathVariable UUID id) {
+        return moduleService.getDependents(id);
     }
 
     @GetMapping("/modules/menus")
