@@ -9,12 +9,14 @@ import com.foreach.across.modules.spring.batch.SpringBatchModule;
 import com.foreach.across.modules.user.UserModule;
 import com.foreach.across.modules.web.AcrossWebModule;
 import com.mattae.simal.modules.base.graphql.GraphQLModule;
+import com.mattae.simal.modules.caffeine.CaffeineModule;
 import lombok.extern.slf4j.Slf4j;
 
 @AcrossDepends(required = {
     AcrossHibernateJpaModule.NAME,
     FileManagerModule.NAME,
     SpringBatchModule.NAME,
+    CaffeineModule.NAME,
     UserModule.NAME,
     GraphQLModule.NAME,
     AcrossWebModule.NAME

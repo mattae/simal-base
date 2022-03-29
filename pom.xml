@@ -377,6 +377,11 @@
             <version>2.8.0</version>
         </dependency>
         <dependency>
+            <groupId>com.mattae.lamis.modules</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
