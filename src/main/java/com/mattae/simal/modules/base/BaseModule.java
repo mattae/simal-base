@@ -10,7 +10,6 @@ import com.foreach.across.modules.user.UserModule;
 import com.foreach.across.modules.web.AcrossWebModule;
 import com.mattae.simal.modules.base.graphql.GraphQLModule;
 import com.mattae.simal.modules.caffeine.CaffeineModule;
-import lombok.extern.slf4j.Slf4j;
 
 @AcrossDepends(required = {
     AcrossHibernateJpaModule.NAME,
@@ -21,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
     GraphQLModule.NAME,
     AcrossWebModule.NAME
 })
-@Slf4j
 public class BaseModule extends AcrossModule {
     public static final String NAME = "SIMALCoreModule";
 
