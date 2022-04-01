@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -20,6 +21,7 @@ public class ValueSetService {
     private final EntityViewManager evm;
     private final EntityManager em;
     private final CriteriaBuilderFactory cbf;
+    private final ConfigurationService configurationService;
 
     public Optional<ValueSet.BaseView> getById(Long id) {
         ValueSet.BaseView view = evm.find(em, ValueSet.BaseView.class, id);
@@ -69,6 +71,11 @@ public class ValueSetService {
         return query.getResultList();
     }
 
+    public List<ValueSet.BaseView> getValues(String type, String category, String key, Boolean active, String lang) {
+        return configurationService.getValueAsStringForKey(category, key)
+            .map(provider -> getValues(type, provider, active, lang)).orElse(new ArrayList<>());
+    }
+
     public String getDisplay(String type, String provider, String lang, String code) {
         var settings = EntityViewSetting.create(ValueSet.DisplayView.class);
         var cb = cbf.create(em, ValueSet.class);
@@ -97,5 +104,10 @@ public class ValueSetService {
             return result.get(0).getDisplay();
         }
         return "";
+    }
+
+    public String getDisplay(String type, String category, String key, String lang, String code) {
+        return configurationService.getValueAsStringForKey(category, key)
+            .map(provider -> getDisplay(type, provider, lang, code)).orElse("");
     }
 }

@@ -126,6 +126,18 @@ public class TestValueSetService {
     }
 
     @Test
+    public void testGetDisplayUsingConfiguration() {
+        valueSet.setLang(null);
+        valueSetRepository.save(valueSet);
+        String display = valueSetService.getDisplay(valueSet.getType(), valueSet.getProvider(), valueSet.getLang(),
+            valueSet.getCode());
+        assertEquals(valueSet.getDisplay(), display);
+        display = valueSetService.getDisplay(valueSet.getType(), valueSet.getProvider(), valueSet.getLang(),
+            "A".repeat(30));
+        assertEquals(0, display.length());
+    }
+
+    @Test
     public void testGetValues() {
         module.setStarted(true);
         moduleRepository.save(module);
