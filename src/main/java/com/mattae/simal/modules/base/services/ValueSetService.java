@@ -76,7 +76,7 @@ public class ValueSetService {
             .map(provider -> getValues(type, provider, active, lang)).orElse(new ArrayList<>());
     }
 
-    public String getDisplay(String type, String provider, String lang, String code) {
+    public String getDisplay(String type, String provider, String code, String lang) {
         var settings = EntityViewSetting.create(ValueSet.DisplayView.class);
         var cb = cbf.create(em, ValueSet.class);
         cb.where("type").eq(type)
@@ -106,8 +106,8 @@ public class ValueSetService {
         return "";
     }
 
-    public String getDisplay(String type, String category, String key, String lang, String code) {
+    public String getDisplay(String type, String category, String key, String code, String lang) {
         return configurationService.getValueAsStringForKey(category, key)
-            .map(provider -> getDisplay(type, provider, lang, code)).orElse("");
+            .map(provider -> getDisplay(type, provider, code, lang)).orElse("");
     }
 }

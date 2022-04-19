@@ -117,8 +117,8 @@ public class TestValueSetService {
     public void testGetDisplay() {
         valueSet.setLang(null);
         valueSetRepository.save(valueSet);
-        String display = valueSetService.getDisplay(valueSet.getType(), valueSet.getProvider(), valueSet.getLang(),
-            valueSet.getCode());
+        String display = valueSetService.getDisplay(valueSet.getType(), valueSet.getProvider(), valueSet.getCode(),
+            valueSet.getLang());
         assertEquals(valueSet.getDisplay(), display);
         display = valueSetService.getDisplay(valueSet.getType(), valueSet.getProvider(), valueSet.getLang(),
             "A".repeat(30));
@@ -129,8 +129,8 @@ public class TestValueSetService {
     public void testGetDisplayUsingConfiguration() {
         valueSet.setLang(null);
         valueSetRepository.save(valueSet);
-        String display = valueSetService.getDisplay(valueSet.getType(), valueSet.getProvider(), valueSet.getLang(),
-            valueSet.getCode());
+        String display = valueSetService.getDisplay(valueSet.getType(), valueSet.getProvider(), valueSet.getCode(),
+            valueSet.getLang());
         assertEquals(valueSet.getDisplay(), display);
         display = valueSetService.getDisplay(valueSet.getType(), valueSet.getProvider(), valueSet.getLang(),
             "A".repeat(30));

@@ -79,6 +79,7 @@ public class TestModuleService {
     }
 
     @Test
+    @Transactional
     public void testInstallOrUpdate() throws Exception {
         MultipartFile file = new MockMultipartFile("file", "test", null,
             IOUtils.toByteArray(new ClassPathResource("test-1.0.0.jar").getURL()));
@@ -106,6 +107,7 @@ public class TestModuleService {
     }
 
     @Test
+    @Transactional
     public void testInstallOrUpdateNonStore() throws Exception {
         MultipartFile file = new MockMultipartFile("file", "test", null,
             IOUtils.toByteArray(new ClassPathResource("test-non-store-1.0.0.jar").getURL()));
@@ -164,6 +166,7 @@ public class TestModuleService {
     }
 
     @Test
+    @Transactional
     public void testDeactivate() throws Exception {
         MultipartFile file = new MockMultipartFile("file", "test", null,
             IOUtils.toByteArray(new ClassPathResource("test-1.0.0.jar").getURL()));

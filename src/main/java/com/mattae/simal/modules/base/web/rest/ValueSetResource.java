@@ -32,7 +32,7 @@ public class ValueSetResource {
     @GetMapping("/display-text/type/{type}/provider/{provider}/code/{code}")
     public String getDisplayText(@PathVariable String type, @PathVariable String provider, @PathVariable String code,
                                  @RequestParam(required = false) String lang) {
-        return valueSetService.getDisplay(type, provider, lang, code);
+        return valueSetService.getDisplay(type, provider, code, lang);
     }
 
     @PostMapping
