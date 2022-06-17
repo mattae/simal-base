@@ -4,6 +4,7 @@ import com.blazebit.persistence.view.EntityViewManager;
 import com.mattae.simal.modules.base.domain.entities.Organisation;
 import com.mattae.simal.modules.base.security.jwt.JWTFilter;
 import com.mattae.simal.modules.base.security.jwt.TokenProvider;
+import com.mattae.simal.modules.base.services.api.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -13,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class AuthServiceImpl implements AuthService {
     private final HttpServletRequest servletRequest;
     private final TokenProvider tokenProvider;
     private final EntityViewManager evm;

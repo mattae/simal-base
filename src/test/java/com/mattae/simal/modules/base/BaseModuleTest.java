@@ -16,8 +16,6 @@ import com.mattae.simal.modules.base.domain.repositories.PartyRepository;
 import com.mattae.simal.modules.base.domain.views.AddressView;
 import com.mattae.simal.modules.base.domain.views.PartyView;
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
-import javassist.ClassPool;
-import javassist.CtClass;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;

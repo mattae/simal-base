@@ -10,12 +10,11 @@ import com.mattae.simal.modules.base.services.ModuleService;
 import com.mattae.simal.modules.base.services.dto.ModuleDependencyDTO;
 import com.mattae.simal.modules.base.web.vm.ModuleVM;
 import io.github.jhipster.web.util.ResponseUtil;
-import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,7 +24,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
-@Slf4j
 @RequiredArgsConstructor
 public class ModuleResource {
     private final ModuleRepository moduleRepository;
@@ -34,65 +32,74 @@ public class ModuleResource {
     private final MenuService menuService;
 
     @GetMapping("/modules/{id}")
-    @Timed
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ModuleVM> getModule(@PathVariable("id") UUID id) {
-        LOG.debug("Getting module: {}", id);
-
         return ResponseUtil.wrapOrNotFound(moduleService.getModule(id));
     }
 
     @GetMapping("/modules")
-    @Timed
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Cacheable("modules")
-    public List<ModuleVM> getWebModules() {
+    public List<ModuleVM> getModules() {
         return moduleService.getModules();
     }
 
     @PostMapping("/modules/activate")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @CacheEvict({"modules", "webRemotes"})
     public ModuleVM activateModule(@RequestBody Module module) {
         return moduleService.activate(module);
     }
 
     @PostMapping("/modules/deactivate")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @CacheEvict({"modules", "webRemotes"})
     public ModuleVM deactivateModule(@RequestBody Module module) {
         return moduleService.deactivate(module);
     }
 
     @GetMapping("/modules/{id}/uninstall")
-    @CacheEvict({"modules"})
+    @CacheEvict({"modules", "webRemotes"})
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void uninstallModule(@PathVariable UUID id) {
         moduleService.uninstall(id);
     }
 
     @PostMapping("/modules/update")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @CacheEvict({"modules", "webRemotes"})
     public ModuleVM updateModule(@RequestBody Module module) {
         return moduleService.installOrUpdate(module);
     }
 
     @PostMapping("/modules/upload")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Module uploadModuleData(@RequestParam("file") MultipartFile file) throws Exception {
         return moduleService.uploadModuleData(file);
     }
 
     @PostMapping("/modules/install")
-    @CacheEvict({"modules"})
+    @CacheEvict({"modules", "webRemotes"})
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ModuleVM installModule(final @RequestBody Module module) {
         return moduleService.installOrUpdate(module);
     }
 
     @GetMapping("/modules/{id}/dependencies")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<ModuleDependencyDTO> getDependencies(@PathVariable UUID id) {
         return moduleService.getDependencies(id);
     }
 
     @GetMapping("/modules/{id}/dependents")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<ModuleDependencyDTO> getDependents(@PathVariable UUID id) {
         return moduleService.getDependents(id);
     }
 
     @GetMapping("/modules/menus")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public List<Menu> getMenus() {
-        LOG.debug("Getting all menus for current user");
         return menuService.getMenu();
     }
 

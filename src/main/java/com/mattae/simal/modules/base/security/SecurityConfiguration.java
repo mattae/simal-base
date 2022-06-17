@@ -18,7 +18,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
-import org.springframework.web.filter.CorsFilter;
 import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 
 
@@ -26,23 +25,15 @@ import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @RequiredArgsConstructor
 @Order(Ordered.HIGHEST_PRECEDENCE)
-//@Import(SecurityProblemSupport.class)
+@Import({SecurityProblemSupport.class})
 public class SecurityConfiguration implements AcrossWebSecurityConfigurer {
     private final TokenProvider tokenProvider;
-    // private final SecurityProblemSupport problemSupport;
+    private final SecurityProblemSupport problemSupport;
 
     @Bean
+    @Exposed
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Override
-    public void configure(WebSecurity web) {
-        web.ignoring()
-            .antMatchers("/app/**/*.{js,html}")
-            .antMatchers("/i18n/**")
-            .antMatchers("/content/**")
-            .antMatchers("/assets/**");
     }
 
     @Bean
@@ -55,35 +46,28 @@ public class SecurityConfiguration implements AcrossWebSecurityConfigurer {
         // @formatter:off
         http
             .antMatcher("/**")
-            .csrf()
-            .disable()
-            .exceptionHandling()
-            //    .authenticationEntryPoint(problemSupport)
-            //    .accessDeniedHandler(problemSupport)
+                .csrf()
+                    .disable()
+                .exceptionHandling()
             .and()
-            .headers()
-            .contentSecurityPolicy("default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:")
-        .and()
-            .referrerPolicy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
-        .and()
-            .featurePolicy("geolocation 'none'; midi 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; fullscreen 'self'; payment 'none'")
-        .and()
-            .frameOptions()
-            .deny()
-        .and()
-            .requestMatchers()
-            .antMatchers("/api/modules/web-remotes", "/api/authenticate", "/api/register", "/api/activate",
-                "/api/account/reset-password/init", "/api/account/reset-password/finish", "/websocket/**",
-                "/api/translations/lang/**")
-        .and()
-            .authorizeRequests().anyRequest().permitAll()
-        .and()
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        .and()
-            .httpBasic()
-        .and()
-            .apply(securityConfigurerAdapter());
+                .headers()
+                    .contentSecurityPolicy("default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:")
+                .and()
+                    .contentSecurityPolicy("font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com/ 'unsafe-inline'")
+                .and()
+                    .referrerPolicy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
+                .and()
+                    .featurePolicy("geolocation 'none'; midi 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; fullscreen 'self'; payment 'none'")
+                .and()
+                    .frameOptions()
+                .deny()
+            .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
+                .httpBasic()
+            .and()
+                .apply(securityConfigurerAdapter());
         // @formatter:on
     }
 

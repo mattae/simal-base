@@ -1,15 +1,11 @@
 package com.mattae.simal.modules.base.web.errors;
 
 
-public class BadRequestException extends RuntimeException {
+import org.zalando.problem.AbstractThrowableProblem;
+import org.zalando.problem.Status;
 
-    private static final long serialVersionUID = 1L;
-
-    private String entityName;
-
-    private String errorKey;
-
+public class BadRequestException extends AbstractThrowableProblem {
     public BadRequestException(String message) {
-        super(message);
+        super(ErrorConstants.DEFAULT_TYPE, "Bad request", Status.BAD_REQUEST, message);
     }
 }

@@ -1,9 +1,12 @@
 package com.mattae.simal.modules.base.security.jwt;
 
-import com.foreach.across.modules.user.business.UserProperties;
+import com.blazebit.persistence.CriteriaBuilderFactory;
+import com.blazebit.persistence.view.EntityViewManager;
+import com.blazebit.persistence.view.EntityViewSetting;
+import com.foreach.across.core.annotations.Exposed;
 import com.foreach.across.modules.user.repositories.UserRepository;
-import com.foreach.across.modules.user.services.UserPropertiesService;
 import com.mattae.simal.modules.base.config.JwtProperties;
+import com.mattae.simal.modules.base.domain.entities.Individual;
 import com.mattae.simal.modules.base.domain.entities.RefreshToken;
 import com.mattae.simal.modules.base.domain.repositories.RefreshTokenRepository;
 import io.jsonwebtoken.*;
@@ -20,6 +23,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.EntityManager;
 import java.security.Key;
 import java.time.Instant;
 import java.util.Arrays;
@@ -39,9 +43,11 @@ public class TokenProvider {
     private Key key;
     private long tokenValidityInMilliseconds;
     private long tokenValidityInMillisecondsForRememberMe;
-    private final UserPropertiesService userPropertiesService;
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final EntityViewManager evm;
+    private final EntityManager em;
+    private final CriteriaBuilderFactory cbf;
 
     @PostConstruct
     public void init() {
@@ -64,10 +70,7 @@ public class TokenProvider {
             validity = new Date(now + this.tokenValidityInMilliseconds);
         }
         String username = authentication.getName();
-        UUID organisationId = userRepository.findByUsername(username).map(user -> {
-            UserProperties userProperties = userPropertiesService.getProperties(user.getId());
-            return (UUID) userProperties.getValue("organisationId");
-        }).orElse(null);
+        UUID organisationId = organisationIdFromUsername(username);
 
         return Jwts.builder()
             .setIssuedAt(new Date())
@@ -83,10 +86,8 @@ public class TokenProvider {
         String authorities = userRepository.findByUsername(username).map(user -> user.getAuthorities().stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(","))).orElse("");
-        UUID organisationId = userRepository.findByUsername(username).map(user -> {
-            UserProperties userProperties = userPropertiesService.getProperties(user.getId());
-            return (UUID) userProperties.getValue("organisationId");
-        }).orElse(null);
+
+        UUID organisationId = organisationIdFromUsername(username);
 
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.tokenValidityInMilliseconds);
@@ -98,6 +99,19 @@ public class TokenProvider {
             .signWith(key, SignatureAlgorithm.HS512)
             .setExpiration(validity)
             .compact();
+    }
+
+    private UUID organisationIdFromUsername(String username) {
+        var settings = EntityViewSetting.create(Individual.OrgView.class);
+        var cb = cbf.create(em, Individual.OrgView.class)
+            .from(Individual.class)
+            .where("username").eq(username);
+        UUID organisationId = null;
+        try {
+            organisationId = evm.applySetting(settings, cb).getSingleResult().getId();
+        } catch (Exception ignored) {
+        }
+        return organisationId;
     }
 
     public String createRefreshToken(String username) {

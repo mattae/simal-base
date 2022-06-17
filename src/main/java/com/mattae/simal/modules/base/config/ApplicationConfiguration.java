@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.web.servlet.HandlerExceptionResolver;
+import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -36,6 +38,11 @@ public class ApplicationConfiguration {
         userPropertiesRegistry.register(currentModule, "organisationId", TypeDescriptor.valueOf(UUID.class));
         rolePropertiesRegistry.register(currentModule, "moduleId", TypeDescriptor.valueOf(Long.class));
         permissionPropertiesRegistry.register(currentModule, "moduleId", TypeDescriptor.valueOf(Long.class));
+    }
+
+    @Bean
+    public HandlerExceptionResolver handlerExceptionResolver() {
+        return new DefaultHandlerExceptionResolver();
     }
 
     @Bean

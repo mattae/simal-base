@@ -10,7 +10,6 @@ import com.blazebit.persistence.integration.view.spring.impl.EntityViewConfigura
 import com.blazebit.persistence.view.ConfigurationProperties;
 import com.blazebit.persistence.view.EntityView;
 import com.blazebit.persistence.view.EntityViewManager;
-import com.blazebit.persistence.view.spi.EntityViewConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.foreach.across.core.AcrossContext;
 import com.foreach.across.core.annotations.Exposed;
@@ -39,7 +38,7 @@ import java.util.*;
 @Configuration
 @Exposed
 @RequiredArgsConstructor
-public class DomainConfiguration {
+public class EntityViewConfiguration {
 
     private final AcrossContext context;
     private final ResourceLoader resourceLoader;
@@ -52,7 +51,7 @@ public class DomainConfiguration {
     @Primary
     @Exposed
     public EntityViewManager entityViewManager(CriteriaBuilderFactory cbf) throws CannotCompileException {
-        EntityViewConfiguration entityViewConfiguration = configureEntityViews();
+        com.blazebit.persistence.view.spi.EntityViewConfiguration entityViewConfiguration = configureEntityViews();
         entityViewConfiguration.setProperty(ConfigurationProperties.UPDATER_STRICT_CASCADING_CHECK, "false");
         entityViewConfiguration.setProperty(ConfigurationProperties.UPDATER_FLUSH_MODE, "partial");
         entityViewConfiguration.addEntityViewListener(AuditViewListenersConfiguration.class);
@@ -63,12 +62,12 @@ public class DomainConfiguration {
     @Bean
     @Primary
     @Exposed
-    public EntityViewAwareObjectMapper getEntityViewAwareObjectMapper(EntityViewManager evm, ObjectMapper objectMapper,
-                                                                      EntityViewIdValueAccessor entityViewIdValueAccessor) {
+    public EntityViewAwareObjectMapper getEntityViewAwareObjectMapper(EntityViewIdValueAccessor entityViewIdValueAccessor,
+                                                                      EntityViewManager evm, ObjectMapper objectMapper) {
         return new EntityViewAwareObjectMapper(evm, objectMapper, entityViewIdValueAccessor);
     }
 
-    private EntityViewConfiguration configureEntityViews() throws CannotCompileException {
+    private com.blazebit.persistence.view.spi.EntityViewConfiguration configureEntityViews() throws CannotCompileException {
         List<String> packages = new ArrayList<>();
         context.getModules().forEach(acrossModule -> {
             packages.add(acrossModule.getClass().getPackage().getName());

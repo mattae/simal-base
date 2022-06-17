@@ -8,6 +8,7 @@ import com.mattae.simal.modules.base.web.rest.vm.SearchVM;
 import io.github.jhipster.web.util.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -16,6 +17,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/individuals")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ROLE_USER')")
 public class IndividualResource {
     private final IndividualService individualService;
 

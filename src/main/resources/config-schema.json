@@ -289,6 +289,10 @@
             }
         },
         "dependency": {
+            "required": [
+                "name",
+                "version"
+            ],
             "properties": {
                 "name": {
                     "type": "string",

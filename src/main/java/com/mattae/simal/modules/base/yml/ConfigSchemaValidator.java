@@ -41,7 +41,7 @@ public class ConfigSchemaValidator {
         Set<ValidationMessage> invalidMessages = factory.getSchema(schemaFile)
             .validate(MAPPER.readTree(config));
         if (!invalidMessages.isEmpty()) {
-            LOG.debug("Schema validation failed: {}", config);
+            LOG.debug("Schema validation failed:\n {}", config);
             invalidMessages.forEach(m -> LOG.debug("...{}", m.getMessage()));
         }
         try {
@@ -55,6 +55,7 @@ public class ConfigSchemaValidator {
                 moduleConfig.validateResources();
             }
         } catch (Exception e) {
+            e.printStackTrace();
             LOG.error("Error: {}", e.getMessage());
             return false;
         }

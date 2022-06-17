@@ -44,27 +44,34 @@ public class ModuleConfig {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
         List<ConstraintViolation<?>> violations = new ArrayList<>();
-        List<Configuration> configurations = new ObjectMapper().readValue(
-            new ClassPathResource(configurationsPath).getURL(), new TypeReference<>() {
+        if (configurationsPath != null) {
+            List<Configuration> configurations = new ObjectMapper().readValue(
+                new ClassPathResource(configurationsPath).getURL(), new TypeReference<>() {
+                });
+            configurations.forEach(configuration -> {
+                violations.addAll(validator.validate(configuration));
             });
-
-        List<ValueSet> valueSets = new ObjectMapper().readValue(
-            new ClassPathResource(valueSetsPath).getURL(), new TypeReference<>() {
+        }
+        if (valueSetsPath != null) {
+            List<ValueSet> valueSets = new ObjectMapper().readValue(
+                new ClassPathResource(valueSetsPath).getURL(), new TypeReference<>() {
+                });
+            valueSets.forEach(valueSet -> {
+                violations.addAll(validator.validate(valueSet));
             });
-
-        configurations.forEach(configuration -> {
-            violations.addAll(validator.validate(configuration));
-        });
-        valueSets.forEach(valueSet -> {
-            violations.addAll(validator.validate(valueSet));
-        });
+        }
 
         if (!violations.isEmpty()) {
             throw new ValidationException(violations.stream().map(ConstraintViolation::getMessage).collect(Collectors.joining("\n")));
         }
 
         for (Translation translation : translations) {
-            new ClassPathResource(translation.getPath()).getURL().openConnection();
+            try {
+                new ClassPathResource(translation.getPath()).getURL().openConnection();
+            } catch (IllegalArgumentException e) {
+                LOG.error("Translation path is required");
+                throw e;
+            }
         }
     }
 }

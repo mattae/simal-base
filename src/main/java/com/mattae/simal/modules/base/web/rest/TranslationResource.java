@@ -36,6 +36,7 @@ public class TranslationResource {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Optional<Translation> getById(@PathVariable Long id) {
         return translationService.getById(id);
     }

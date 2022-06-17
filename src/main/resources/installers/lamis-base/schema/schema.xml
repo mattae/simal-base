@@ -421,46 +421,6 @@
         </sql>
     </changeSet>
 
-    <changeSet author="mattae" id="20210120232001-13">
-        <createTable tableName="individual">
-            <column name="id" type="UUID">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="title" type="varchar(32)"/>
-            <column name="initials" type="varchar(8)"/>
-            <column name="given_name" type="varchar(64)"/>
-            <column name="preferred_given_name" type="varchar(64)"/>
-            <column name="middle_name" type="varchar(64)"/>
-            <column name="family_name" type="varchar(64)"/>
-            <column name="preferred_family_name" type="varchar(64)"/>
-            <column name="preferred_name" type="varchar(64)"/>
-            <column name="honorific" type="varchar(32)"/>
-            <column name="salutation" type="varchar(32)"/>
-            <column name="sex" type="varchar(32)"/>
-            <column name="email" type="varchar(64)"/>
-            <column name="phone" type="varchar(32)"/>
-            <column name="photo_url" type="text"/>
-            <column name="date_of_birth" type="date"/>
-            <column name="place_of_birth" type="varchar(64)"/>
-            <column name="country_of_birth" type="varchar(64)"/>
-            <column name="date_of_death" type="date"/>
-            <column name="place_of_death" type="varchar(64)"/>
-            <column name="country_of_death" type="varchar(64)"/>
-            <column name="party_id" type="UUID">
-                <constraints nullable="false"/>
-            </column>
-            <column name="archived" type="boolean" defaultValue="false"/>
-            <column name="created_date" type="timestamp" defaultValueComputed="current_timestamp">
-                <constraints nullable="false"/>
-            </column>
-            <column name="last_modified_date" type="timestamp" defaultValueComputed="current_timestamp"/>
-        </createTable>
-
-        <addForeignKeyConstraint baseTableName="individual" baseColumnNames="party_id"
-                                 constraintName="fk_individual_party_id" referencedTableName="party"
-                                 referencedColumnNames="id"/>
-    </changeSet>
-
     <changeSet author="mattae" id="20210120232001-15">
         <createTable tableName="organisation">
             <column name="id" type="UUID">
@@ -490,6 +450,58 @@
 
         <addForeignKeyConstraint baseTableName="organisation" baseColumnNames="party_id"
                                  constraintName="fk_organisation_party_id" referencedTableName="party"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet author="mattae" id="20210120232001-13">
+        <createTable tableName="individual">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="title" type="varchar(32)"/>
+            <column name="initials" type="varchar(8)"/>
+            <column name="given_name" type="varchar(64)"/>
+            <column name="preferred_given_name" type="varchar(64)"/>
+            <column name="middle_name" type="varchar(64)"/>
+            <column name="family_name" type="varchar(64)"/>
+            <column name="preferred_family_name" type="varchar(64)"/>
+            <column name="preferred_name" type="varchar(64)"/>
+            <column name="honorific" type="varchar(32)"/>
+            <column name="salutation" type="varchar(32)"/>
+            <column name="sex" type="varchar(32)"/>
+            <column name="email" type="varchar(64)"/>
+            <column name="phone" type="varchar(32)"/>
+            <column name="photo_url" type="text"/>
+            <column name="date_of_birth" type="date"/>
+            <column name="place_of_birth" type="varchar(64)"/>
+            <column name="country_of_birth" type="varchar(64)"/>
+            <column name="date_of_death" type="date"/>
+            <column name="place_of_death" type="varchar(64)"/>
+            <column name="country_of_death" type="varchar(64)"/>
+            <column name="party_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="organisation_id" type="UUID">
+                <constraints nullable="true"/>
+            </column>
+            <column name="archived" type="boolean" defaultValue="false"/>
+            <column name="created_date" type="timestamp" defaultValueComputed="current_timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_date" type="timestamp" defaultValueComputed="current_timestamp"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="individual" baseColumnNames="party_id"
+                                 constraintName="fk_individual_party_id" referencedTableName="party"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="individual" baseColumnNames="user_id"
+                                 constraintName="fk_individual_user_id" referencedTableName="um_user"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="individual" baseColumnNames="organisation_id"
+                                 constraintName="fk_individual_organisation_id" referencedTableName="organisation"
                                  referencedColumnNames="id"/>
     </changeSet>
 
@@ -559,12 +571,6 @@
                                  referencedColumnNames="id"/>
     </changeSet>
 
-    <changeSet id="20211019005923-07" author="mattae">
-        <addColumn tableName="um_user">
-            <column name="individual_id" type="UUID"/>
-        </addColumn>
-    </changeSet>
-
     <changeSet id="20220205001723-01" author="mattae">
         <addColumn tableName="value_set">
             <column name="lang" type="varchar(2)"/>
@@ -627,5 +633,28 @@
                                  constraintName="fk_configuration_module_id"
                                  referencedTableName="module"
                                  referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="20220424221625-01" author="mattae">
+        <createTable tableName="extension_point">
+            <column name="id" type="serial" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="interface_name" type="varchar(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="extension_type" type="varchar(8)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="extension_text" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enabled" type="boolean" defaultValueComputed="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
     </changeSet>
 </databaseChangeLog>

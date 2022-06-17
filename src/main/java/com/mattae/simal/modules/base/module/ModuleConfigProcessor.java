@@ -24,7 +24,6 @@ import com.mattae.simal.modules.base.domain.entities.*;
 import com.mattae.simal.modules.base.domain.repositories.*;
 import com.mattae.simal.modules.base.yml.ModuleConfig;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -45,7 +44,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ModuleConfigProcessor {
     private final PermissionService permissionService;
     private final PermissionPropertiesService permissionPropertiesService;
@@ -314,6 +312,7 @@ public class ModuleConfigProcessor {
             }
         }
 
+        assert inputStream != null;
         IOUtils.copy(inputStream, new FileOutputStream(tmp.toFile()));
         return tmp.toUri().toURL();
     }

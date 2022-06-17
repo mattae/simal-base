@@ -5,14 +5,13 @@ import com.mattae.simal.modules.base.services.ConfigurationService;
 import io.github.jhipster.web.util.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 
-@Service
 @RestController
 @RequestMapping("/api/base/configurations")
 @RequiredArgsConstructor
@@ -40,12 +39,14 @@ public class ConfigurationResource {
     }
 
     @PutMapping("{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Configuration.View updateConfiguration(@Valid @RequestBody Configuration.View configuration,
                                                   @PathVariable Long id) {
         return configurationService.update(configuration);
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ROLE_USER')")
     public List<Configuration.View> list(@RequestParam(required = false) String category,
                                          @RequestParam(required = false) String key) {
         return configurationService.list(category, key);

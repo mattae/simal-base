@@ -1,5 +1,12 @@
 {
     "CORE": {
+        "FEEDBACK": {
+            "ACTIVE": "Active",
+            "SAVE": {
+                "ERROR": "Error saving, please try again",
+                "SUCCESS": "Entry successfully saved"
+            }
+        },
         "PAGINATOR": {
             "OF": "of",
             "ITEMS_PER_PAGE": "Items per page",

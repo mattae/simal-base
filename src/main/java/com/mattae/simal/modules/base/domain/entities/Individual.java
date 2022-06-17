@@ -3,16 +3,17 @@ package com.mattae.simal.modules.base.domain.entities;
 import com.blazebit.persistence.view.PrePersist;
 import com.blazebit.persistence.view.PreRemove;
 import com.blazebit.persistence.view.*;
+import com.foreach.across.modules.user.business.User;
 import com.mattae.simal.modules.base.domain.views.NameView;
 import com.mattae.simal.modules.base.domain.views.PartyView;
 import lombok.*;
-import org.hibernate.annotations.ResultCheckStyle;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.*;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import javax.persistence.PreUpdate;
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -33,11 +34,19 @@ public class Individual {
     @ManyToOne(optional = false, cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private Party party;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Organisation organisation;
+
     @Embedded
     private Name name;
 
     private String sex;
 
+    @Email
     private String email;
 
     private String phone;
@@ -65,6 +74,12 @@ public class Individual {
         lastModifiedDate = LocalDateTime.now();
     }
 
+    @javax.persistence.PreRemove
+    public void remove() {
+        user = null;
+    }
+
+
     @EntityView(Individual.class)
     public interface IdView {
         @IdMapping
@@ -76,6 +91,7 @@ public class Individual {
 
         String getSex();
 
+        @Email
         String getEmail();
 
         String getPhone();
@@ -115,6 +131,14 @@ public class Individual {
 
         void setParty(PartyView party);
 
+        UserId getUser();
+
+        void setUser(UserId user);
+
+        Organisation.IdView getOrganisation();
+
+        void setOrganisation(Organisation.IdView organisation);
+
         void setName(NameView name);
 
         Boolean getArchived();
@@ -148,5 +172,23 @@ public class Individual {
     @EntityView(Individual.class)
     public interface UpdateView extends CreateView {
         void setId(UUID id);
+    }
+
+    @EntityView(Individual.class)
+    public interface OrgView {
+        @Mapping("organisation.id")
+        UUID getId();
+
+        @Mapping("user.email")
+        String getEmail();
+
+        @Mapping("user.email")
+        String getUsername();
+    }
+
+    @EntityView(User.class)
+    public interface UserId {
+        @IdMapping
+        Long getId();
     }
 }
