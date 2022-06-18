@@ -131,7 +131,7 @@ public class TestValueSetResource {
     public void testGetDisplayText() throws Exception {
         when(valueSetService.getDisplay(anyString(), anyString(), anyString(), isNull())).thenReturn(valueSet.getDisplay());
 
-        mvc.perform(get(BASE_URL + "display-text/type/{type}/provider/{provider}/value/{value}", "a", "a", "a")
+        mvc.perform(get(BASE_URL + "display-text/type/{type}/provider/{provider}/code/{code}", "a", "a", "a")
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
             .andDo(print())
             .andExpect(status().isOk())

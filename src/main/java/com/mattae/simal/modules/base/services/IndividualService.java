@@ -3,16 +3,13 @@ package com.mattae.simal.modules.base.services;
 import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.EntityViewSetting;
-import com.foreach.across.modules.user.business.User;
 import com.mattae.simal.modules.base.domain.entities.Individual;
-import com.mattae.simal.modules.base.domain.views.UserView;
 import com.mattae.simal.modules.base.web.rest.vm.PagedResult;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import java.util.Optional;
 import java.util.UUID;
@@ -58,11 +55,5 @@ public class IndividualService {
         var query = evm.applySetting(settings, cb);
         query.withCountQuery(true);
         return new PagedResult<>(query.getResultList(), query.getResultList().getTotalSize(), query.getResultList().getTotalPages());
-    }
-
-    @PostConstruct
-    public void init() {
-        var settings = EntityViewSetting.create(UserView.class);
-        var cb = cbf.create(em, User.class);
     }
 }

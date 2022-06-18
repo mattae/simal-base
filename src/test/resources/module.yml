@@ -1,5 +1,6 @@
 basePackage: com.mattae.modules
 name: TestModule
+email: matthew.edor@gmail.com
 store: true
 version: 1.0.0
 buildDate: 1987-03-31
@@ -20,6 +21,8 @@ webRemotes:
             -   name: TutorialModule
                 ngModuleName: TutorialModule
                 routePath: tutorials
+                title: Tutorial
+                breadcrumb: Tutorial
         components:
             -   exposedName: Component
                 componentName: Component

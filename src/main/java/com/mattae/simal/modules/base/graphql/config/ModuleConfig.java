@@ -2,7 +2,6 @@ package com.mattae.simal.modules.base.graphql.config;
 
 import com.foreach.across.core.annotations.ModuleConfiguration;
 import com.foreach.across.modules.web.AcrossWebModule;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
     GraphQlWebMvcAutoConfiguration.class,
     GraphQlServiceAutoConfiguration.class
 })
-@RequiredArgsConstructor
 public class ModuleConfig {
 
     @Bean

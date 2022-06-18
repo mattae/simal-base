@@ -215,11 +215,11 @@
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pkExposedComponent"/>
             </column>
-            <column name="exposed_name" type="varchar(32)">
+            <column name="exposed_name" type="varchar(128)">
                 <constraints nullable="false"/>
             </column>
-            <column name="component_name" type="varchar(32)"/>
-            <column name="element_name" type="varchar(32)"/>
+            <column name="component_name" type="varchar(128)"/>
+            <column name="element_name" type="varchar(128)"/>
             <column name="route_path" type="varchar(128)"/>
             <column name="name" type="UUID">
                 <constraints unique="true"/>
@@ -234,24 +234,6 @@
             </column>
         </createTable>
 
-        <createTable tableName="web_component">
-            <column name="id" type="UUID">
-                <constraints nullable="false" primaryKey="true" primaryKeyName="pkWebComponent"/>
-            </column>
-            <column name="name" type="varchar(64)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="type" type="varchar(64)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="component_id" type="UUID">
-                <constraints nullable="false" unique="true"/>
-            </column>
-            <column name="module_id" type="UUID">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-
         <createTable tableName="web_module_authorities">
             <column name="module_id" type="UUID">
                 <constraints nullable="false"/>
@@ -260,13 +242,6 @@
         </createTable>
 
         <createTable tableName="component_authorities">
-            <column name="component_id" type="UUID">
-                <constraints nullable="false"/>
-            </column>
-            <column name="authorities" type="varchar(128)"/>
-        </createTable>
-
-        <createTable tableName="web_component_authorities">
             <column name="component_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
@@ -294,43 +269,6 @@
         <addForeignKeyConstraint baseTableName="web_remote" baseColumnNames="module_id"
                                  constraintName="fk_web_remote_module_id" referencedTableName="module"
                                  referencedColumnNames="id"/>
-
-        <addForeignKeyConstraint baseTableName="web_component" baseColumnNames="module_id"
-                                 constraintName="fk_web_component_module_id" referencedTableName="module"
-                                 referencedColumnNames="id"/>
-    </changeSet>
-
-    <changeSet author="mattae" id="20210120232001-07">
-        <createTable tableName="um_role_properties">
-            <column name="role_id" type="java.sql.Types.BIGINT">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="property_name" type="java.sql.Types.VARCHAR(250)">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="property_value" type="java.sql.Types.NVARCHAR(2000)"/>
-        </createTable>
-
-        <createTable tableName="um_permission_properties">
-            <column name="permission_id" type="java.sql.Types.BIGINT">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="property_name" type="java.sql.Types.VARCHAR(250)">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="property_value" type="java.sql.Types.NVARCHAR(2000)"/>
-        </createTable>
-    </changeSet>
-
-    <changeSet author="mattae" id="20210120232001-08">
-        <addForeignKeyConstraint baseTableName="um_role_properties"
-                                 baseColumnNames="role_id" constraintName="fk_um_rp_r" referencedTableName="um_role"
-                                 referencedColumnNames="id"/>
-
-        <addForeignKeyConstraint baseTableName="um_permission_properties"
-                                 baseColumnNames="permission_id" constraintName="fk_um_pp_p"
-                                 referencedTableName="um_permission"
-                                 referencedColumnNames="id"/>
     </changeSet>
 
     <changeSet author="mattae" id="20210120232001-09">
@@ -355,9 +293,9 @@
             <column name="user_id" type="java.sql.Types.BIGINT"/>
         </createTable>
 
-        <addForeignKeyConstraint baseTableName="notification" baseColumnNames="user_id"
+        <!--<addForeignKeyConstraint baseTableName="notification" baseColumnNames="user_id"
                                  constraintName="fk_notification_user_id" referencedTableName="um_user"
-                                 referencedColumnNames="id"/>
+                                 referencedColumnNames="id"/>-->
     </changeSet>
 
     <changeSet author="mattae" id="20210120232001-10">
@@ -450,81 +388,6 @@
         </sql>
     </changeSet>
 
-    <changeSet author="mattae" id="20210120232001-13">
-        <createTable tableName="individual">
-            <column name="id" type="UUID">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="title" type="varchar(32)"/>
-            <column name="initials" type="varchar(8)"/>
-            <column name="given_name" type="varchar(64)"/>
-            <column name="preferred_given_name" type="varchar(64)"/>
-            <column name="middle_name" type="varchar(64)"/>
-            <column name="family_name" type="varchar(64)"/>
-            <column name="preferred_family_name" type="varchar(64)"/>
-            <column name="preferred_name" type="varchar(64)"/>
-            <column name="honorific" type="varchar(32)"/>
-            <column name="salutation" type="varchar(32)"/>
-            <column name="sex" type="varchar(32)"/>
-            <column name="email" type="varchar(64)"/>
-            <column name="phone" type="varchar(32)"/>
-            <column name="photo_url" type="varchar(512)"/>
-            <column name="date_of_birth" type="date"/>
-            <column name="place_of_birth" type="varchar(64)"/>
-            <column name="country_of_birth" type="varchar(64)"/>
-            <column name="date_of_death" type="date"/>
-            <column name="place_of_death" type="varchar(64)"/>
-            <column name="country_of_death" type="varchar(64)"/>
-            <column name="party_id" type="UUID">
-                <constraints nullable="false"/>
-            </column>
-            <column name="archived" type="boolean" defaultValue="false"/>
-            <column name="created_date" type="timestamp" defaultValueComputed="current_timestamp">
-                <constraints nullable="false"/>
-            </column>
-            <column name="last_modified_date" type="timestamp" defaultValueComputed="current_timestamp"/>
-        </createTable>
-
-        <addForeignKeyConstraint baseTableName="individual" baseColumnNames="party_id"
-                                 constraintName="fk_individual_party_id" referencedTableName="party"
-                                 referencedColumnNames="id"/>
-    </changeSet>
-
-    <changeSet author="mattae" id="20210120232001-14">
-        <createTable tableName="individual_name">
-            <column name="id" type="UUID">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="type" type="varchar(32)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="title" type="varchar(32)"/>
-            <column name="initials" type="varchar(8)"/>
-            <column name="given_name" type="varchar(64)"/>
-            <column name="preferred_given_name" type="varchar(64)"/>
-            <column name="middle_name" type="varchar(64)"/>
-            <column name="family_name" type="varchar(64)"/>
-            <column name="preferred_family_name" type="varchar(64)"/>
-            <column name="preferred_name" type="varchar(64)"/>
-            <column name="honorific" type="varchar(32)"/>
-            <column name="salutation" type="varchar(32)"/>
-            <column name="from_date" type="timestamp"/>
-            <column name="to_date" type="timestamp"/>
-            <column name="individual_id" type="UUID">
-                <constraints nullable="false"/>
-            </column>
-            <column name="archived" type="boolean" defaultValue="false"/>
-            <column name="created_date" type="timestamp" defaultValueComputed="current_timestamp">
-                <constraints nullable="false"/>
-            </column>
-            <column name="last_modified_date" type="timestamp" defaultValueComputed="current_timestamp"/>
-        </createTable>
-
-        <addForeignKeyConstraint baseTableName="individual_name" baseColumnNames="individual_id"
-                                 constraintName="fk_individual_name_individual_id" referencedTableName="individual"
-                                 referencedColumnNames="id"/>
-    </changeSet>
-
     <changeSet author="mattae" id="20210120232001-15">
         <createTable tableName="organisation">
             <column name="id" type="UUID">
@@ -557,24 +420,49 @@
                                  referencedColumnNames="id"/>
     </changeSet>
 
-    <changeSet author="mattae" id="20210120232001-16">
-        <createTable tableName="refresh_token">
-            <column name="id" type="serial" autoIncrement="true">
+    <changeSet author="mattae" id="20210120232001-13">
+        <createTable tableName="individual">
+            <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="user_id" type="bigint">
+            <column name="title" type="varchar(32)"/>
+            <column name="initials" type="varchar(8)"/>
+            <column name="given_name" type="varchar(64)"/>
+            <column name="preferred_given_name" type="varchar(64)"/>
+            <column name="middle_name" type="varchar(64)"/>
+            <column name="family_name" type="varchar(64)"/>
+            <column name="preferred_family_name" type="varchar(64)"/>
+            <column name="preferred_name" type="varchar(64)"/>
+            <column name="honorific" type="varchar(32)"/>
+            <column name="salutation" type="varchar(32)"/>
+            <column name="sex" type="varchar(32)"/>
+            <column name="email" type="varchar(64)"/>
+            <column name="phone" type="varchar(32)"/>
+            <column name="photo_url" type="text"/>
+            <column name="date_of_birth" type="date"/>
+            <column name="place_of_birth" type="varchar(64)"/>
+            <column name="country_of_birth" type="varchar(64)"/>
+            <column name="date_of_death" type="date"/>
+            <column name="place_of_death" type="varchar(64)"/>
+            <column name="country_of_death" type="varchar(64)"/>
+            <column name="party_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
-            <column name="token" type="varchar(4096)">
-                <constraints nullable="false" unique="true"/>
+            <column name="organisation_id" type="UUID">
+                <constraints nullable="true"/>
             </column>
-            <column name="expiry_date" type="datetime">
+            <column name="archived" type="boolean" defaultValue="false"/>
+            <column name="created_date" type="timestamp" defaultValueComputed="current_timestamp">
                 <constraints nullable="false"/>
             </column>
+            <column name="last_modified_date" type="timestamp" defaultValueComputed="current_timestamp"/>
         </createTable>
 
-        <addForeignKeyConstraint baseTableName="refresh_token" baseColumnNames="user_id"
-                                 constraintName="fk_refresh_token_user_id" referencedTableName="um_user"
+        <addForeignKeyConstraint baseTableName="individual" baseColumnNames="party_id"
+                                 constraintName="fk_individual_party_id" referencedTableName="party"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="individual" baseColumnNames="organisation_id"
+                                 constraintName="fk_individual_organisation_id" referencedTableName="organisation"
                                  referencedColumnNames="id"/>
     </changeSet>
 
@@ -608,6 +496,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="active" type="boolean" defaultValue="true"/>
+            <column name="module_id" type="JAVA.UTIL.UUID"/>
         </createTable>
 
         <createIndex tableName="value_set" indexName="idx_value_set_type_provider_active">
@@ -615,12 +504,11 @@
             <column name="provider"/>
             <column name="active"/>
         </createIndex>
-    </changeSet>
 
-    <changeSet id="20211019005923-07" author="mattae">
-        <addColumn tableName="um_user">
-            <column name="individual_id" type="UUID"/>
-        </addColumn>
+        <addForeignKeyConstraint baseTableName="value_set" baseColumnNames="module_id"
+                                 constraintName="fk_value_set_module_id"
+                                 referencedTableName="module"
+                                 referencedColumnNames="id"/>
     </changeSet>
 
     <changeSet id="20220205001723-01" author="mattae">
@@ -647,7 +535,7 @@
             <column name="lang" type="varchar(6)">
                 <constraints nullable="false"/>
             </column>
-            <column name="_order" type="int">
+            <column name="_order" type="int" defaultValue="1">
                 <constraints nullable="false"/>
             </column>
             <column name="data" type="jsonb">
@@ -664,4 +552,49 @@
                                  referencedColumnNames="id"/>
     </changeSet>
 
+    <changeSet id="20220309111625-01" author="mattae">
+        <createTable tableName="configuration">
+            <column name="id" type="serial" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="category" type="varchar(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="data" type="jsonb">
+                <constraints nullable="false"/>
+            </column>
+            <column name="_order" type="int" defaultValue="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="module_id" type="UUID"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="configuration" baseColumnNames="module_id"
+                                 constraintName="fk_configuration_module_id"
+                                 referencedTableName="module"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="20220424221625-01" author="mattae">
+        <createTable tableName="extension_point">
+            <column name="id" type="serial" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="interface_name" type="varchar(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="extension_type" type="varchar(8)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="extension_text" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enabled" type="boolean" defaultValueComputed="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>

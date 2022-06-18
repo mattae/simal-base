@@ -52,17 +52,6 @@ import static org.junit.jupiter.api.Assertions.*;
     TransactionalTestExecutionListener.class
 })
 public class TestTranslationService {
-    static EnhancedRandom enhancedRandom = EnhancedRandomBuilder
-        .aNewEnhancedRandomBuilder()
-        .stringLengthRange(10, 20)
-        .randomize(Integer.class, IntegerRangeRandomizer.aNewIntegerRangeRandomizer(0, 10))
-        .randomize(String.class, StringRandomizer.aNewStringRandomizer(6))
-        .randomize(Double.class, DoubleRangeRandomizer.aNewDoubleRangeRandomizer(0.0, 10.0))
-        .collectionSizeRange(2, 3)
-        .objectPoolSize(30)
-        .build();
-    @RegisterExtension
-    static RandomBeansExtension randomBeansExtension = new RandomBeansExtension(enhancedRandom);
     @Autowired
     TranslationsRepository translationsRepository;
     @Autowired
@@ -72,21 +61,24 @@ public class TestTranslationService {
 
     @BeforeEach
     public void setup() throws JsonProcessingException {
-        String json = "{\n" +
-            "    \"EHR\": {\n" +
-            "        \"PATIENT\": {\n" +
-            "            \"RHESUS\": \"Rhesus\",\n" +
-            "            \"HB\": \"HB\",\n" +
-            "            \"EDUCATION\": \"Education\",\n" +
-            "            \"OCCUPATION\": \"Occupation\",\n" +
-            "            \"GENERAL_INFORMATION\": \"General information\",\n" +
-            "            \"GENERAL_INFORMATION_PLACEHOLDER\": \"General information\",\n" +
-            "            \"MENU\": {\n" +
-            "                \"PATIENTS\": \"Patients\"\n" +
-            "            }\n" +
-            "        }\n" +
-            "    }\n" +
-            "}";
+        String json =
+            """
+                    {
+                        "EHR": {
+                            "PATIENT": {
+                                "RHESUS": "Rhesus",
+                                "HB": "HB",
+                                "EDUCATION": "Education",
+                                "OCCUPATION": "Occupation",
+                                "GENERAL_INFORMATION": "General information",
+                                "GENERAL_INFORMATION_PLACEHOLDER": "General information",
+                                "MENU": {
+                                    "PATIENTS": "Patients"
+                                }
+                            }
+                        }
+                    }
+                """;
         translation.setData(new ObjectMapper().readTree(json));
 
         translationsRepository.deleteAll();
@@ -124,16 +116,18 @@ public class TestTranslationService {
         translation = translationsRepository.save(translation);
         Translation translation2 = new Translation();
         BeanUtils.copyProperties(translation, translation2, "id");
-        String json = "{\n" +
-            "    \"EHR\": {\n" +
-            "        \"PATIENT\": {\n" +
-            "            \"MENU\": {\n" +
-            "                \"PATIENTS\": \"Clients\",\n" +
-            "                \"PATIENTS_SETTINGS\": \"Clients Setting\"\n" +
-            "            }\n" +
-            "        }\n" +
-            "    }\n" +
-            "}";
+        String json = """
+            {
+                "EHR": {
+                    "PATIENT": {
+                        "MENU": {
+                            "PATIENTS": "Clients",
+                            "PATIENTS_SETTINGS": "Clients Setting"
+                        }
+                    }
+                }
+            }
+            """;
         translation2.setData(new ObjectMapper().readTree(json));
         translation2.setOrder(3);
         translationsRepository.save(translation2);
@@ -151,4 +145,16 @@ public class TestTranslationService {
     static class Config {
 
     }
+
+    static EnhancedRandom enhancedRandom = EnhancedRandomBuilder
+        .aNewEnhancedRandomBuilder()
+        .stringLengthRange(10, 20)
+        .randomize(Integer.class, IntegerRangeRandomizer.aNewIntegerRangeRandomizer(0, 10))
+        .randomize(String.class, StringRandomizer.aNewStringRandomizer(6))
+        .randomize(Double.class, DoubleRangeRandomizer.aNewDoubleRangeRandomizer(0.0, 10.0))
+        .collectionSizeRange(2, 3)
+        .objectPoolSize(30)
+        .build();
+    @RegisterExtension
+    static RandomBeansExtension randomBeansExtension = new RandomBeansExtension(enhancedRandom);
 }

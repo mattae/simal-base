@@ -5,7 +5,6 @@ import com.mattae.simal.modules.base.services.ValueSetService;
 import io.github.jhipster.web.util.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +16,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ValueSetResource {
     public final ValueSetService valueSetService;
-    private final List<HttpMessageConverter<?>> messageConverters;
 
     @GetMapping("/provider/{provider}/type/{type}")
     public List<ValueSet.BaseView> getValuesFor(@PathVariable String provider, @PathVariable String type,
@@ -31,10 +29,10 @@ public class ValueSetResource {
         return ResponseUtil.wrapOrNotFound(valueSetService.getById(id));
     }
 
-    @GetMapping("/display-text/type/{type}/provider/{provider}/value/{value}")
-    public String getDisplayText(@PathVariable String type, @PathVariable String provider, @PathVariable String value,
+    @GetMapping("/display-text/type/{type}/provider/{provider}/code/{code}")
+    public String getDisplayText(@PathVariable String type, @PathVariable String provider, @PathVariable String code,
                                  @RequestParam(required = false) String lang) {
-        return valueSetService.getDisplay(type, provider, value, lang);
+        return valueSetService.getDisplay(type, provider, code, lang);
     }
 
     @PostMapping

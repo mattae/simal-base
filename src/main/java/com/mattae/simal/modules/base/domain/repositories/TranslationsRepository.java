@@ -10,8 +10,6 @@ import java.util.List;
 
 @Repository
 public interface TranslationsRepository extends JpaRepository<Translation, Long> {
-    List<Translation> getByLang(String lang);
-
     @Modifying
-    public void deleteByModule(Module module);
+    void deleteByModule(Module module);
 }
