@@ -2,7 +2,7 @@ package com.mattae.simal.modules.base.web.rest;
 
 import com.mattae.simal.modules.base.domain.entities.Individual;
 import com.mattae.simal.modules.base.services.IndividualService;
-import com.mattae.simal.modules.base.web.errors.DataValidationException;
+import com.mattae.simal.modules.base.services.errors.DataValidationException;
 import com.mattae.simal.modules.base.web.rest.vm.PagedResult;
 import com.mattae.simal.modules.base.web.rest.vm.SearchVM;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -28,9 +28,6 @@ public class IndividualResource {
 
     @PutMapping
     public Individual.CreateView update(@RequestBody @Valid Individual.UpdateView individual) {
-        if (individual.getId() == null) {
-            throw new DataValidationException("Cannot update individual without id");
-        }
         return individualService.save(individual);
     }
 

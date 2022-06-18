@@ -2,7 +2,6 @@ package com.mattae.simal.modules.base.web.rest;
 
 import com.mattae.simal.modules.base.domain.entities.Organisation;
 import com.mattae.simal.modules.base.services.OrganisationService;
-import com.mattae.simal.modules.base.web.errors.DataValidationException;
 import com.mattae.simal.modules.base.web.rest.vm.PagedResult;
 import com.mattae.simal.modules.base.web.rest.vm.SearchVM;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -28,9 +27,6 @@ public class OrganisationResource {
 
     @PutMapping
     public Organisation.CreateView update(@RequestBody @Valid Organisation.UpdateView organisation) {
-        if (organisation.getId() == null) {
-            throw new DataValidationException("Cannot update organisation without id");
-        }
         return organisationService.update(organisation);
     }
 

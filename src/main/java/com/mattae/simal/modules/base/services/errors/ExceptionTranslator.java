@@ -1,4 +1,4 @@
-package com.mattae.simal.modules.base.web.errors;
+package com.mattae.simal.modules.base.services.errors;
 
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.ResponseEntity;

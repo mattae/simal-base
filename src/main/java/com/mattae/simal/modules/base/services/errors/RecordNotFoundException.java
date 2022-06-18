@@ -1,4 +1,4 @@
-package com.mattae.simal.modules.base.web.errors;
+package com.mattae.simal.modules.base.services.errors;
 
 import org.zalando.problem.AbstractThrowableProblem;
 import org.zalando.problem.Status;

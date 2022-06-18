@@ -8,7 +8,7 @@ import com.foreach.across.test.AcrossWebAppConfiguration;
 import com.mattae.simal.modules.base.BaseModule;
 import com.mattae.simal.modules.base.domain.entities.Translation;
 import com.mattae.simal.modules.base.services.TranslationService;
-import com.mattae.simal.modules.base.web.errors.ExceptionTranslator;
+import com.mattae.simal.modules.base.services.errors.ExceptionTranslator;
 import com.mattae.simal.modules.base.web.rest.TranslationResource;
 import io.github.glytching.junit.extension.random.Random;
 import io.github.glytching.junit.extension.random.RandomBeansExtension;
