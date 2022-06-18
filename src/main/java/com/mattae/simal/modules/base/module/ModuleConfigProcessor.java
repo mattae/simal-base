@@ -48,7 +48,7 @@ public class ModuleConfigProcessor {
         ModuleConfig moduleConfig = getConfigFromUrl(urlForModule(module));
         Assert.notNull(moduleConfig, "Module Config cannot be null");
 
-        extensionService.getExtensionPoint(RolePermissionProcessor.class).saveRolesAndPermissions(module, moduleConfig);
+        extensionService.getExtensionPoint(RolesAndPermissionsProcessor.class).saveRolesAndPermissions(module, moduleConfig);
         saveMenus(module, moduleConfig);
         saveWebRemotes(module, moduleConfig);
         saveTranslations(module, moduleConfig);
@@ -58,7 +58,7 @@ public class ModuleConfigProcessor {
 
     @Transactional
     public void deleteRelatedResources(Module module) {
-        extensionService.getExtensionPoint(RolePermissionProcessor.class).deleteRolesAndPermissions(module);
+        extensionService.getExtensionPoint(RolesAndPermissionsProcessor.class).deleteRolesAndPermissions(module);
         translationsRepository.deleteByModule(module);
         configurationRepository.deleteByModule(module);
         valueSetRepository.deleteByModule(module);
