@@ -1,14 +1,17 @@
 package com.mattae.simal.modules.base.domain.entities;
 
 import com.blazebit.persistence.view.EntityView;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.Embeddable;
+import javax.validation.constraints.NotBlank;
 
 @Embeddable
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 public class Name {
 
     private String title;
@@ -35,6 +38,7 @@ public class Name {
     public interface View {
         String getTitle();
 
+        @NotBlank
         String getGivenName();
 
         String getPreferredGivenName();
@@ -43,6 +47,7 @@ public class Name {
 
         String getInitials();
 
+        @NotBlank
         String getFamilyName();
     }
 }

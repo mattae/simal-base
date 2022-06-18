@@ -14,6 +14,7 @@ import javax.persistence.Entity;
 import javax.persistence.PreUpdate;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -96,6 +97,7 @@ public class Individual {
 
         String getCountryOfBirth();
 
+        @NotNull
         NameView getName();
     }
 
@@ -119,6 +121,7 @@ public class Individual {
 
         @UpdatableMapping(orphanRemoval = true)
         @AllowUpdatableEntityViews
+        @NotNull
         PartyView getParty();
 
         void setParty(PartyView party);
@@ -159,6 +162,10 @@ public class Individual {
     @UpdatableEntityView
     @EntityView(Individual.class)
     public interface UpdateView extends CreateView {
+        @IdMapping
+        @NotNull
+        UUID getId();
+
         void setId(UUID id);
     }
 }
