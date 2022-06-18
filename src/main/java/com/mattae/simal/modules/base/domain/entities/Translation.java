@@ -1,5 +1,6 @@
 package com.mattae.simal.modules.base.domain.entities;
 
+import com.blazebit.persistence.view.EntityView;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -34,4 +35,13 @@ public class Translation {
     @Column(columnDefinition = "jsonb")
     @NotNull
     private JsonNode data;
+
+    @EntityView(Translation.class)
+    public interface View {
+        Long getId();
+
+        Integer getOrder();
+
+        JsonNode getData();
+    }
 }

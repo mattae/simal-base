@@ -3,6 +3,7 @@ package com.mattae.simal.modules.base.web.rest;
 import com.mattae.simal.modules.base.domain.entities.Notification;
 import com.mattae.simal.modules.base.services.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ROLE_USER')")
 public class NotificationResource {
     private final NotificationService notificationService;
 

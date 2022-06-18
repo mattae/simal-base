@@ -3,19 +3,18 @@ package com.mattae.simal.modules.base.domain.entities;
 import com.blazebit.persistence.view.PrePersist;
 import com.blazebit.persistence.view.PreRemove;
 import com.blazebit.persistence.view.*;
+import com.foreach.across.modules.user.business.User;
 import com.mattae.simal.modules.base.domain.views.NameView;
 import com.mattae.simal.modules.base.domain.views.PartyView;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import org.hibernate.annotations.ResultCheckStyle;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import lombok.*;
+import org.hibernate.annotations.*;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import javax.persistence.PreUpdate;
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -26,8 +25,8 @@ import java.util.UUID;
 @EqualsAndHashCode(of = "id")
 @SQLDelete(sql = "update individual set archived = true, last_modified_date = current_timestamp where id = ?", check = ResultCheckStyle.COUNT)
 @Where(clause = "archived = false")
-@Data
-@ToString(of = {"id", "name", "party"})
+@Getter
+@Setter
 public class Individual {
     @Id
     @GeneratedValue
@@ -36,14 +35,16 @@ public class Individual {
     @ManyToOne(optional = false, cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private Party party;
 
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Organisation organisation;
+
     @Embedded
     private Name name;
 
-    @OneToMany(mappedBy = "individual", cascade = CascadeType.REMOVE)
-    private Set<IndividualName> names;
-
     private String sex;
 
+    @Email
     private String email;
 
     private String phone;
@@ -71,6 +72,7 @@ public class Individual {
         lastModifiedDate = LocalDateTime.now();
     }
 
+
     @EntityView(Individual.class)
     public interface IdView {
         @IdMapping
@@ -82,6 +84,7 @@ public class Individual {
 
         String getSex();
 
+        @Email
         String getEmail();
 
         String getPhone();
@@ -94,6 +97,7 @@ public class Individual {
 
         String getCountryOfBirth();
 
+        @NotNull
         NameView getName();
     }
 
@@ -117,9 +121,14 @@ public class Individual {
 
         @UpdatableMapping(orphanRemoval = true)
         @AllowUpdatableEntityViews
+        @NotNull
         PartyView getParty();
 
         void setParty(PartyView party);
+
+        Organisation.IdView getOrganisation();
+
+        void setOrganisation(Organisation.IdView organisation);
 
         void setName(NameView name);
 
@@ -153,6 +162,10 @@ public class Individual {
     @UpdatableEntityView
     @EntityView(Individual.class)
     public interface UpdateView extends CreateView {
+        @IdMapping
+        @NotNull
+        UUID getId();
+
         void setId(UUID id);
     }
 }

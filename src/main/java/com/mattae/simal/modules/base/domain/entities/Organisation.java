@@ -16,6 +16,7 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.PreUpdate;
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -73,6 +74,7 @@ public class Organisation {
     @EntityView(Organisation.class)
     public interface View extends IdView {
         @AttributeFilter(ContainsIgnoreCaseFilter.class)
+        @NotNull
         String getName();
 
         @AttributeFilter(ContainsIgnoreCaseFilter.class)
@@ -102,12 +104,13 @@ public class Organisation {
 
         void setEstablishmentDate(LocalDate date);
 
-        //@UpdatableMapping
         Organisation.View getParent();
 
         void setParent(Organisation.View parent);
 
+        @AllowUpdatableEntityViews
         @UpdatableMapping(orphanRemoval = true, cascade = CascadeType.PERSIST)
+        @NotNull
         PartyView getParty();
 
         void setParty(PartyView party);
@@ -146,6 +149,10 @@ public class Organisation {
     @EntityView(Organisation.class)
     @UpdatableEntityView
     public interface UpdateView extends CreateView {
+        @IdMapping
+        @NotNull
+        UUID getId();
+
         void setId(UUID id);
     }
 }

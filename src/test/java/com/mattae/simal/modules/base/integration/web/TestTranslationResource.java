@@ -8,7 +8,7 @@ import com.foreach.across.test.AcrossWebAppConfiguration;
 import com.mattae.simal.modules.base.BaseModule;
 import com.mattae.simal.modules.base.domain.entities.Translation;
 import com.mattae.simal.modules.base.services.TranslationService;
-import com.mattae.simal.modules.base.web.errors.RestResponseEntityExceptionHandler;
+import com.mattae.simal.modules.base.services.errors.ExceptionTranslator;
 import com.mattae.simal.modules.base.web.rest.TranslationResource;
 import io.github.glytching.junit.extension.random.Random;
 import io.github.glytching.junit.extension.random.RandomBeansExtension;
@@ -64,7 +64,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class TestTranslationResource {
     private static final String BASE_URL = "/api/translations/";
     @Autowired
-    RestResponseEntityExceptionHandler entityExceptionHandler;
+    ExceptionTranslator exceptionTranslator;
     private MockMvc mvc;
     @Autowired
     private List<HttpMessageConverter<?>> messageConverters;
@@ -72,7 +72,7 @@ public class TestTranslationResource {
     private TranslationService translationService;
     @InjectMocks
     private TranslationResource translationResource;
-    @Random(excludes = {"data"})
+    @Random(excludes = {"data", "module"})
     private Translation translation;
 
     @BeforeEach
@@ -80,7 +80,7 @@ public class TestTranslationResource {
         ObjectNode data = new ObjectMapper().createObjectNode();
         data.put("name", "test");
         translation.setData(data);
-        this.mvc = MockMvcBuilders.standaloneSetup(translationResource, entityExceptionHandler)
+        this.mvc = MockMvcBuilders.standaloneSetup(translationResource, exceptionTranslator)
             .setMessageConverters(messageConverters.toArray(new HttpMessageConverter[0]))
             .build();
     }
@@ -98,7 +98,7 @@ public class TestTranslationResource {
     }
 
     @Test
-    @WithMockUser(username = "admin")
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testSave() throws Exception {
         given(translationService.save(any(Translation.class))).willReturn(translation);
 

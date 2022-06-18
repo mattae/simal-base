@@ -4,6 +4,7 @@ import com.mattae.simal.modules.base.domain.repositories.CountryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.mattae.simal.modules.base.domain.entities.Country;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,10 +17,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@Slf4j
+@PreAuthorize("hasRole('ROLE_USER')")
 public class CountryResource {
-
-    private static final String ENTITY_NAME = "country";
 
     private final CountryRepository countryRepository;
 

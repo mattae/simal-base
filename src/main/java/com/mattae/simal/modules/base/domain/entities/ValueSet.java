@@ -1,19 +1,17 @@
 package com.mattae.simal.modules.base.domain.entities;
 
 import com.blazebit.persistence.view.*;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.UUID;
 
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Data
+@Getter
+@Setter
 public class ValueSet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,6 +35,9 @@ public class ValueSet {
     private Boolean active = true;
 
     private String lang;
+
+    @ManyToOne
+    private Module module;
 
     @EntityView(ValueSet.class)
     @CreatableEntityView
@@ -78,5 +79,10 @@ public class ValueSet {
     @EntityView(ValueSet.class)
     public interface UpdateView extends BaseView {
         void setId(Long id);
+    }
+
+    @EntityView(ValueSet.class)
+    public interface DisplayView {
+        String getDisplay();
     }
 }

@@ -3,7 +3,7 @@ package com.mattae.simal.modules.base.web.rest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mattae.simal.modules.base.domain.entities.Translation;
 import com.mattae.simal.modules.base.services.TranslationService;
-import com.mattae.simal.modules.base.web.errors.BadRequestException;
+import com.mattae.simal.modules.base.services.errors.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +36,7 @@ public class TranslationResource {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Optional<Translation> getById(@PathVariable Long id) {
         return translationService.getById(id);
     }
