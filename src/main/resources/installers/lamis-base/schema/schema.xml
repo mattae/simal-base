@@ -271,39 +271,6 @@
                                  referencedColumnNames="id"/>
     </changeSet>
 
-    <changeSet author="mattae" id="20210120232001-07">
-        <createTable tableName="um_role_properties">
-            <column name="role_id" type="java.sql.Types.BIGINT">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="property_name" type="java.sql.Types.VARCHAR(250)">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="property_value" type="java.sql.Types.NVARCHAR(2000)"/>
-        </createTable>
-
-        <createTable tableName="um_permission_properties">
-            <column name="permission_id" type="java.sql.Types.BIGINT">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="property_name" type="java.sql.Types.VARCHAR(250)">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="property_value" type="java.sql.Types.NVARCHAR(2000)"/>
-        </createTable>
-    </changeSet>
-
-    <changeSet author="mattae" id="20210120232001-08">
-        <addForeignKeyConstraint baseTableName="um_role_properties"
-                                 baseColumnNames="role_id" constraintName="fk_um_rp_r" referencedTableName="um_role"
-                                 referencedColumnNames="id"/>
-
-        <addForeignKeyConstraint baseTableName="um_permission_properties"
-                                 baseColumnNames="permission_id" constraintName="fk_um_pp_p"
-                                 referencedTableName="um_permission"
-                                 referencedColumnNames="id"/>
-    </changeSet>
-
     <changeSet author="mattae" id="20210120232001-09">
         <createTable tableName="notification">
             <column name="id" type="bigint" autoIncrement="true">
@@ -326,9 +293,9 @@
             <column name="user_id" type="java.sql.Types.BIGINT"/>
         </createTable>
 
-        <addForeignKeyConstraint baseTableName="notification" baseColumnNames="user_id"
+        <!--<addForeignKeyConstraint baseTableName="notification" baseColumnNames="user_id"
                                  constraintName="fk_notification_user_id" referencedTableName="um_user"
-                                 referencedColumnNames="id"/>
+                                 referencedColumnNames="id"/>-->
     </changeSet>
 
     <changeSet author="mattae" id="20210120232001-10">
@@ -481,9 +448,6 @@
             <column name="party_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
-            <column name="user_id" type="bigint">
-                <constraints nullable="true"/>
-            </column>
             <column name="organisation_id" type="UUID">
                 <constraints nullable="true"/>
             </column>
@@ -497,32 +461,8 @@
         <addForeignKeyConstraint baseTableName="individual" baseColumnNames="party_id"
                                  constraintName="fk_individual_party_id" referencedTableName="party"
                                  referencedColumnNames="id"/>
-        <addForeignKeyConstraint baseTableName="individual" baseColumnNames="user_id"
-                                 constraintName="fk_individual_user_id" referencedTableName="um_user"
-                                 referencedColumnNames="id"/>
         <addForeignKeyConstraint baseTableName="individual" baseColumnNames="organisation_id"
                                  constraintName="fk_individual_organisation_id" referencedTableName="organisation"
-                                 referencedColumnNames="id"/>
-    </changeSet>
-
-    <changeSet author="mattae" id="20210120232001-16">
-        <createTable tableName="refresh_token">
-            <column name="id" type="serial" autoIncrement="true">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="user_id" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="token" type="varchar(4096)">
-                <constraints nullable="false" unique="true"/>
-            </column>
-            <column name="expiry_date" type="datetime">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-
-        <addForeignKeyConstraint baseTableName="refresh_token" baseColumnNames="user_id"
-                                 constraintName="fk_refresh_token_user_id" referencedTableName="um_user"
                                  referencedColumnNames="id"/>
     </changeSet>
 

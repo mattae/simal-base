@@ -34,9 +34,6 @@ public class Notification implements Serializable, Persistable<Long> {
 
     private String color;
 
-    @ManyToOne
-    private User user;
-
     @Override
     public boolean isNew() {
         return false;

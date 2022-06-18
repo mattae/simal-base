@@ -7,25 +7,13 @@ import com.foreach.across.modules.filemanager.business.reference.FileReference;
 import com.foreach.across.modules.filemanager.business.reference.FileReferenceRepository;
 import com.foreach.across.modules.filemanager.business.reference.properties.FileReferencePropertiesService;
 import com.foreach.across.modules.filemanager.services.FileManager;
-import com.foreach.across.modules.user.business.Permission;
-import com.foreach.across.modules.user.business.PermissionGroup;
-import com.foreach.across.modules.user.business.Role;
-import com.foreach.across.modules.user.repositories.PermissionRepository;
-import com.foreach.across.modules.user.repositories.RoleRepository;
-import com.foreach.across.modules.user.repositories.UserRepository;
-import com.foreach.across.modules.user.services.PermissionService;
-import com.foreach.across.modules.user.services.RoleService;
-import com.mattae.simal.modules.base.business.PermissionProperties;
-import com.mattae.simal.modules.base.business.PermissionPropertiesService;
-import com.mattae.simal.modules.base.business.RoleProperties;
-import com.mattae.simal.modules.base.business.RolePropertiesService;
 import com.mattae.simal.modules.base.domain.entities.Module;
 import com.mattae.simal.modules.base.domain.entities.*;
 import com.mattae.simal.modules.base.domain.repositories.*;
+import com.mattae.simal.modules.base.services.ExtensionService;
 import com.mattae.simal.modules.base.yml.ModuleConfig;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -36,7 +24,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -45,29 +32,23 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ModuleConfigProcessor {
-    private final PermissionService permissionService;
-    private final PermissionPropertiesService permissionPropertiesService;
-    private final RolePropertiesService rolePropertiesService;
     private final MenuRepository menuRepository;
     private final WebRemoteRepository webRemoteRepository;
     private final ExposedComponentRepository exposedComponentRepository;
-    private final PermissionRepository permissionRepository;
-    private final UserRepository userRepository;
-    private final RoleService roleService;
-    private final RoleRepository roleRepository;
     private final TranslationsRepository translationsRepository;
     private final ConfigurationRepository configurationRepository;
     private final ValueSetRepository valueSetRepository;
     private final FileReferenceRepository fileReferenceRepository;
     private final FileManager fileManager;
     private final FileReferencePropertiesService fileReferencePropertiesService;
+    private final ExtensionService extensionService;
 
     @Transactional
     public void processConfig(Module module) throws IOException {
         ModuleConfig moduleConfig = getConfigFromUrl(urlForModule(module));
         Assert.notNull(moduleConfig, "Module Config cannot be null");
 
-        saveRolesAndPermissions(module, moduleConfig);
+        extensionService.getExtensionPoint(RolePermissionProcessor.class).saveRolesAndPermissions(module, moduleConfig);
         saveMenus(module, moduleConfig);
         saveWebRemotes(module, moduleConfig);
         saveTranslations(module, moduleConfig);
@@ -77,42 +58,13 @@ public class ModuleConfigProcessor {
 
     @Transactional
     public void deleteRelatedResources(Module module) {
-        deleteRolesAndPermissions(module);
+        extensionService.getExtensionPoint(RolePermissionProcessor.class).deleteRolesAndPermissions(module);
         translationsRepository.deleteByModule(module);
         configurationRepository.deleteByModule(module);
         valueSetRepository.deleteByModule(module);
         menuRepository.deleteByModule(module);
         exposedComponentRepository.deleteByWebRemoteModule(module);
         webRemoteRepository.deleteByModule(module);
-    }
-
-    private void deleteRolesAndPermissions(Module module) {
-        List<PermissionGroup> permissionGroups = new ArrayList<>();
-        permissionPropertiesService.getEntityIdsForPropertyValue("moduleId", module.getId())
-            .forEach(id -> permissionRepository.findById(id).ifPresent(permission -> {
-                permissionPropertiesService.deleteProperties(id);
-                PermissionGroup group = permission.getGroup();
-                permissionGroups.add(group);
-                roleService.getRoles().forEach(role -> {
-                    role.getPermissions().remove(permission);
-                });
-                try {
-                    permissionService.deletePermission(permission);
-                } catch (Exception ignored) {
-                }
-            }));
-        permissionGroups.forEach(permissionService::deleteGroup);
-        rolePropertiesService.getEntityIdsForPropertyValue("moduleId", module.getId())
-            .forEach(id -> {
-                rolePropertiesService.deleteProperties(id);
-                roleRepository.findById(id).ifPresent(role -> {
-                    userRepository.findAll()
-                        .forEach(user -> {
-                            user.getRoles().remove(role);
-                        });
-                });
-                roleRepository.deleteById(id);
-            });
     }
 
     private void saveConfigurations(Module module, ModuleConfig config) {
@@ -193,40 +145,6 @@ public class ModuleConfigProcessor {
         }
     }
 
-    private void saveRolesAndPermissions(Module module, ModuleConfig moduleConfig) {
-        List<RoleProperties> roleProperties = new ArrayList<>();
-        List<PermissionProperties> permissionProperties = new ArrayList<>();
-        moduleConfig.getPermissions()
-            .forEach(perm -> {
-                savePermission(permissionProperties, perm, module);
-            });
-        moduleConfig.getRoles()
-            .forEach(rl -> {
-                Role role = roleService.getRole(rl.getAuthority());
-                if (role == null) {
-                    List<String> permissions = rl.getPermissions().stream()
-                        .map(perm -> {
-                            savePermission(permissionProperties, perm, module);
-                            return perm.getName();
-                        }).collect(Collectors.toList());
-                    role = roleService.defineRole(rl.getAuthority(), rl.getName(), rl.getDescription(), permissions);
-                    RoleProperties properties = rolePropertiesService.getProperties(role.getId());
-                    properties.set("moduleId", module.getId());
-                    roleProperties.add(properties);
-                    roleRepository.flush();
-                } else {
-                    List<String> permissions = rl.getPermissions().stream()
-                        .map(perm -> {
-                            savePermission(permissionProperties, perm, module);
-                            return perm.getName();
-                        }).collect(Collectors.toList());
-                    roleService.defineRole(rl.getAuthority(), rl.getName(), rl.getDescription(), permissions);
-                }
-            });
-        permissionProperties.forEach(permissionPropertiesService::saveProperties);
-        roleProperties.forEach(rolePropertiesService::saveProperties);
-    }
-
     private void saveWebRemotes(Module module, ModuleConfig moduleConfig) {
         List<WebRemote> webRemotes = moduleConfig.getWebRemotes().stream()
             .map(webRemote -> {
@@ -282,20 +200,6 @@ public class ModuleConfigProcessor {
             })
             .collect(Collectors.toSet());
         menuRepository.saveAll(menus);
-    }
-
-    private void savePermission(List<PermissionProperties> permissionProperties, com.mattae.simal.modules.base.yml.Permission perm,
-                                Module module) {
-        String name = StringUtils.stripStart(module.getName(), "#");
-        Permission permission = permissionService.definePermission(perm.getName(), perm.getDescription(), name);
-        PermissionGroup permissionGroup = permissionService.getPermissionGroup(name);
-        permissionGroup.setTitle(String.format("Module: %s", name));
-        permissionGroup.setDescription(String.format("Custom permissions defined by the %s module.", name));
-        permissionService.saveGroup(permissionGroup);
-
-        PermissionProperties properties = permissionPropertiesService.getProperties(permission.getId());
-        properties.set("moduleId", module.getId());
-        permissionProperties.add(properties);
     }
 
     private URL urlForModule(Module module) throws IOException {

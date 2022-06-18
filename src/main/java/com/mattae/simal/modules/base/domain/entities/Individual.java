@@ -34,9 +34,6 @@ public class Individual {
     @ManyToOne(optional = false, cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private Party party;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Organisation organisation;
@@ -72,11 +69,6 @@ public class Individual {
     @PreUpdate
     public void update() {
         lastModifiedDate = LocalDateTime.now();
-    }
-
-    @javax.persistence.PreRemove
-    public void remove() {
-        user = null;
     }
 
 
@@ -131,10 +123,6 @@ public class Individual {
 
         void setParty(PartyView party);
 
-        UserId getUser();
-
-        void setUser(UserId user);
-
         Organisation.IdView getOrganisation();
 
         void setOrganisation(Organisation.IdView organisation);
@@ -172,23 +160,5 @@ public class Individual {
     @EntityView(Individual.class)
     public interface UpdateView extends CreateView {
         void setId(UUID id);
-    }
-
-    @EntityView(Individual.class)
-    public interface OrgView {
-        @Mapping("organisation.id")
-        UUID getId();
-
-        @Mapping("user.email")
-        String getEmail();
-
-        @Mapping("user.email")
-        String getUsername();
-    }
-
-    @EntityView(User.class)
-    public interface UserId {
-        @IdMapping
-        Long getId();
     }
 }

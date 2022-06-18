@@ -12,8 +12,6 @@ import com.foreach.across.modules.user.services.RoleService;
 import com.foreach.across.test.AcrossTestConfiguration;
 import com.foreach.across.test.AcrossWebAppConfiguration;
 import com.mattae.simal.modules.base.BaseModule;
-import com.mattae.simal.modules.base.business.PermissionPropertiesService;
-import com.mattae.simal.modules.base.business.RolePropertiesService;
 import com.mattae.simal.modules.base.domain.entities.Module;
 import com.mattae.simal.modules.base.domain.repositories.*;
 import com.mattae.simal.modules.base.module.ModuleConfigProcessor;
@@ -77,10 +75,6 @@ public class TestModuleConfigProcessor {
     @Autowired
     PermissionService permissionService;
     @Autowired
-    PermissionPropertiesService permissionPropertiesService;
-    @Autowired
-    RolePropertiesService rolePropertiesService;
-    @Autowired
     private ModuleConfigProcessor configProcessor;
     @Autowired
     ModuleService moduleService;
@@ -134,10 +128,6 @@ public class TestModuleConfigProcessor {
             () -> assertNotEquals(0, valueSetRepository.count()),
             () -> assertNotEquals(0, moduleRepository.count()),
             () -> assertNotEquals(0, roleRepository.count()),
-            () -> assertNotEquals(0, permissionPropertiesService.getEntityIdsForPropertyValue("moduleId",
-                module.getId()).size()),
-            () -> assertNotEquals(0, rolePropertiesService.getEntityIdsForPropertyValue("moduleId",
-                module.getId()).size()),
             () -> assertNotEquals(0, roleRepository.count()),
             () -> assertNotEquals(0, permissionRepository.count()),
             () -> assertNotEquals(0, exposedComponentRepository.count()),
@@ -159,10 +149,6 @@ public class TestModuleConfigProcessor {
             () -> assertEquals(0, configurationRepository.count()),
             () -> assertEquals(0, valueSetRepository.count()),
             () -> assertEquals(0, roleRepository.count()),
-            () -> assertEquals(0, permissionPropertiesService.getEntityIdsForPropertyValue("moduleId",
-                module.getId()).size()),
-            () -> assertEquals(0, rolePropertiesService.getEntityIdsForPropertyValue("moduleId",
-                module.getId()).size()),
             () -> assertEquals(0, roleRepository.count()),
             () -> assertEquals(0, permissionRepository.count()),
             () -> assertEquals(0, exposedComponentRepository.count()),
