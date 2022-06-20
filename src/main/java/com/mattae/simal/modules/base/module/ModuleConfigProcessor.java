@@ -13,13 +13,17 @@ import com.mattae.simal.modules.base.domain.repositories.*;
 import com.mattae.simal.modules.base.services.ExtensionService;
 import com.mattae.simal.modules.base.yml.ModuleConfig;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.FileCopyUtils;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
@@ -31,6 +35,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ModuleConfigProcessor {
     private final MenuRepository menuRepository;
     private final WebRemoteRepository webRemoteRepository;
@@ -48,6 +53,7 @@ public class ModuleConfigProcessor {
         ModuleConfig moduleConfig = getConfigFromUrl(urlForModule(module));
         Assert.notNull(moduleConfig, "Module Config cannot be null");
         var processor = extensionService.getExtensionPoint(RolesAndPermissionsProcessor.class);
+        LOG.info("Processor: {}", processor);
         if (processor != null) {
             processor.saveRolesAndPermissions(module, moduleConfig);
         }
@@ -56,6 +62,7 @@ public class ModuleConfigProcessor {
         saveTranslations(module, moduleConfig);
         saveConfigurations(module, moduleConfig);
         saveValueSets(module, moduleConfig);
+        LOG.info("Config processed for {}", module.getName());
     }
 
     @Transactional
@@ -77,6 +84,9 @@ public class ModuleConfigProcessor {
             try {
                 URLClassLoader classLoader = new URLClassLoader(new URL[]{urlForModule(module)});
                 URL url = classLoader.getResource(config.getConfigurationsPath());
+                if (url == null) {
+                    url = getClass().getClassLoader().getResource(config.getConfigurationsPath());
+                }
                 if (url != null) {
                     List<Configuration> configurations = new ObjectMapper().readValue(url, new TypeReference<>() {
                     });
@@ -97,11 +107,13 @@ public class ModuleConfigProcessor {
     }
 
     private void saveValueSets(Module module, ModuleConfig config) {
-
         if (config.getValueSetsPath() != null) {
             try {
                 URLClassLoader classLoader = new URLClassLoader(new URL[]{urlForModule(module)});
                 URL url = classLoader.getResource(config.getValueSetsPath());
+                if (url == null) {
+                    url = getClass().getClassLoader().getResource(config.getValueSetsPath());
+                }
                 if (url != null) {
                     List<ValueSet> valueSets = new ObjectMapper().readValue(url, new TypeReference<>() {
                     });
@@ -133,6 +145,9 @@ public class ModuleConfigProcessor {
                 try {
                     URLClassLoader classLoader = new URLClassLoader(new URL[]{urlForModule(module)});
                     URL url = classLoader.getResource(path);
+                    if (url == null) {
+                        url = getClass().getClassLoader().getResource(path);
+                    }
                     if (url != null) {
                         try {
                             String data = new String(FileCopyUtils.copyToByteArray(url.openConnection().getInputStream()));
@@ -213,6 +228,8 @@ public class ModuleConfigProcessor {
         byte[] data = module.getData();
         if (data != null) {
             inputStream = new ByteArrayInputStream(data);
+        } else if (module.getVirtualPath() != null) {
+            return new URL(module.getVirtualPath());
         } else {
             Collection<Long> ids = fileReferencePropertiesService.getEntityIdsForPropertyValue("name", module.getName());
             if (!ids.isEmpty()) {
@@ -228,7 +245,8 @@ public class ModuleConfigProcessor {
 
     private ModuleConfig getConfigFromUrl(URL url) {
         try {
-            return ModuleUtils.loadModuleConfig(new FileInputStream(url.getFile()), "module.yml");
+            var ins = url.openStream();
+            return ModuleUtils.loadModuleConfig(ins, "module.yml");
         } catch (Exception e) {
             return null;
         }

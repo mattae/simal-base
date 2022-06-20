@@ -110,6 +110,7 @@
             <column name="uninstall" type="boolean" defaultValue="false">
                 <constraints nullable="false"/>
             </column>
+            <column name="virtual_path" type="varchar(512)"/>
             <column name="data" type="java.sql.Types.BINARY"/>
         </createTable>
     </changeSet>

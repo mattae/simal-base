@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.yaml.snakeyaml.Yaml;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
@@ -34,13 +35,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -70,6 +69,11 @@ public class DynamicModuleImportConfigurer implements AcrossContextConfigurer {
 
     @Override
     public void configure(AcrossContext context) {
+        try {
+            processEmbeddedModules(context);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         classNames.forEach(className -> {
             ClassLoader classLoader = BootstrapClassLoaderHolder.CLASS_LOADER;
             if (classLoader != null) {
@@ -78,7 +82,7 @@ public class DynamicModuleImportConfigurer implements AcrossContextConfigurer {
                     Constructor<?> ctor = cls.getConstructor();
                     context.addModule((AcrossModule) ctor.newInstance());
                 } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException |
-                    IllegalAccessException | InvocationTargetException ignored) {
+                         IllegalAccessException | InvocationTargetException ignored) {
                 }
             }
         });
@@ -87,7 +91,7 @@ public class DynamicModuleImportConfigurer implements AcrossContextConfigurer {
     private List<Module> getActiveModules() {
         return jdbcTemplate.query("select m.id, m.name, version, case when file_descriptor is null then m.name else " +
                 "file_descriptor end  file from module m left join fmm_file_reference f on f.id = file_id where " +
-                "active = true and uninstall = false",
+                "active = true and uninstall = false and virtual_path is null",
             new BeanPropertyRowMapper<>(Module.class));
     }
 
@@ -192,8 +196,7 @@ public class DynamicModuleImportConfigurer implements AcrossContextConfigurer {
                         .flatMap(d -> jdbcTemplate.queryForList(
                                 "select id, version installed, ? required, active, name from module where name = ?",
                                 d.getVersion(), d.getName())
-                            .stream())
-                        .collect(Collectors.toList());
+                            .stream()).toList();
                     boolean valid = dependencies.stream()
                         .allMatch(dependency -> {
                             Boolean active = (Boolean) dependency.get("active");
@@ -242,7 +245,7 @@ public class DynamicModuleImportConfigurer implements AcrossContextConfigurer {
     public void init() {
         jdbcTemplate = new JdbcTemplate(dataSource);
         try {
-            jdbcTemplate.update("update module set started = false");
+            jdbcTemplate.execute("update module set started = false");
             getResolvedModules().forEach(module -> {
                 String artifact = module.file;
                 final Path moduleRuntimePath = Paths.get(MODULE_PATH, "runtime",
@@ -269,5 +272,66 @@ public class DynamicModuleImportConfigurer implements AcrossContextConfigurer {
         String id;
         String name;
         String file;
+    }
+
+    private void processEmbeddedModules(AcrossContext context) throws IOException {
+        try {
+            execute("""
+                    delete from component_authorities where component_id in (select id from exposed_component where
+                     web_remote_id in (select id from web_remote where module_id in (select id from module where virtual_path is not null)))
+                """);
+            execute("""
+                    delete from exposed_component where web_remote_id in (select id from web_remote where module_id in
+                        (select id from module where virtual_path is not null))
+                """);
+            execute("""
+                    delete from web_module_authorities where module_id in (select id from exposed_module where web_remote_id
+                    in (select id from web_remote where module_id in (select id from module where virtual_path is not null)))
+                """);
+            execute("""
+                    delete from exposed_module where web_remote_id in (select id from web_remote where module_id in
+                        (select id from module where virtual_path is not null))
+                """);
+            execute("delete from web_remote where module_id in (select id from module where virtual_path is not null)");
+            execute("""
+                    delete from menu_authorities where menu_id in (select id from menu where module_id in
+                        (select id from module where virtual_path is not null))
+                """);
+            execute("delete from menu where module_id in (select id from module where virtual_path is not null)");
+            execute("delete from value_set where module_id in (select id from module where virtual_path is not null)");
+            execute("delete from translation where module_id in (select id from module where virtual_path is not null)");
+            execute("delete from configuration where module_id in (select id from module where virtual_path is not null)");
+            execute("delete from module where virtual_path is not null");
+        } catch (Exception ignored) {
+        }
+
+        context.getClass().getClassLoader().getResources("module.yml").asIterator().
+            forEachRemaining(url -> {
+                try {
+                    String content = IOUtils.toString(url, StandardCharsets.UTF_8);
+                    if (ConfigSchemaValidator.isValid(content, false)) {
+                        var in = IOUtils.toInputStream(content, StandardCharsets.UTF_8);
+                        Yaml yaml = new Yaml(new org.yaml.snakeyaml.constructor.Constructor(ModuleConfig.class));
+                        try {
+                            ModuleConfig config = yaml.load(in);
+                            String query = """
+                                insert into module(id, name, version, base_package, active, process_config, virtual_path)
+                                    values(?, ?, ?, ?, true, true, ?);
+                                """;
+                            jdbcTemplate.update(query, UUID.randomUUID(), config.getName(), config.getVersion(),
+                                config.getBasePackage(), url.toString().replace("!/module.yml", ""));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                } catch (Exception ignored) {
+
+                }
+            });
+    }
+
+    private void execute(String statement) {
+        jdbcTemplate.execute(statement);
     }
 }
