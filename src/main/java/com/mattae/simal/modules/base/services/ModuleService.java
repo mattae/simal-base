@@ -68,6 +68,7 @@ public class ModuleService {
 
     public List<ModuleVM> getModules() {
         return moduleRepository.findAll().stream()
+            .filter(module -> module.getVirtualPath() == null)
             .map(this::vmFromModule)
             .collect(Collectors.toList());
     }
