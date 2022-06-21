@@ -1,10 +1,10 @@
 package com.mattae.simal.modules.base.module;
 
 import com.foreach.across.core.AcrossContext;
+import com.foreach.across.core.events.AcrossContextBootstrappedEvent;
 import com.foreach.across.modules.filemanager.business.reference.FileReferenceService;
 import com.mattae.simal.modules.base.domain.repositories.ModuleRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -21,7 +21,7 @@ public class ApplicationInitializedProcessor {
     private final TransactionTemplate transactionTemplate;
 
     @EventListener
-    public void onApplicationEvent(ContextRefreshedEvent event) {
+    public void onApplicationEvent(AcrossContextBootstrappedEvent event) {
         processConfigurations();
         processUninstall();
         updateStartedModules();

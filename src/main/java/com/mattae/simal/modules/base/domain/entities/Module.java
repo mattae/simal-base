@@ -52,6 +52,8 @@ public class Module implements Serializable, Persistable<UUID> {
 
     private Boolean started = false;
 
+    private String virtualPath;
+
     @Basic(fetch = FetchType.LAZY)
     @JsonIgnore
     private byte[] data;

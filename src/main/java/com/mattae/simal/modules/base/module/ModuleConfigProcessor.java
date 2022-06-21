@@ -19,7 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.FileCopyUtils;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
@@ -77,6 +80,9 @@ public class ModuleConfigProcessor {
             try {
                 URLClassLoader classLoader = new URLClassLoader(new URL[]{urlForModule(module)});
                 URL url = classLoader.getResource(config.getConfigurationsPath());
+                if (url == null) {
+                    url = getClass().getClassLoader().getResource(config.getConfigurationsPath());
+                }
                 if (url != null) {
                     List<Configuration> configurations = new ObjectMapper().readValue(url, new TypeReference<>() {
                     });
@@ -97,11 +103,13 @@ public class ModuleConfigProcessor {
     }
 
     private void saveValueSets(Module module, ModuleConfig config) {
-
         if (config.getValueSetsPath() != null) {
             try {
                 URLClassLoader classLoader = new URLClassLoader(new URL[]{urlForModule(module)});
                 URL url = classLoader.getResource(config.getValueSetsPath());
+                if (url == null) {
+                    url = getClass().getClassLoader().getResource(config.getValueSetsPath());
+                }
                 if (url != null) {
                     List<ValueSet> valueSets = new ObjectMapper().readValue(url, new TypeReference<>() {
                     });
@@ -133,6 +141,9 @@ public class ModuleConfigProcessor {
                 try {
                     URLClassLoader classLoader = new URLClassLoader(new URL[]{urlForModule(module)});
                     URL url = classLoader.getResource(path);
+                    if (url == null) {
+                        url = getClass().getClassLoader().getResource(path);
+                    }
                     if (url != null) {
                         try {
                             String data = new String(FileCopyUtils.copyToByteArray(url.openConnection().getInputStream()));
@@ -213,6 +224,8 @@ public class ModuleConfigProcessor {
         byte[] data = module.getData();
         if (data != null) {
             inputStream = new ByteArrayInputStream(data);
+        } else if (module.getVirtualPath() != null) {
+            return new URL(module.getVirtualPath());
         } else {
             Collection<Long> ids = fileReferencePropertiesService.getEntityIdsForPropertyValue("name", module.getName());
             if (!ids.isEmpty()) {
@@ -228,7 +241,8 @@ public class ModuleConfigProcessor {
 
     private ModuleConfig getConfigFromUrl(URL url) {
         try {
-            return ModuleUtils.loadModuleConfig(new FileInputStream(url.getFile()), "module.yml");
+            var ins = url.openStream();
+            return ModuleUtils.loadModuleConfig(ins, "module.yml");
         } catch (Exception e) {
             return null;
         }
