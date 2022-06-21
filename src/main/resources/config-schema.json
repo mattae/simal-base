@@ -270,6 +270,40 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "subs": {
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/menu",
+                        "minItems": 1
+                    }
+                }
+            },
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "link"
+                    }
+                }
+            },
+            "then": {
+                "required": [
+                    "state"
+                ]
+            },
+            "else": {
+                "if": {
+                    "properties": {
+                        "type": {
+                            "const": "dropDown"
+                        }
+                    }
+                },
+                "then": {
+                    "required": [
+                        "subs"
+                    ],
+                    "minItems": 1
                 }
             }
         },

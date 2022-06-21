@@ -55,9 +55,6 @@ public final class Menu implements Serializable, Comparable<Menu>, Persistable<L
 
     private Boolean disabled = false;
 
-    @Transient
-    private Boolean ignoreParentState = false;
-
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
         name = "menu_authorities",

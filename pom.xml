@@ -506,7 +506,7 @@
         <dependency>
             <groupId>com.networknt</groupId>
             <artifactId>json-schema-validator</artifactId>
-            <version>1.0.67</version>
+            <version>1.0.71</version>
         </dependency>
         <dependency>
             <groupId>org.zalando</groupId>
