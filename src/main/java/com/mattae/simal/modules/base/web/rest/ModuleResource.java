@@ -1,11 +1,9 @@
 package com.mattae.simal.modules.base.web.rest;
 
-import com.mattae.simal.modules.base.domain.entities.Menu;
 import com.mattae.simal.modules.base.domain.entities.Module;
 import com.mattae.simal.modules.base.domain.entities.WebRemote;
 import com.mattae.simal.modules.base.domain.repositories.ModuleRepository;
 import com.mattae.simal.modules.base.domain.repositories.WebRemoteRepository;
-import com.mattae.simal.modules.base.services.MenuService;
 import com.mattae.simal.modules.base.services.ModuleService;
 import com.mattae.simal.modules.base.services.dto.ModuleDependencyDTO;
 import com.mattae.simal.modules.base.web.vm.ModuleVM;
@@ -29,7 +27,6 @@ public class ModuleResource {
     private final ModuleRepository moduleRepository;
     private final WebRemoteRepository webRemoteRepository;
     private final ModuleService moduleService;
-    private final MenuService menuService;
 
     @GetMapping("/modules/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -95,12 +92,6 @@ public class ModuleResource {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<ModuleDependencyDTO> getDependents(@PathVariable UUID id) {
         return moduleService.getDependents(id);
-    }
-
-    @GetMapping("/modules/menus")
-    @PreAuthorize("hasRole('ROLE_USER')")
-    public List<Menu> getMenus() {
-        return menuService.getMenu();
     }
 
     @GetMapping("/modules/web-remotes")
