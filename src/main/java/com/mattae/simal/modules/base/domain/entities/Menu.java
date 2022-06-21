@@ -2,12 +2,10 @@ package com.mattae.simal.modules.base.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 import com.mattae.simal.modules.base.domain.enumeration.MenuLevel;
 import com.mattae.simal.modules.base.domain.enumeration.MenuType;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.data.domain.Persistable;
 
 import javax.persistence.*;
@@ -16,24 +14,23 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
 
 @Data
 @Entity
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Table(name = "menu")
-@EqualsAndHashCode(of = {"name", "level", "state"})
-@ToString(of = {"id", "name", "state", "type", "subs", "level", "module", "position"}, callSuper = true)
-@Slf4j
-public final class Menu implements Serializable, Comparable<Menu>, Persistable<Long> {
+@EqualsAndHashCode(of = {"name", "level", "route"})
+public final class Menu implements Serializable, Comparable<Menu>, Persistable<UUID> {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     @JsonIgnore
-    private Long id;
+    private UUID id;
 
     @NotNull
     private String name;
 
-    private String state;
+    private String route;
 
     @NotNull
     @Enumerated(EnumType.STRING)

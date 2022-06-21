@@ -7,7 +7,6 @@ import com.mattae.simal.modules.base.domain.enumeration.MenuType;
 import com.mattae.simal.modules.base.domain.repositories.MenuRepository;
 import com.mattae.simal.modules.base.domain.repositories.ModuleRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +27,7 @@ public class MenuService {
         List<Menu> menuItems = new ArrayList<>();
         Menu menu = new Menu();
         menu.setName(ADMIN_MENU);
-        menu.setState("dashboard");
+        menu.setRoute("dashboard");
         menu.setType(MenuType.icon);
         menu.setTooltip("CORE.MENU.DASHBOARD");
         menu.setIcon("dashboard");
@@ -43,7 +42,7 @@ public class MenuService {
 
         menu = new Menu();
         menu.setName("CORE.MENU.DASHBOARD");
-        menu.setState("dashboard");
+        menu.setRoute("dashboard");
         menu.setType(MenuType.link);
         menu.setIcon("dashboard");
         menu.setPosition(Integer.MIN_VALUE + 2);
@@ -51,7 +50,6 @@ public class MenuService {
 
         Menu admin = new Menu();
         admin.setName("CORE.MENU.ADMINISTRATION");
-        admin.setState("admin");
         admin.setType(MenuType.dropDown);
         admin.setIcon("settings");
         admin.getAuthorities().add("ROLE_ADMIN");
@@ -60,7 +58,7 @@ public class MenuService {
         Menu mm = new Menu();
         mm.setName("CORE.MENU.MODULES");
         mm.setPosition(10);
-        mm.setState("modules");
+        mm.setRoute("admin/modules");
         admin.getSubs().add(mm);
 
         Set<Module> modules = new HashSet<>(moduleRepository.findByActiveIsTrueAndStartedIsTrue());

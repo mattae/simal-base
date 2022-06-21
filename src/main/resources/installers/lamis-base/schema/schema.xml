@@ -117,13 +117,13 @@
 
     <changeSet author="mattae" id="20210120232001-04">
         <createTable tableName="menu">
-            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+            <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="varchar(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="state" type="varchar(256)"/>
+            <column name="route" type="varchar(256)"/>
             <column name="type" type="varchar(256)">
                 <constraints nullable="false"/>
             </column>
@@ -144,11 +144,11 @@
             <column name="module_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
-            <column name="parent_id" type="bigint"/>
+            <column name="parent_id" type="UUID"/>
         </createTable>
 
         <createTable tableName="menu_authorities">
-            <column name="menu_id" type="bigint">
+            <column name="menu_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
             <column name="authorities" type="varchar(128)">
