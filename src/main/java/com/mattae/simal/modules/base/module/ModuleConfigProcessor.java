@@ -13,7 +13,6 @@ import com.mattae.simal.modules.base.domain.repositories.*;
 import com.mattae.simal.modules.base.services.ExtensionService;
 import com.mattae.simal.modules.base.yml.ModuleConfig;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +34,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ModuleConfigProcessor {
     private final MenuRepository menuRepository;
     private final WebRemoteRepository webRemoteRepository;
@@ -53,7 +51,6 @@ public class ModuleConfigProcessor {
         ModuleConfig moduleConfig = getConfigFromUrl(urlForModule(module));
         Assert.notNull(moduleConfig, "Module Config cannot be null");
         var processor = extensionService.getExtensionPoint(RolesAndPermissionsProcessor.class);
-        LOG.info("Processor: {}", processor);
         if (processor != null) {
             processor.saveRolesAndPermissions(module, moduleConfig);
         }
@@ -62,7 +59,6 @@ public class ModuleConfigProcessor {
         saveTranslations(module, moduleConfig);
         saveConfigurations(module, moduleConfig);
         saveValueSets(module, moduleConfig);
-        LOG.info("Config processed for {}", module.getName());
     }
 
     @Transactional
